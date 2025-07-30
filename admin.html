@@ -507,6 +507,7 @@
             </div>
             <ul class="sidebar-menu">
                 <li><a href="#dashboard" class="nav-link active"><i class='bx bxs-dashboard'></i><span>Tổng quan</span></a></li>
+                <li><a href="#applications" class="nav-link"><i class='bx bx-user-plus'></i><span>Duyệt đơn</span></a></li>
                 <li><a href="#members" class="nav-link"><i class='bx bxs-group'></i><span>Thành viên</span></a></li>
                 <li><a href="#schedule" class="nav-link"><i class='bx bxs-calendar'></i><span>Lịch Sinh Hoạt</span></a></li>
                 <li><a href="#announcements" class="nav-link"><i class='bx bxs-bell-ring'></i><span>Thông Báo</span></a></li>
@@ -530,7 +531,7 @@
                 </div>
             </header>
 
-            <!-- Dashboard Page -->
+            <!-- Page Content Wrappers -->
             <section id="dashboard" class="page-content active">
                 <div class="stats-grid">
                     <div class="stat-card card">
@@ -558,7 +559,16 @@
                 </div>
             </section>
             
-            <!-- Member Management Page -->
+            <section id="applications" class="page-content card">
+                <div class="page-header"><h2>Duyệt đơn Đăng ký</h2></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Họ và tên</th><th>Email</th><th>Ban mong muốn</th><th>Ngày nộp</th><th>Hành động</th></tr></thead>
+                        <tbody id="applicationList"></tbody>
+                    </table>
+                </div>
+            </section>
+            
             <section id="members" class="page-content card">
                 <div class="page-header"><h2>Quản lý Thành viên</h2><button class="btn btn-success" id="addMemberBtn">Thêm Thành viên</button></div>
                 <div class="table-container">
@@ -631,14 +641,14 @@
     <div id="addMemberModal" class="modal">
         <div class="modal-content" style="max-width: 800px;">
             <span class="modal-close" data-modal="addMemberModal">&times;</span>
-            <h2>Thêm Thành viên Mới</h2>
+            <h2>Thêm Lời mời Thành viên Mới</h2>
             <form id="addMemberForm">
                 <div class="form-grid">
                     <div class="form-group"><label for="addDisplayName">Họ và tên</label><input type="text" id="addDisplayName" required></div>
                     <div class="form-group"><label for="addEmail">Email</label><input type="email" id="addEmail" required></div>
                     <div class="form-group"><label for="addRole">Vai trò</label><select id="addRole"><option value="member">Thành viên</option><option value="admin">Ban Chủ nhiệm</option></select></div>
                 </div>
-                <div style="text-align: right; margin-top: 10px;"><button type="submit" class="btn btn-primary">Thêm</button></div>
+                <div style="text-align: right; margin-top: 10px;"><button type="submit" class="btn btn-primary">Gửi Lời mời</button></div>
             </form>
         </div>
     </div>
@@ -678,7 +688,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, updateDoc, deleteDoc, query, orderBy, addDoc, serverTimestamp, where, Timestamp, limit, setDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, updateDoc, deleteDoc, query, orderBy, addDoc, serverTimestamp, where, setDoc, limit, Timestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
         // --- Firebase Config ---
         const firebaseConfig = {
@@ -698,6 +708,7 @@
 
         // --- DOM Elements ---
         const memberListBody = document.getElementById('memberList');
+        const applicationListBody = document.getElementById('applicationList');
         const scheduleListBody = document.getElementById('scheduleList');
         const eventListBody = document.getElementById('eventList');
         const announcementListBody = document.getElementById('announcementList');
@@ -739,6 +750,7 @@
             
             await updateDashboardStats();
             await loadAllMembers();
+            await loadApplications();
             await loadSchedule();
             await loadEvents();
             await loadAnnouncements();
@@ -755,33 +767,8 @@
                 document.getElementById('totalMembers').textContent = usersSnapshot.size;
                 document.getElementById('totalEvents').textContent = eventsSnapshot.size;
                 document.getElementById('totalAnnouncements').textContent = announcementsSnapshot.size;
-                
-                // Load recent announcements
-                const recentAnnouncementsList = document.getElementById('recentAnnouncementsList');
-                const annQuery = query(collection(db, "announcements"), orderBy("createdAt", "desc"), limit(5));
-                const recentAnnSnapshot = await getDocs(annQuery);
-                let recentAnnHtml = '';
-                recentAnnSnapshot.forEach(doc => {
-                    recentAnnHtml += `<li>${doc.data().title}</li>`;
-                });
-                recentAnnouncementsList.innerHTML = recentAnnHtml || '<li>Chưa có thông báo mới.</li>';
-                
-                // Load upcoming events
-                const upcomingEventsList = document.getElementById('upcomingEventsList');
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                const eventQuery = query(collection(db, "events"), where("eventDate", ">=", Timestamp.fromDate(today)), orderBy("eventDate", "asc"), limit(5));
-                const upcomingEventsSnapshot = await getDocs(eventQuery);
-                let upcomingEventsHtml = '';
-                upcomingEventsSnapshot.forEach(doc => {
-                    const event = doc.data();
-                    const eventDate = event.eventDate.toDate().toLocaleDateString('vi-VN');
-                    upcomingEventsHtml += `<li>${event.name} - ${eventDate}</li>`;
-                });
-                upcomingEventsList.innerHTML = upcomingEventsHtml || '<li>Không có sự kiện nào sắp tới.</li>';
-
             } catch(error) {
-                console.error("Error updating dashboard stats:", error);
+                console.error("Error updating dashboard:", error);
             }
         }
         
@@ -811,6 +798,42 @@
             } catch (error) {
                 console.error("Error loading members:", error);
                 memberListBody.innerHTML = '<tr><td colspan="5">Lỗi khi tải danh sách.</td></tr>';
+            }
+        }
+        
+        async function loadApplications() {
+            applicationListBody.innerHTML = '<tr><td colspan="5">Đang tải...</td></tr>';
+            try {
+                const q = query(collection(db, "applications"), where("status", "==", "pending"));
+                const querySnapshot = await getDocs(q);
+                
+                const applications = [];
+                querySnapshot.forEach(doc => {
+                    applications.push({ id: doc.id, ...doc.data() });
+                });
+
+                applications.sort((a, b) => (b.submittedAt?.toDate() || 0) - (a.submittedAt?.toDate() || 0));
+
+                let html = '';
+                applications.forEach(app => {
+                    const date = app.submittedAt.toDate().toLocaleDateString('vi-VN');
+                    html += `
+                        <tr data-id="${app.id}">
+                            <td>${app.displayName}</td>
+                            <td>${app.email}</td>
+                            <td>${app.desiredDepartment}</td>
+                            <td>${date}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-success approve-app-btn">Duyệt</button>
+                                <button class="btn btn-danger reject-app-btn">Từ chối</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                applicationListBody.innerHTML = html || '<tr><td colspan="5">Không có đơn đăng ký nào chờ duyệt.</td></tr>';
+            } catch(error) {
+                console.error("Error loading applications:", error);
+                applicationListBody.innerHTML = '<tr><td colspan="5">Lỗi khi tải đơn đăng ký.</td></tr>';
             }
         }
         
@@ -946,16 +969,14 @@
                     return;
                 }
 
-                // Use setDoc with a specific ID (email) for invitations
                 await setDoc(doc(db, "invitations", email), {
                     displayName: displayName,
                     role: role,
                     createdAt: serverTimestamp()
                 });
 
-                alert("Thêm thành viên thành công. Người dùng cần đăng nhập bằng Google với email này để kích hoạt tài khoản.");
+                alert("Thêm lời mời thành công. Người dùng cần đăng nhập bằng Google với email này để kích hoạt tài khoản.");
                 closeModal('addMemberModal');
-                // No need to reload members list here as the user is not in the 'users' collection yet
             } catch (error) {
                 console.error("Error adding member invitation:", error);
                 alert("Lỗi khi thêm thành viên.");
@@ -997,6 +1018,43 @@
                     loadAllMembers();
                     updateDashboardStats();
                 } catch (error) { console.error("Error deleting member:", error); alert("Lỗi khi xóa."); }
+            }
+        }
+        
+        async function handleApproveApplication(appId) {
+            if (confirm("Bạn có chắc chắn muốn duyệt thành viên này?")) {
+                try {
+                    const appRef = doc(db, "applications", appId);
+                    const appSnap = await getDoc(appRef);
+                    if (appSnap.exists()) {
+                        const appData = appSnap.data();
+                        
+                        await setDoc(doc(db, "invitations", appData.email), {
+                            role: 'member',
+                            ...appData
+                        });
+
+                        await deleteDoc(appRef);
+                        alert("Duyệt thành công! Thành viên cần đăng nhập bằng email đã đăng ký để hoàn tất.");
+                        loadApplications();
+                    }
+                } catch (error) {
+                    console.error("Error approving application: ", error);
+                    alert("Lỗi khi duyệt đơn.");
+                }
+            }
+        }
+
+        async function handleRejectApplication(appId) {
+            if (confirm("Bạn có chắc chắn muốn từ chối đơn này?")) {
+                try {
+                    await deleteDoc(doc(db, "applications", appId));
+                    alert("Đã từ chối đơn đăng ký.");
+                    loadApplications();
+                } catch (error) {
+                    console.error("Error rejecting application: ", error);
+                    alert("Lỗi khi từ chối đơn.");
+                }
             }
         }
 
@@ -1050,6 +1108,15 @@
                 const userId = target.closest('tr').dataset.id;
                 if (target.matches('.edit-member-btn')) openEditMemberModal(userId);
                 if (target.matches('.delete-member-btn')) handleDeleteMember(userId);
+            });
+            
+            applicationListBody.addEventListener('click', (event) => {
+                const target = event.target.closest('button');
+                if (!target) return;
+                
+                const appId = target.closest('tr').dataset.id;
+                if (target.matches('.approve-app-btn')) handleApproveApplication(appId);
+                if (target.matches('.reject-app-btn')) handleRejectApplication(appId);
             });
         }
     </script>
