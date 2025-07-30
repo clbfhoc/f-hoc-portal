@@ -6,8 +6,6 @@
     <title>Trang Quản Trị | F-Học Portal</title>
     <!-- Thư viện biểu tượng Boxicons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <!-- Thư viện biểu đồ Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* --- General Styling & CSS Variables --- */
         @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
@@ -767,8 +765,33 @@
                 document.getElementById('totalMembers').textContent = usersSnapshot.size;
                 document.getElementById('totalEvents').textContent = eventsSnapshot.size;
                 document.getElementById('totalAnnouncements').textContent = announcementsSnapshot.size;
+                
+                // Load recent announcements
+                const recentAnnouncementsList = document.getElementById('recentAnnouncementsList');
+                const annQuery = query(collection(db, "announcements"), orderBy("createdAt", "desc"), limit(5));
+                const recentAnnSnapshot = await getDocs(annQuery);
+                let recentAnnHtml = '';
+                recentAnnSnapshot.forEach(doc => {
+                    recentAnnHtml += `<li>${doc.data().title}</li>`;
+                });
+                recentAnnouncementsList.innerHTML = recentAnnHtml || '<li>Chưa có thông báo mới.</li>';
+                
+                // Load upcoming events
+                const upcomingEventsList = document.getElementById('upcomingEventsList');
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const eventQuery = query(collection(db, "events"), where("eventDate", ">=", Timestamp.fromDate(today)), orderBy("eventDate", "asc"), limit(5));
+                const upcomingEventsSnapshot = await getDocs(eventQuery);
+                let upcomingEventsHtml = '';
+                upcomingEventsSnapshot.forEach(doc => {
+                    const event = doc.data();
+                    const eventDate = event.eventDate.toDate().toLocaleDateString('vi-VN');
+                    upcomingEventsHtml += `<li>${event.name} - ${eventDate}</li>`;
+                });
+                upcomingEventsList.innerHTML = upcomingEventsHtml || '<li>Không có sự kiện nào sắp tới.</li>';
+
             } catch(error) {
-                console.error("Error updating dashboard:", error);
+                console.error("Error updating dashboard stats:", error);
             }
         }
         
