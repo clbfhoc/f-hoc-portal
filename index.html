@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | F-Học Portal</title>
+    <!-- Thư viện biểu tượng Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* --- General Styling & CSS Variables --- */
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap');
+
+        :root {
+            --fpt-orange: #FF6600;
+            --background-color: #E0E5EC;
+            --text-color: #555;
+            --card-background: #E0E5EC;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--text-color);
+            overflow: hidden; /* Ngăn scroll bar do bong bóng */
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* --- Bubbles Animation --- */
+        .bubbles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -150px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: rise 15s infinite ease-in;
+        }
+        
+        .bubble:nth-child(1) { width: 40px; height: 40px; left: 10%; animation-duration: 8s; }
+        .bubble:nth-child(2) { width: 20px; height: 20px; left: 20%; animation-duration: 5s; animation-delay: 1s; }
+        .bubble:nth-child(3) { width: 50px; height: 50px; left: 35%; animation-duration: 7s; animation-delay: 2s; }
+        .bubble:nth-child(4) { width: 80px; height: 80px; left: 50%; animation-duration: 11s; animation-delay: 0s; }
+        .bubble:nth-child(5) { width: 35px; height: 35px; left: 55%; animation-duration: 6s; animation-delay: 1s; }
+        .bubble:nth-child(6) { width: 45px; height: 45px; left: 65%; animation-duration: 8s; animation-delay: 3s; }
+        .bubble:nth-child(7) { width: 90px; height: 90px; left: 70%; animation-duration: 12s; animation-delay: 2s; }
+        .bubble:nth-child(8) { width: 25px; height: 25px; left: 80%; animation-duration: 6s; animation-delay: 2s; }
+        .bubble:nth-child(9) { width: 15px; height: 15px; left: 70%; animation-duration: 5s; animation-delay: 1s; }
+        .bubble:nth-child(10) { width: 60px; height: 60px; left: 25%; animation-duration: 10s; animation-delay: 4s; }
+
+
+        @keyframes rise {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; border-radius: 0; }
+            100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; border-radius: 50%; }
+        }
+
+        /* --- Login Container (Glassmorphism) --- */
+        .login-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            text-align: center;
+            width: 90%;
+            max-width: 420px;
+            z-index: 1;
+            transition: transform 0.5s ease;
+        }
+
+        .login-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .login-container h1 {
+            color: var(--white);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-container p {
+            font-size: 16px;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* --- Upgraded Google Sign-In Button --- */
+        .google-signin-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 50px;
+            background-color: #fff;
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .google-signin-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.2);
+        }
+
+        .google-signin-btn.loading {
+            pointer-events: none;
+        }
+        
+        .google-signin-btn .btn-text {
+             transition: opacity 0.3s ease;
+        }
+        
+        .google-signin-btn.loading .btn-text {
+            opacity: 0;
+        }
+
+        .google-signin-btn img {
+            width: 22px;
+            height: 22px;
+            margin-right: 12px;
+        }
+        
+        .loader {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--fpt-orange);
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: none;
+            animation: spin 1s linear infinite;
+        }
+        
+        .google-signin-btn.loading .loader {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        /* --- Footer --- */
+        footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="bubbles">
+        <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div>
+        <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div>
+        <div class="bubble"></div> <div class="bubble"></div> <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <div class="login-container" id="loginBox">
+        <img src="https://i.ibb.co/G3n129SV/376711044-972555127379465-1600218481060437658-n-removebg-preview.png" alt="F-Hoc Logo" class="login-logo">
+        <h1>F-Học Portal</h1>
+        <p>Here we F, you learn</p>
+        
+        <div id="signInButton" class="google-signin-btn">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+            <span class="btn-text">Đăng nhập bằng Google</span>
+            <div class="loader"></div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 F-Học Club. All rights reserved.
+    </footer>
+
+    <!-- Firebase SDK - Cấu hình và Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+        // Cấu hình Firebase của bạn
+        const firebaseConfig = {
+            apiKey: "AIzaSyCuCq6M3J-GXVNBlWDB6DASDdQUt9Pjedk",
+            authDomain: "f-hoc-portal-app.firebaseapp.com",
+            projectId: "f-hoc-portal-app",
+            storageBucket: "f-hoc-portal-app.appspot.com",
+            messagingSenderId: "922532756868",
+            appId: "1:922532756868:web:49780833880b310d1c71d1",
+            measurementId: "G-8HNYH3VXVH"
+        };
+
+        // Khởi tạo các dịch vụ Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Xử lý Đăng nhập ---
+        const signInButton = document.getElementById('signInButton');
+
+        signInButton.addEventListener('click', async () => {
+            signInButton.classList.add('loading');
+            const provider = new GoogleAuthProvider();
+
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                const email = user.email;
+                const userDocRef = doc(db, "users", user.uid);
+
+                // 1. Kiểm tra email hợp lệ
+                if (!email.endsWith('@fpt.edu.vn') && !email.endsWith('@gmail.com')) {
+                    alert('Lỗi: Email của bạn không được phép truy cập.');
+                    await signOut(auth);
+                    return;
+                }
+
+                // 2. Kiểm tra xem người dùng đã có trong hệ thống chưa
+                let docSnap = await getDoc(userDocRef);
+                let userRole = null;
+
+                if (docSnap.exists()) {
+                    // Người dùng đã tồn tại, lấy vai trò
+                    userRole = docSnap.data().role;
+                } else {
+                    // Người dùng chưa tồn tại, kiểm tra xem có lời mời không
+                    const invitationRef = doc(db, "invitations", email);
+                    const invitationSnap = await getDoc(invitationRef);
+
+                    if (invitationSnap.exists()) {
+                        // Có lời mời, tạo tài khoản với vai trò được mời
+                        const invitationData = invitationSnap.data();
+                        userRole = invitationData.role;
+                        await setDoc(userDocRef, {
+                            role: userRole,
+                            email: user.email,
+                            displayName: invitationData.displayName, // Lấy tên từ lời mời
+                            photoURL: user.photoURL,
+                            createdAt: serverTimestamp()
+                        });
+                        // Xóa lời mời sau khi đã sử dụng
+                        await deleteDoc(invitationRef);
+                    } else {
+                        // Không có lời mời, tạo tài khoản member mặc định
+                        userRole = 'member';
+                        await setDoc(userDocRef, {
+                            role: userRole,
+                            email: user.email,
+                            displayName: user.displayName,
+                            photoURL: user.photoURL,
+                            createdAt: serverTimestamp()
+                        });
+                    }
+                }
+                
+                // 3. Điều hướng dựa trên vai trò cuối cùng
+                switch (userRole) {
+                    case 'superadmin':
+                        window.location.href = './admin.html';
+                        break;
+                    case 'admin':
+                        window.location.href = './banchunhiem.html';
+                        break;
+                    case 'member':
+                        window.location.href = './member.html';
+                        break;
+                    default:
+                        alert('Tài khoản của bạn chưa được cấp quyền. Vui lòng liên hệ Admin.');
+                        await signOut(auth);
+                }
+
+            } catch (error) {
+                console.error('Lỗi đăng nhập:', error);
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    alert('Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.');
+                }
+            } finally {
+                signInButton.classList.remove('loading');
+            }
+        });
+        
+        // --- Hiệu ứng 3D cho box đăng nhập ---
+        const loginBox = document.getElementById('loginBox');
+        document.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            const { innerWidth, innerHeight } = window;
+            const rotX = (clientY / innerHeight - 0.5) * -20;
+            const rotY = (clientX / innerWidth - 0.5) * 20;
+            loginBox.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        });
+
+    </script>
+
+</body>
+</html>

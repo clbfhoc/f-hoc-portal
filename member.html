@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Thành Viên | F-Học Portal</title>
+    <!-- Thư viện biểu tượng Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* --- General Styling & CSS Variables --- */
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --fpt-orange: #FF6600;
+            --fpt-orange-light: #fff0e6;
+            --primary-color: #4a69bd;
+            --primary-color-light: #f0f3ff;
+            --secondary-color: #6c757d;
+            --text-color-dark: #343a40;
+            --text-color-light: #6c757d;
+            --background-color: #f8f9fa;
+            --sidebar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --white: #fff;
+            --red: #e74c3c;
+            --green: #2ecc71;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --border-radius: 12px;
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        body.loading {
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- Loader --- */
+        .loader-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: var(--background-color);
+            z-index: 9999;
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--fpt-orange);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        .loader::after {
+            content: '';  
+            box-sizing: border-box;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-bottom-color: var(--primary-color);
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            padding: 20px;
+            transition: width var(--transition-speed) ease;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar.close {
+            width: 88px;
+        }
+
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            height: 40px;
+        }
+
+        .sidebar .logo img {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+        }
+
+        .sidebar .logo span {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--fpt-orange);
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.close .logo span {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            color: var(--text-color-light);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: var(--primary-color-light);
+            color: var(--primary-color);
+        }
+
+        .sidebar-menu a i {
+            font-size: 22px;
+            margin-right: 14px;
+            min-width: 22px;
+        }
+
+        .sidebar.close .sidebar-menu a span {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .sidebar-logout {
+            margin-top: auto;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            position: relative;
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            padding: 20px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .sidebar.close ~ .main-content {
+            margin-left: 88px;
+            width: calc(100% - 88px);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .toggle-btn {
+            font-size: 26px;
+            cursor: pointer;
+            color: var(--text-color-dark);
+            transition: color var(--transition-speed) ease;
+        }
+        
+        .toggle-btn:hover {
+            color: var(--fpt-orange);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--text-color-dark);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .user-profile span {
+            font-weight: 500;
+        }
+
+        .page-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+            margin-top: 20px;
+        }
+        
+        .page-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .info-list {
+            list-style: none;
+        }
+
+        .info-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+        
+        thead th {
+            font-weight: 600;
+        }
+        
+        .attendance-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+            font-size: 12px;
+        }
+        .status-present { background-color: var(--green); }
+        .status-absent_leave { background-color: var(--fpt-orange); }
+        .status-absent_unexcused { background-color: var(--red); }
+
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+<body class="loading">
+
+    <div class="loader-container" id="loader">
+        <span class="loader"></span>
+    </div>
+
+    <div class="main-interface" style="display: none; width: 100%;">
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="https://i.ibb.co/G3n129SV/376711044-972555127379465-1600218481060437658-n-removebg-preview.png" alt="Logo">
+                <span>F-Học Portal</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#dashboard" class="nav-link active"><i class='bx bxs-home'></i><span>Trang chủ</span></a></li>
+                <li><a href="#schedule" class="nav-link"><i class='bx bxs-calendar'></i><span>Lịch sinh hoạt</span></a></li>
+                <li><a href="#attendance" class="nav-link"><i class='bx bxs-user-pin'></i><span>Chuyên cần</span></a></li>
+                <li><a href="#announcements" class="nav-link"><i class='bx bxs-bell-ring'></i><span>Thông Báo</span></a></li>
+                <li><a href="#events" class="nav-link"><i class='bx bxs-calendar-event'></i><span>Sự kiện</span></a></li>
+            </ul>
+            <div class="sidebar-logout">
+                <a href="#" id="logoutButton"><i class='bx bx-log-out'></i><span>Đăng xuất</span></a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <i class='bx bx-menu toggle-btn' id="sidebarToggle"></i>
+                    <h1 id="headerTitle">Trang chủ</h1>
+                </div>
+                <div class="user-profile">
+                    <img id="userAvatar" src="https://placehold.co/40x40/f0f3ff/4a69bd?text=A" alt="Avatar">
+                    <span id="userName">Thành viên</span>
+                </div>
+            </header>
+
+            <!-- Page Content Wrappers -->
+            <section id="dashboard" class="page-content active">
+                <div class="card" style="margin-bottom: 20px;">
+                    <h2 id="welcomeMessage">Chào mừng bạn!</h2>
+                    <p>Đây là trang thông tin cá nhân của bạn tại F-Học Portal.</p>
+                </div>
+            </section>
+            
+            <section id="schedule" class="page-content card">
+                <h2>Lịch Sinh Hoạt CLB</h2>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Ngày</th><th>Nội dung</th></tr></thead>
+                        <tbody id="scheduleList"></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section id="attendance" class="page-content card">
+                <h2>Lịch sử Chuyên cần</h2>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Ngày</th><th>Nội dung</th><th>Trạng thái</th></tr></thead>
+                        <tbody id="attendanceHistoryList"></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section id="announcements" class="page-content card">
+                <h2>Danh sách Thông báo</h2>
+                 <div class="table-container">
+                    <table>
+                        <thead><tr><th>Tiêu đề</th><th>Ngày đăng</th></tr></thead>
+                        <tbody id="announcementList"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="events" class="page-content card">
+                <h2>Danh sách Sự kiện</h2>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Tên sự kiện</th><th>Ngày diễn ra</th></tr></thead>
+                        <tbody id="eventList"></tbody>
+                    </table>
+                </div>
+            </section>
+            
+        </main>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, query, orderBy, where, Timestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+        // --- Firebase Config ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCuCq6M3J-GXVNBlWDB6DASDdQUt9Pjedk",
+            authDomain: "f-hoc-portal-app.firebaseapp.com",
+            projectId: "f-hoc-portal-app",
+            storageBucket: "f-hoc-portal-app.appspot.com",
+            messagingSenderId: "922532756868",
+            appId: "1:922532756868:web:49780833880b310d1c71d1",
+            measurementId: "G-8HNYH3VXVH"
+        };
+
+        // --- Initialize Services ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- DOM Elements ---
+        const scheduleListBody = document.getElementById('scheduleList');
+        const attendanceHistoryListBody = document.getElementById('attendanceHistoryList');
+        const eventListBody = document.getElementById('eventList');
+        const announcementListBody = document.getElementById('announcementList');
+
+        // --- Auth State Management ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userDocRef);
+                
+                let userRole = null;
+                if (docSnap.exists()) {
+                    userRole = docSnap.data().role;
+                }
+
+                if (userRole === 'member') {
+                    initializePage(user);
+                } else {
+                    alert("Bạn không phải là thành viên.");
+                    if(userRole === 'admin' || userRole === 'superadmin') window.location.href = './banchunhiem.html';
+                    else window.location.href = './index.html';
+                }
+            } else {
+                window.location.href = './index.html';
+            }
+        });
+        
+        // --- Main Function to Setup Page ---
+        async function initializePage(user) {
+            document.getElementById('loader').style.display = 'none';
+            document.body.classList.remove('loading');
+            document.querySelector('.main-interface').style.display = 'flex';
+            
+            document.getElementById('userName').textContent = user.displayName || 'Thành viên';
+            document.getElementById('welcomeMessage').textContent = `Chào mừng bạn, ${user.displayName || 'Thành viên'}!`;
+            if(user.photoURL) {
+                document.getElementById('userAvatar').src = user.photoURL;
+            }
+            
+            await loadSchedule();
+            await loadAttendanceHistory(user.uid);
+            await loadAllEvents();
+            await loadAllAnnouncements();
+            setupEventListeners();
+        }
+        
+        async function loadSchedule() {
+            scheduleListBody.innerHTML = '<tr><td colspan="2">Đang tải...</td></tr>';
+            try {
+                const q = query(collection(db, "attendance"), orderBy("date", "desc"));
+                const querySnapshot = await getDocs(q);
+                let html = '';
+                querySnapshot.forEach(doc => {
+                    const session = doc.data();
+                    const date = session.date.toDate().toLocaleDateString('vi-VN');
+                    html += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${session.description}</td>
+                        </tr>
+                    `;
+                });
+                scheduleListBody.innerHTML = html || '<tr><td colspan="2">Chưa có lịch sinh hoạt.</td></tr>';
+            } catch(error) {
+                console.error("Error loading schedule:", error);
+                scheduleListBody.innerHTML = '<tr><td colspan="2">Lỗi khi tải dữ liệu.</td></tr>';
+            }
+        }
+        
+        async function loadAttendanceHistory(userId) {
+            attendanceHistoryListBody.innerHTML = '<tr><td colspan="3">Đang tải...</td></tr>';
+            try {
+                const q = query(collection(db, "attendance"), orderBy("date", "desc"));
+                const querySnapshot = await getDocs(q);
+                let html = '';
+                const statusMap = {
+                    present: { text: 'Có mặt', class: 'status-present' },
+                    absent_leave: { text: 'Vắng (Có phép)', class: 'status-absent_leave' },
+                    absent_unexcused: { text: 'Vắng (Không phép)', class: 'status-absent_unexcused' }
+                };
+
+                querySnapshot.forEach(doc => {
+                    const session = doc.data();
+                    if (session.records && session.records[userId]) {
+                        const status = session.records[userId];
+                        const statusInfo = statusMap[status] || { text: 'Chưa điểm danh', class: '' };
+                        const date = session.date.toDate().toLocaleDateString('vi-VN');
+                        html += `
+                            <tr>
+                                <td>${date}</td>
+                                <td>${session.description}</td>
+                                <td><span class="attendance-status ${statusInfo.class}">${statusInfo.text}</span></td>
+                            </tr>
+                        `;
+                    }
+                });
+                attendanceHistoryListBody.innerHTML = html || '<tr><td colspan="3">Chưa có dữ liệu chuyên cần.</td></tr>';
+            } catch(error) {
+                console.error("Error loading attendance history:", error);
+                attendanceHistoryListBody.innerHTML = '<tr><td colspan="3">Lỗi khi tải dữ liệu.</td></tr>';
+            }
+        }
+        
+        async function loadAllEvents() {
+            eventListBody.innerHTML = '<tr><td colspan="2">Đang tải...</td></tr>';
+            try {
+                const q = query(collection(db, "events"), orderBy("eventDate", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const upcomingEvents = [];
+                const pastEvents = [];
+
+                querySnapshot.forEach((doc) => {
+                    const event = doc.data();
+                    if (event.eventDate.toDate() >= today) {
+                        upcomingEvents.push(event);
+                    } else {
+                        pastEvents.push(event);
+                    }
+                });
+
+                upcomingEvents.reverse(); // Sort upcoming events from closest to furthest
+
+                let eventsHtml = '';
+                if (upcomingEvents.length > 0) {
+                    eventsHtml += '<tr><th colspan="2" style="background-color: #e8f5e9;">Sự kiện sắp tới</th></tr>';
+                    upcomingEvents.forEach(event => {
+                        const eventDate = event.eventDate?.toDate().toLocaleDateString('vi-VN');
+                        eventsHtml += `<tr><td>${event.name}</td><td>${eventDate}</td></tr>`;
+                    });
+                }
+                if (pastEvents.length > 0) {
+                    eventsHtml += '<tr><th colspan="2" style="background-color: #f1f3f5;">Sự kiện đã qua</th></tr>';
+                    pastEvents.forEach(event => {
+                        const eventDate = event.eventDate?.toDate().toLocaleDateString('vi-VN');
+                        eventsHtml += `<tr><td>${event.name}</td><td>${eventDate}</td></tr>`;
+                    });
+                }
+                
+                eventListBody.innerHTML = eventsHtml || '<tr><td colspan="2">Chưa có sự kiện nào.</td></tr>';
+            } catch (error) {
+                console.error("Error loading events:", error);
+                eventListBody.innerHTML = '<tr><td colspan="2">Lỗi khi tải sự kiện.</td></tr>';
+            }
+        }
+
+        async function loadAllAnnouncements() {
+            announcementListBody.innerHTML = '<tr><td colspan="2">Đang tải...</td></tr>';
+            try {
+                const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                let html = '';
+                querySnapshot.forEach((doc) => {
+                    const announcement = doc.data();
+                    const postDate = announcement.createdAt?.toDate().toLocaleDateString('vi-VN') || 'Không rõ';
+                    html += `
+                        <tr>
+                            <td>${announcement.title}</td>
+                            <td>${postDate}</td>
+                        </tr>
+                    `;
+                });
+                announcementListBody.innerHTML = html || '<tr><td colspan="2">Chưa có thông báo nào.</td></tr>';
+            } catch (error) {
+                console.error("Error loading announcements:", error);
+                announcementListBody.innerHTML = '<tr><td colspan="2">Lỗi khi tải thông báo.</td></tr>';
+            }
+        }
+
+        // --- UI Event Listeners ---
+        function setupEventListeners() {
+            // Sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', () => {
+                document.querySelector('.sidebar').classList.toggle('close');
+                document.getElementById('sidebarToggle').classList.toggle('bx-menu');
+                document.getElementById('sidebarToggle').classList.toggle('bx-menu-alt-right');
+            });
+
+            // Navigation links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active'));
+                    link.classList.add('active');
+                    const targetId = link.getAttribute('href').substring(1);
+                    document.querySelectorAll('.page-content').forEach(content => content.classList.remove('active'));
+                    document.getElementById(targetId).classList.add('active');
+                    document.getElementById('headerTitle').textContent = link.querySelector('span').textContent;
+                });
+            });
+            
+            // Logout
+            document.getElementById('logoutButton').addEventListener('click', (e) => {
+                e.preventDefault();
+                if(confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+                    signOut(auth).catch(error => console.error("Sign out error:", error));
+                }
+            });
+        }
+    </script>
+</body>
+</html>

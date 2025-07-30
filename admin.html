@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Quản Trị | F-Học Portal</title>
+    <!-- Thư viện biểu tượng Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Thư viện biểu đồ Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* --- General Styling & CSS Variables --- */
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --fpt-orange: #FF6600;
+            --fpt-orange-light: #fff0e6;
+            --primary-color: #4a69bd;
+            --primary-color-light: #f0f3ff;
+            --secondary-color: #6c757d;
+            --text-color-dark: #343a40;
+            --text-color-light: #6c757d;
+            --background-color: #f8f9fa;
+            --sidebar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --white: #fff;
+            --red: #e74c3c;
+            --green: #2ecc71;
+            --yellow: #f1c40f;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --border-radius: 12px;
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        body.loading {
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- Loader --- */
+        .loader-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: var(--background-color);
+            z-index: 9999;
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--fpt-orange);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        .loader::after {
+            content: '';  
+            box-sizing: border-box;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-bottom-color: var(--primary-color);
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            padding: 20px;
+            transition: width var(--transition-speed) ease;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar.close {
+            width: 88px;
+        }
+
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            height: 40px;
+        }
+
+        .sidebar .logo img {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+        }
+
+        .sidebar .logo span {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--fpt-orange);
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.close .logo span {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            color: var(--text-color-light);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: var(--primary-color-light);
+            color: var(--primary-color);
+        }
+
+        .sidebar-menu a i {
+            font-size: 22px;
+            margin-right: 14px;
+            min-width: 22px;
+        }
+
+        .sidebar.close .sidebar-menu a span {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .sidebar-logout {
+            margin-top: auto;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            position: relative;
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            padding: 20px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .sidebar.close ~ .main-content {
+            margin-left: 88px;
+            width: calc(100% - 88px);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .toggle-btn {
+            font-size: 26px;
+            cursor: pointer;
+            color: var(--text-color-dark);
+            transition: color var(--transition-speed) ease;
+        }
+        
+        .toggle-btn:hover {
+            color: var(--fpt-orange);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--text-color-dark);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .user-profile span {
+            font-weight: 500;
+        }
+
+        .page-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+            margin-top: 20px;
+        }
+        
+        .page-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Components: Cards, Tables, Modals --- */
+        .card {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+        
+        thead th {
+            font-weight: 600;
+            background-color: #f8f9fa;
+        }
+        
+        tbody tr:hover {
+            background-color: #f1f3f5;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .role-badge {
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--white);
+            text-transform: capitalize;
+        }
+        .role-superadmin { background-color: var(--red); }
+        .role-admin { background-color: var(--fpt-orange); }
+        .role-member { background-color: var(--primary-color); }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: #3b5998; }
+        .btn-danger { background-color: var(--red); color: white; }
+        .btn-danger:hover { background-color: #c0392b; }
+        .btn-success { background-color: var(--green); color: white; }
+        .btn-success:hover { background-color: #27ae60; }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .modal-content.wide {
+            max-width: 950px;
+        }
+
+        .modal-close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        /* Dashboard & Reports Styles */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .stat-icon {
+            font-size: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .stat-info h3 {
+            font-size: 28px;
+            margin: 0;
+            color: var(--text-color-dark);
+        }
+        
+        .stat-info p {
+            margin: 0;
+            color: var(--text-color-light);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-list {
+            list-style: none;
+        }
+
+        .info-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .report-chart-container {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-grid, .reports-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+    </style>
+</head>
+<body class="loading">
+
+    <div class="loader-container" id="loader">
+        <span class="loader"></span>
+    </div>
+
+    <div class="main-interface" style="display: none; width: 100%;">
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="https://i.ibb.co/G3n129SV/376711044-972555127379465-1600218481060437658-n-removebg-preview.png" alt="Logo">
+                <span>F-Học Portal</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#dashboard" class="nav-link active"><i class='bx bxs-dashboard'></i><span>Tổng quan</span></a></li>
+                <li><a href="#members" class="nav-link"><i class='bx bxs-group'></i><span>Thành viên</span></a></li>
+                <li><a href="#schedule" class="nav-link"><i class='bx bxs-calendar'></i><span>Lịch Sinh Hoạt</span></a></li>
+                <li><a href="#announcements" class="nav-link"><i class='bx bxs-bell-ring'></i><span>Thông Báo</span></a></li>
+                <li><a href="#events" class="nav-link"><i class='bx bxs-calendar-event'></i><span>Sự kiện</span></a></li>
+                <li><a href="#reports" class="nav-link"><i class='bx bxs-report'></i><span>Báo Cáo</span></a></li>
+            </ul>
+            <div class="sidebar-logout">
+                <a href="#" id="logoutButton"><i class='bx bx-log-out'></i><span>Đăng xuất</span></a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <i class='bx bx-menu toggle-btn' id="sidebarToggle"></i>
+                    <h1 id="headerTitle">Tổng quan</h1>
+                </div>
+                <div class="user-profile">
+                    <img id="userAvatar" src="https://placehold.co/40x40/f0f3ff/4a69bd?text=A" alt="Avatar">
+                    <span id="userName">Admin</span>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <section id="dashboard" class="page-content active">
+                <div class="stats-grid">
+                    <div class="stat-card card">
+                        <div class="stat-icon" style="background-color: var(--primary-color-light); color: var(--primary-color);"><i class='bx bxs-group'></i></div>
+                        <div class="stat-info"><h3 id="totalMembers">0</h3><p>Thành viên</p></div>
+                    </div>
+                    <div class="stat-card card">
+                        <div class="stat-icon" style="background-color: var(--fpt-orange-light); color: var(--fpt-orange);"><i class='bx bxs-calendar-event'></i></div>
+                        <div class="stat-info"><h3 id="totalEvents">0</h3><p>Sự kiện</p></div>
+                    </div>
+                     <div class="stat-card card">
+                        <div class="stat-icon" style="background-color: #e8f5e9; color: var(--green);"><i class='bx bxs-bell-ring'></i></div>
+                        <div class="stat-info"><h3 id="totalAnnouncements">0</h3><p>Thông báo</p></div>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3><i class='bx bxs-bell-ring' style="color: var(--green);"></i> Thông báo gần đây</h3>
+                        <ul class="info-list" id="recentAnnouncementsList"></ul>
+                    </div>
+                    <div class="card">
+                        <h3><i class='bx bxs-calendar-star' style="color: var(--fpt-orange);"></i> Sự kiện sắp tới</h3>
+                        <ul class="info-list" id="upcomingEventsList"></ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Member Management Page -->
+            <section id="members" class="page-content card">
+                <div class="page-header"><h2>Quản lý Thành viên</h2><button class="btn btn-success" id="addMemberBtn">Thêm Thành viên</button></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Thành viên</th><th>Email</th><th>Vai trò</th><th>Ban</th><th>Hành động</th></tr></thead>
+                        <tbody id="memberList"></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section id="schedule" class="page-content card">
+                <div class="page-header"><h2>Lịch Sinh Hoạt</h2></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Ngày</th><th>Nội dung</th><th>Tỷ lệ tham gia</th></tr></thead>
+                        <tbody id="scheduleList"></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section id="announcements" class="page-content card">
+                <div class="page-header"><h2>Quản lý Thông báo</h2><button class="btn btn-success" id="addAnnouncementBtn">Tạo Thông báo</button></div>
+                 <div class="table-container">
+                    <table>
+                        <thead><tr><th>Tiêu đề</th><th>Ngày đăng</th><th>Hành động</th></tr></thead>
+                        <tbody id="announcementList"></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section id="events" class="page-content card">
+                <div class="page-header"><h2>Quản lý Sự kiện</h2><button class="btn btn-success" id="addEventBtn">Tạo Sự kiện</button></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Tên sự kiện</th><th>Ngày diễn ra</th><th>Hành động</th></tr></thead>
+                        <tbody id="eventList"></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Reports Page -->
+            <section id="reports" class="page-content">
+                <div class="page-header">
+                    <h2>Báo cáo & Thống kê</h2>
+                    <button class="btn btn-success" id="exportMembersBtn"><i class='bx bxs-download'></i> Xuất Excel</button>
+                </div>
+                 <div class="stats-grid">
+                    <div class="stat-card card">
+                        <div class="stat-icon" style="background-color: var(--primary-color-light); color: var(--primary-color);"><i class='bx bxs-group'></i></div>
+                        <div class="stat-info"><h3 id="reportTotalMembers">0</h3><p>Tổng thành viên</p></div>
+                    </div>
+                     <div class="stat-card card">
+                        <div class="stat-icon" style="background-color: #e8f5e9; color: var(--green);"><i class='bx bxs-user-check'></i></div>
+                        <div class="stat-info"><h3 id="reportAttendanceRate">N/A</h3><p>Chuyên cần</p></div>
+                    </div>
+                     <div class="stat-card card">
+                        <div class="stat-icon" style="background-color: #fff3e0; color: #ff9800;"><i class='bx bxs-wallet'></i></div>
+                        <div class="stat-info"><h3 id="reportFundBalance">0</h3><p>Số dư Quỹ (VND)</p></div>
+                    </div>
+                     <div class="stat-card card">
+                        <div class="stat-icon" style="background-color: var(--fpt-orange-light); color: var(--fpt-orange);"><i class='bx bxs-calendar-event'></i></div>
+                        <div class="stat-info"><h3 id="reportTotalEvents">0</h3><p>Tổng sự kiện</p></div>
+                    </div>
+                 </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div id="addMemberModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="modal-close" data-modal="addMemberModal">&times;</span>
+            <h2>Thêm Thành viên Mới</h2>
+            <form id="addMemberForm">
+                <div class="form-grid">
+                    <div class="form-group"><label for="addDisplayName">Họ và tên</label><input type="text" id="addDisplayName" required></div>
+                    <div class="form-group"><label for="addEmail">Email</label><input type="email" id="addEmail" required></div>
+                    <div class="form-group"><label for="addRole">Vai trò</label><select id="addRole"><option value="member">Thành viên</option><option value="admin">Ban Chủ nhiệm</option></select></div>
+                </div>
+                <div style="text-align: right; margin-top: 10px;"><button type="submit" class="btn btn-primary">Thêm</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Member Modal -->
+    <div id="editMemberModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal="editMemberModal">&times;</span>
+            <h2>Chỉnh sửa Thành viên</h2>
+            <form id="editMemberForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-grid">
+                    <div class="form-group"><label>Họ và tên</label><input type="text" id="editDisplayName" disabled></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="editEmail" disabled></div>
+                    <div class="form-group"><label for="editRole">Vai trò</label><select id="editRole"><option value="member">Thành viên</option><option value="admin">Ban Chủ nhiệm</option><option value="superadmin">Super Admin</option></select></div>
+                    <div class="form-group"><label for="editClass">Lớp</label><input type="text" id="editClass" placeholder="VD: 10A1"></div>
+                    <div class="form-group"><label for="editStudentId">MSHS</label><input type="text" id="editStudentId" placeholder="Mã số học sinh"></div>
+                    <div class="form-group"><label for="editDepartment">Ban</label><select id="editDepartment"><option value="">Chưa phân ban</option><option value="NS-HC-TC">Ban NS-HC-TC</option><option value="Truyền thông">Ban Truyền thông</option><option value="Chuyên môn">Ban Chuyên môn</option></select></div>
+                    <div class="form-group"><label for="editPhone">Số điện thoại</label><input type="tel" id="editPhone" placeholder="Số điện thoại"></div>
+                    <div class="form-group"><label for="editDorm">Dorm</label><input type="text" id="editDorm" placeholder="VD: Dom A - 101"></div>
+                    <div class="form-group"><label for="editFacebookUrl">Link Facebook</label><input type="url" id="editFacebookUrl" placeholder="https://www.facebook.com/..."></div>
+                    <div class="form-group"><label for="editHomeroomTeacher">GVCN</label><input type="text" id="editHomeroomTeacher" placeholder="Tên giáo viên chủ nhiệm"></div>
+                    <div class="form-group"><label for="editManagingTeacher">GVQN</label><input type="text" id="editManagingTeacher" placeholder="Tên giáo viên quản nhiệm"></div>
+                    <div class="form-group full-width"><label for="editNotes">Ghi chú</label><textarea id="editNotes" placeholder="Thêm ghi chú về thành viên..."></textarea></div>
+                </div>
+                <div style="text-align: right; margin-top: 10px;"><button type="submit" class="btn btn-primary">Lưu thay đổi</button></div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Event Modal -->
+    <div id="eventModal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="modal-close" data-modal="eventModal">&times;</span><h2 id="eventModalTitle">Sự kiện</h2><form id="eventForm"><input type="hidden" id="eventId"><div class="form-group"><label for="eventName">Tên sự kiện</label><input type="text" id="eventName" required></div><div class="form-group"><label for="eventDate">Ngày diễn ra</label><input type="date" id="eventDate" required></div><div class="form-group"><label for="eventDescription">Mô tả</label><textarea id="eventDescription"></textarea></div><button type="submit" class="btn btn-primary">Lưu</button></form></div></div>
+    <!-- Add/Edit Announcement Modal -->
+    <div id="announcementModal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="modal-close" data-modal="announcementModal">&times;</span><h2 id="announcementModalTitle">Thông báo</h2><form id="announcementForm"><input type="hidden" id="announcementId"><div class="form-group"><label for="announcementTitle">Tiêu đề</label><input type="text" id="announcementTitle" required></div><div class="form-group"><label for="announcementContent">Nội dung</label><textarea id="announcementContent" required></textarea></div><button type="submit" class="btn btn-primary">Lưu</button></form></div></div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, updateDoc, deleteDoc, query, orderBy, addDoc, serverTimestamp, where, Timestamp, limit, setDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+        // --- Firebase Config ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCuCq6M3J-GXVNBlWDB6DASDdQUt9Pjedk",
+            authDomain: "f-hoc-portal-app.firebaseapp.com",
+            projectId: "f-hoc-portal-app",
+            storageBucket: "f-hoc-portal-app.appspot.com",
+            messagingSenderId: "922532756868",
+            appId: "1:922532756868:web:49780833880b310d1c71d1",
+            measurementId: "G-8HNYH3VXVH"
+        };
+
+        // --- Initialize Services ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- DOM Elements ---
+        const memberListBody = document.getElementById('memberList');
+        const scheduleListBody = document.getElementById('scheduleList');
+        const eventListBody = document.getElementById('eventList');
+        const announcementListBody = document.getElementById('announcementList');
+        let currentUserRole = null;
+
+        // --- Auth State Management ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userDocRef);
+                
+                if (docSnap.exists()) {
+                    currentUserRole = docSnap.data().role;
+                }
+
+                if (currentUserRole === 'superadmin') {
+                    initializePage(user);
+                } else {
+                    alert("Bạn không có quyền truy cập trang này.");
+                    if(currentUserRole === 'admin') window.location.href = './banchunhiem.html';
+                    else if(currentUserRole === 'member') window.location.href = './member.html';
+                    else window.location.href = './index.html';
+                }
+            } else {
+                window.location.href = './index.html';
+            }
+        });
+        
+        // --- Main Function to Setup Page ---
+        async function initializePage(user) {
+            document.getElementById('loader').style.display = 'none';
+            document.body.classList.remove('loading');
+            document.querySelector('.main-interface').style.display = 'flex';
+            
+            document.getElementById('userName').textContent = user.displayName || 'Admin';
+            if(user.photoURL) {
+                document.getElementById('userAvatar').src = user.photoURL;
+            }
+            
+            await updateDashboardStats();
+            await loadAllMembers();
+            await loadSchedule();
+            await loadEvents();
+            await loadAnnouncements();
+            setupEventListeners();
+        }
+
+        // --- Data Loading Functions ---
+        async function updateDashboardStats() {
+            try {
+                const usersSnapshot = await getDocs(collection(db, "users"));
+                const eventsSnapshot = await getDocs(collection(db, "events"));
+                const announcementsSnapshot = await getDocs(collection(db, "announcements"));
+
+                document.getElementById('totalMembers').textContent = usersSnapshot.size;
+                document.getElementById('totalEvents').textContent = eventsSnapshot.size;
+                document.getElementById('totalAnnouncements').textContent = announcementsSnapshot.size;
+                
+                // Load recent announcements
+                const recentAnnouncementsList = document.getElementById('recentAnnouncementsList');
+                const annQuery = query(collection(db, "announcements"), orderBy("createdAt", "desc"), limit(5));
+                const recentAnnSnapshot = await getDocs(annQuery);
+                let recentAnnHtml = '';
+                recentAnnSnapshot.forEach(doc => {
+                    recentAnnHtml += `<li>${doc.data().title}</li>`;
+                });
+                recentAnnouncementsList.innerHTML = recentAnnHtml || '<li>Chưa có thông báo mới.</li>';
+                
+                // Load upcoming events
+                const upcomingEventsList = document.getElementById('upcomingEventsList');
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const eventQuery = query(collection(db, "events"), where("eventDate", ">=", Timestamp.fromDate(today)), orderBy("eventDate", "asc"), limit(5));
+                const upcomingEventsSnapshot = await getDocs(eventQuery);
+                let upcomingEventsHtml = '';
+                upcomingEventsSnapshot.forEach(doc => {
+                    const event = doc.data();
+                    const eventDate = event.eventDate.toDate().toLocaleDateString('vi-VN');
+                    upcomingEventsHtml += `<li>${event.name} - ${eventDate}</li>`;
+                });
+                upcomingEventsList.innerHTML = upcomingEventsHtml || '<li>Không có sự kiện nào sắp tới.</li>';
+
+            } catch(error) {
+                console.error("Error updating dashboard stats:", error);
+            }
+        }
+        
+        async function loadAllMembers() {
+            memberListBody.innerHTML = '<tr><td colspan="5">Đang tải...</td></tr>';
+            try {
+                const q = query(collection(db, "users"), orderBy("displayName"));
+                const querySnapshot = await getDocs(q);
+                
+                let membersHtml = '';
+                querySnapshot.forEach((doc) => {
+                    const member = doc.data();
+                    membersHtml += `
+                        <tr data-id="${doc.id}">
+                            <td>${member.displayName || 'N/A'}</td>
+                            <td>${member.email}</td>
+                            <td><span class="role-badge role-${member.role}">${member.role}</span></td>
+                            <td>${member.department || 'Chưa phân ban'}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-primary edit-member-btn">Sửa</button>
+                                <button class="btn btn-danger delete-member-btn">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                memberListBody.innerHTML = membersHtml;
+            } catch (error) {
+                console.error("Error loading members:", error);
+                memberListBody.innerHTML = '<tr><td colspan="5">Lỗi khi tải danh sách.</td></tr>';
+            }
+        }
+        
+        async function loadSchedule() {
+            scheduleListBody.innerHTML = '<tr><td colspan="3">Đang tải...</td></tr>';
+            try {
+                const q = query(collection(db, "attendance"), orderBy("date", "desc"));
+                const querySnapshot = await getDocs(q);
+                let html = '';
+                querySnapshot.forEach(doc => {
+                    const session = doc.data();
+                    const date = session.date.toDate().toLocaleDateString('vi-VN');
+                    const total = session.records ? Object.keys(session.records).length : 0;
+                    const present = session.records ? Object.values(session.records).filter(s => s === 'present' || (typeof s === 'object' && s.status === 'present')).length : 0;
+                    const rate = total > 0 ? `${((present / total) * 100).toFixed(0)}%` : 'N/A';
+                    html += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${session.description}</td>
+                            <td>${rate} (${present}/${total})</td>
+                        </tr>
+                    `;
+                });
+                 scheduleListBody.innerHTML = html || '<tr><td colspan="3">Chưa có buổi sinh hoạt nào.</td></tr>';
+            } catch(error) {
+                 console.error("Error loading sessions:", error);
+                 scheduleListBody.innerHTML = '<tr><td colspan="3">Lỗi khi tải dữ liệu.</td></tr>';
+            }
+        }
+        
+        async function loadEvents() {
+            eventListBody.innerHTML = '<tr><td colspan="3">Đang tải...</td></tr>';
+            try {
+                const q = query(collection(db, "events"), orderBy("eventDate", "desc"));
+                const querySnapshot = await getDocs(q);
+                let eventsHtml = '';
+                querySnapshot.forEach((doc) => {
+                    const event = doc.data();
+                    const eventDate = event.eventDate?.toDate().toLocaleDateString('vi-VN') || 'Không rõ';
+                    eventsHtml += `
+                        <tr data-id="${doc.id}">
+                            <td>${event.name}</td>
+                            <td>${eventDate}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-danger delete-event-btn">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                eventListBody.innerHTML = eventsHtml || '<tr><td colspan="3">Chưa có sự kiện nào.</td></tr>';
+            } catch (error) {
+                console.error("Error loading events: ", error);
+                eventListBody.innerHTML = '<tr><td colspan="3">Lỗi khi tải sự kiện.</td></tr>';
+            }
+        }
+
+        async function loadAnnouncements() {
+            announcementListBody.innerHTML = '<tr><td colspan="3">Đang tải...</td></tr>';
+            try {
+                const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                let html = '';
+                querySnapshot.forEach((doc) => {
+                    const announcement = doc.data();
+                    const postDate = announcement.createdAt?.toDate().toLocaleDateString('vi-VN') || 'Không rõ';
+                    html += `
+                        <tr data-id="${doc.id}">
+                            <td>${announcement.title}</td>
+                            <td>${postDate}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-danger delete-announcement-btn">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                announcementListBody.innerHTML = html || '<tr><td colspan="3">Chưa có thông báo nào.</td></tr>';
+            } catch (error) {
+                console.error("Error loading announcements: ", error);
+                announcementListBody.innerHTML = '<tr><td colspan="3">Lỗi khi tải thông báo.</td></tr>';
+            }
+        }
+
+
+        // --- Modal & Form Handling ---
+        function openModal(modalId) { document.getElementById(modalId).classList.add('show'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.remove('show'); }
+
+        async function openEditMemberModal(userId) {
+            const userDocRef = doc(db, "users", userId);
+            const docSnap = await getDoc(userDocRef);
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+                
+                const form = document.getElementById('editMemberForm');
+                form.reset();
+                form.querySelector('#editUserId').value = userId;
+                form.querySelector('#editDisplayName').value = userData.displayName || '';
+                form.querySelector('#editEmail').value = userData.email || '';
+                form.querySelector('#editRole').value = userData.role || 'member';
+                form.querySelector('#editDepartment').value = userData.department || '';
+                form.querySelector('#editClass').value = userData.class || '';
+                form.querySelector('#editStudentId').value = userData.studentId || '';
+                form.querySelector('#editDorm').value = userData.dorm || '';
+                form.querySelector('#editPhone').value = userData.phone || '';
+                form.querySelector('#editHomeroomTeacher').value = userData.homeroomTeacher || '';
+                form.querySelector('#editManagingTeacher').value = userData.managingTeacher || '';
+                form.querySelector('#editFacebookUrl').value = userData.facebookUrl || '';
+                form.querySelector('#editNotes').value = userData.notes || '';
+                openModal('editMemberModal');
+            } else {
+                alert("Không tìm thấy thông tin thành viên.");
+            }
+        }
+        
+        // --- CRUD Operations ---
+        
+        async function handleAddMember(event) {
+            event.preventDefault();
+            const email = document.getElementById('addEmail').value.trim();
+            const displayName = document.getElementById('addDisplayName').value.trim();
+            const role = document.getElementById('addRole').value;
+
+            if (!email || !displayName) {
+                alert("Vui lòng nhập đầy đủ Tên và Email.");
+                return;
+            }
+
+            try {
+                const q = query(collection(db, "users"), where("email", "==", email));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    alert("Lỗi: Thành viên với email này đã tồn tại!");
+                    return;
+                }
+
+                // Use setDoc with a specific ID (email) for invitations
+                await setDoc(doc(db, "invitations", email), {
+                    displayName: displayName,
+                    role: role,
+                    createdAt: serverTimestamp()
+                });
+
+                alert("Thêm thành viên thành công. Người dùng cần đăng nhập bằng Google với email này để kích hoạt tài khoản.");
+                closeModal('addMemberModal');
+                // No need to reload members list here as the user is not in the 'users' collection yet
+            } catch (error) {
+                console.error("Error adding member invitation:", error);
+                alert("Lỗi khi thêm thành viên.");
+            }
+        }
+
+        async function handleUpdateMember(event) {
+            event.preventDefault();
+            const userId = document.getElementById('editUserId').value;
+            const updatedData = {
+                role: document.getElementById('editRole').value,
+                department: document.getElementById('editDepartment').value,
+                class: document.getElementById('editClass').value,
+                studentId: document.getElementById('editStudentId').value,
+                dorm: document.getElementById('editDorm').value,
+                phone: document.getElementById('editPhone').value,
+                homeroomTeacher: document.getElementById('editHomeroomTeacher').value,
+                managingTeacher: document.getElementById('editManagingTeacher').value,
+                facebookUrl: document.getElementById('editFacebookUrl').value,
+                notes: document.getElementById('editNotes').value,
+            };
+            try {
+                await updateDoc(doc(db, "users", userId), updatedData);
+                alert("Cập nhật thành công!");
+                closeModal('editMemberModal');
+                loadAllMembers();
+            } catch (error) { console.error("Error updating member:", error); alert("Lỗi khi cập nhật."); }
+        }
+        
+        async function handleDeleteMember(userId) {
+            if (confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
+                if(auth.currentUser.uid === userId) {
+                    alert("Bạn không thể tự xóa chính mình.");
+                    return;
+                }
+                try {
+                    await deleteDoc(doc(db, "users", userId));
+                    alert("Xóa thành viên thành công.");
+                    loadAllMembers();
+                    updateDashboardStats();
+                } catch (error) { console.error("Error deleting member:", error); alert("Lỗi khi xóa."); }
+            }
+        }
+
+        // --- UI Event Listeners ---
+        function setupEventListeners() {
+            // Sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', () => {
+                document.querySelector('.sidebar').classList.toggle('close');
+                document.getElementById('sidebarToggle').classList.toggle('bx-menu');
+                document.getElementById('sidebarToggle').classList.toggle('bx-menu-alt-right');
+            });
+
+            // Navigation links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active'));
+                    link.classList.add('active');
+                    const targetId = link.getAttribute('href').substring(1);
+                    document.querySelectorAll('.page-content').forEach(content => content.classList.remove('active'));
+                    document.getElementById(targetId).classList.add('active');
+                    document.getElementById('headerTitle').textContent = link.querySelector('span').textContent;
+                });
+            });
+            
+            // Logout
+            document.getElementById('logoutButton').addEventListener('click', (e) => {
+                e.preventDefault();
+                if(confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+                    signOut(auth).catch(error => console.error("Sign out error:", error));
+                }
+            });
+            
+            // --- Modal Open/Close & Form Submission ---
+            document.querySelectorAll('.modal-close').forEach(el => el.onclick = () => closeModal(el.dataset.modal));
+            window.onclick = (event) => { if (event.target.classList.contains('modal')) closeModal(event.target.id); };
+            
+            document.getElementById('addMemberBtn').addEventListener('click', () => {
+                document.getElementById('addMemberForm').reset();
+                openModal('addMemberModal');
+            });
+            
+            document.getElementById('editMemberForm').addEventListener('submit', handleUpdateMember);
+            document.getElementById('addMemberForm').addEventListener('submit', handleAddMember);
+            
+            // --- Event Delegation for table buttons ---
+            memberListBody.addEventListener('click', (event) => {
+                const target = event.target.closest('button');
+                if (!target) return;
+                
+                const userId = target.closest('tr').dataset.id;
+                if (target.matches('.edit-member-btn')) openEditMemberModal(userId);
+                if (target.matches('.delete-member-btn')) handleDeleteMember(userId);
+            });
+        }
+    </script>
+</body>
+</html>
