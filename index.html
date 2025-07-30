@@ -275,20 +275,25 @@
                     const invitationSnap = await getDoc(invitationRef);
 
                     if (invitationSnap.exists()) {
-                        // Có lời mời, tạo tài khoản với vai trò được mời
+                        // CÓ LỜI MỜI: Tạo tài khoản với dữ liệu từ lời mời
                         const invitationData = invitationSnap.data();
                         userRole = invitationData.role;
-                        await setDoc(userDocRef, {
-                            role: userRole,
-                            email: user.email,
-                            displayName: invitationData.displayName, // Lấy tên từ lời mời
-                            photoURL: user.photoURL,
-                            createdAt: serverTimestamp()
-                        });
+                        
+                        // **FIXED LOGIC HERE**
+                        // Sao chép TẤT CẢ dữ liệu từ lời mời, sau đó cập nhật thông tin từ Google
+                        const newUserProfile = {
+                            ...invitationData, // Copy all fields from invitation
+                            email: user.email, // Update with the latest email
+                            photoURL: user.photoURL, // Update with the latest profile picture
+                            createdAt: serverTimestamp() // Set the creation time
+                        };
+
+                        await setDoc(userDocRef, newUserProfile);
+                        
                         // Xóa lời mời sau khi đã sử dụng
                         await deleteDoc(invitationRef);
                     } else {
-                        // Không có lời mời, tạo tài khoản member mặc định
+                        // KHÔNG CÓ LỜI MỜI: Tạo tài khoản member mặc định
                         userRole = 'member';
                         await setDoc(userDocRef, {
                             role: userRole,
