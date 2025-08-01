@@ -261,27 +261,7 @@
             padding: 25px;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
-        }
-        
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .info-list {
-            list-style: none;
-        }
-
-        .info-list li {
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .info-list li:last-child {
-            border-bottom: none;
+            margin-bottom: 20px;
         }
         
         .table-container {
@@ -314,11 +294,115 @@
         .status-present { background-color: var(--green); }
         .status-absent_leave { background-color: var(--fpt-orange); }
         .status-absent_unexcused { background-color: var(--red); }
+        
+        /* Newsfeed List Styles */
+        .post-list-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .post-list-item:last-child {
+            border-bottom: none;
+        }
+        .post-list-item:hover {
+            background-color: #f8f9fa;
+        }
+        .post-list-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        .post-list-details {
+            flex-grow: 1;
+        }
+        .post-list-title {
+            font-weight: 600;
+            color: var(--text-color-dark);
+        }
+        .post-list-meta {
+            font-size: 0.85rem;
+            color: var(--text-color-light);
+        }
 
-        @media (max-width: 992px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
+        /* Post Type Badges */
+        .post-type-badge {
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--white);
+            text-transform: capitalize;
+            margin-right: 8px;
+        }
+        .post-type-announcement { background-color: var(--primary-color); }
+        .post-type-event { background-color: var(--fpt-orange); }
+        .post-type-reward { background-color: var(--green); }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .modal-header h2 {
+            margin-top: 0;
+            color: var(--text-color-dark);
+        }
+        .modal-body .post-meta {
+            font-size: 0.9rem;
+            color: var(--text-color-light);
+            margin: 5px 0 15px 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .modal-body .post-content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        .modal-body .post-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-body .post-images img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
         }
 
     </style>
@@ -337,10 +421,9 @@
             </div>
             <ul class="sidebar-menu">
                 <li><a href="#dashboard" class="nav-link active"><i class='bx bxs-home'></i><span>Trang chủ</span></a></li>
+                <li><a href="#newsfeed" class="nav-link"><i class='bx bxs-news'></i><span>Bảng tin</span></a></li>
                 <li><a href="#schedule" class="nav-link"><i class='bx bxs-calendar'></i><span>Lịch sinh hoạt</span></a></li>
                 <li><a href="#attendance" class="nav-link"><i class='bx bxs-user-pin'></i><span>Chuyên cần</span></a></li>
-                <li><a href="#announcements" class="nav-link"><i class='bx bxs-bell-ring'></i><span>Thông Báo</span></a></li>
-                <li><a href="#events" class="nav-link"><i class='bx bxs-calendar-event'></i><span>Sự kiện</span></a></li>
             </ul>
             <div class="sidebar-logout">
                 <a href="#" id="logoutButton"><i class='bx bx-log-out'></i><span>Đăng xuất</span></a>
@@ -361,12 +444,17 @@
 
             <!-- Page Content Wrappers -->
             <section id="dashboard" class="page-content active">
-                <div class="card" style="margin-bottom: 20px;">
+                <div class="card">
                     <h2 id="welcomeMessage">Chào mừng bạn!</h2>
                     <p>Đây là trang thông tin cá nhân của bạn tại F-Học Portal.</p>
                 </div>
             </section>
             
+            <section id="newsfeed" class="page-content card">
+                <h2>Bảng tin CLB</h2>
+                <div id="postListContainer"></div>
+            </section>
+
             <section id="schedule" class="page-content card">
                 <h2>Lịch Sinh Hoạt CLB</h2>
                 <div class="table-container">
@@ -387,27 +475,22 @@
                 </div>
             </section>
             
-            <section id="announcements" class="page-content card">
-                <h2>Danh sách Thông báo</h2>
-                 <div class="table-container">
-                    <table>
-                        <thead><tr><th>Tiêu đề</th><th>Ngày đăng</th></tr></thead>
-                        <tbody id="announcementList"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section id="events" class="page-content card">
-                <h2>Danh sách Sự kiện</h2>
-                <div class="table-container">
-                    <table>
-                        <thead><tr><th>Tên sự kiện</th><th>Ngày diễn ra</th></tr></thead>
-                        <tbody id="eventList"></tbody>
-                    </table>
-                </div>
-            </section>
-            
         </main>
+    </div>
+
+    <!-- Post Viewer Modal -->
+    <div id="postViewerModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal="postViewerModal">&times;</span>
+            <div class="modal-header">
+                <h2 id="postViewerTitle"></h2>
+            </div>
+            <div class="modal-body">
+                <p class="post-meta" id="postViewerMeta"></p>
+                <div class="post-content" id="postViewerContent"></div>
+                <div class="post-images" id="postViewerImages"></div>
+            </div>
+        </div>
     </div>
 
 
@@ -435,8 +518,10 @@
         // --- DOM Elements ---
         const scheduleListBody = document.getElementById('scheduleList');
         const attendanceHistoryListBody = document.getElementById('attendanceHistoryList');
-        const eventListBody = document.getElementById('eventList');
-        const announcementListBody = document.getElementById('announcementList');
+        const postListContainer = document.getElementById('postListContainer');
+        const postViewerModal = document.getElementById('postViewerModal');
+        
+        let allPosts = []; // Cache posts data
 
         // --- Auth State Management ---
         onAuthStateChanged(auth, async (user) => {
@@ -449,12 +534,12 @@
                     userRole = docSnap.data().role;
                 }
 
-                if (userRole === 'member') {
+                if (userRole === 'member' || userRole === 'admin' || userRole === 'superadmin') {
                     initializePage(user);
                 } else {
-                    alert("Bạn không phải là thành viên.");
-                    if(userRole === 'admin' || userRole === 'superadmin') window.location.href = './banchunhiem.html';
-                    else window.location.href = './index.html';
+                    alert("Tài khoản của bạn không tồn tại trong hệ thống.");
+                    signOut(auth);
+                    window.location.href = './index.html';
                 }
             } else {
                 window.location.href = './index.html';
@@ -473,10 +558,9 @@
                 document.getElementById('userAvatar').src = user.photoURL;
             }
             
+            await loadAllPosts();
             await loadSchedule();
             await loadAttendanceHistory(user.uid);
-            await loadAllEvents();
-            await loadAllAnnouncements();
             setupEventListeners();
         }
         
@@ -537,74 +621,69 @@
             }
         }
         
-        async function loadAllEvents() {
-            eventListBody.innerHTML = '<tr><td colspan="2">Đang tải...</td></tr>';
+        async function loadAllPosts() {
+            postListContainer.innerHTML = '<p>Đang tải bảng tin...</p>';
             try {
-                const q = query(collection(db, "events"), orderBy("eventDate", "desc"));
+                const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
                 const querySnapshot = await getDocs(q);
                 
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                allPosts = []; // Clear cache
+                querySnapshot.forEach(doc => allPosts.push({ id: doc.id, ...doc.data() }));
 
-                const upcomingEvents = [];
-                const pastEvents = [];
+                let postsHtml = '';
+                const typeMap = {
+                    announcement: { name: 'Thông báo', icon: 'bxs-bell-ring', class: 'post-type-announcement' },
+                    event: { name: 'Sự kiện', icon: 'bxs-calendar-event', class: 'post-type-event' },
+                    reward: { name: 'Khen thưởng', icon: 'bxs-award', class: 'post-type-reward' }
+                };
 
-                querySnapshot.forEach((doc) => {
-                    const event = doc.data();
-                    if (event.eventDate.toDate() >= today) {
-                        upcomingEvents.push(event);
-                    } else {
-                        pastEvents.push(event);
-                    }
-                });
-
-                upcomingEvents.reverse(); // Sort upcoming events from closest to furthest
-
-                let eventsHtml = '';
-                if (upcomingEvents.length > 0) {
-                    eventsHtml += '<tr><th colspan="2" style="background-color: #e8f5e9;">Sự kiện sắp tới</th></tr>';
-                    upcomingEvents.forEach(event => {
-                        const eventDate = event.eventDate?.toDate().toLocaleDateString('vi-VN');
-                        eventsHtml += `<tr><td>${event.name}</td><td>${eventDate}</td></tr>`;
-                    });
-                }
-                if (pastEvents.length > 0) {
-                    eventsHtml += '<tr><th colspan="2" style="background-color: #f1f3f5;">Sự kiện đã qua</th></tr>';
-                    pastEvents.forEach(event => {
-                        const eventDate = event.eventDate?.toDate().toLocaleDateString('vi-VN');
-                        eventsHtml += `<tr><td>${event.name}</td><td>${eventDate}</td></tr>`;
-                    });
-                }
-                
-                eventListBody.innerHTML = eventsHtml || '<tr><td colspan="2">Chưa có sự kiện nào.</td></tr>';
-            } catch (error) {
-                console.error("Error loading events:", error);
-                eventListBody.innerHTML = '<tr><td colspan="2">Lỗi khi tải sự kiện.</td></tr>';
-            }
-        }
-
-        async function loadAllAnnouncements() {
-            announcementListBody.innerHTML = '<tr><td colspan="2">Đang tải...</td></tr>';
-            try {
-                const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
-                const querySnapshot = await getDocs(q);
-                let html = '';
-                querySnapshot.forEach((doc) => {
-                    const announcement = doc.data();
-                    const postDate = announcement.createdAt?.toDate().toLocaleDateString('vi-VN') || 'Không rõ';
-                    html += `
-                        <tr>
-                            <td>${announcement.title}</td>
-                            <td>${postDate}</td>
-                        </tr>
+                allPosts.forEach(post => {
+                    const typeInfo = typeMap[post.type] || { name: 'Khác', icon: 'bxs-news', class: '' };
+                    postsHtml += `
+                        <div class="post-list-item" data-postid="${post.id}">
+                            <i class='bx ${typeInfo.icon} post-list-icon' style="color: ${getComputedStyle(document.documentElement).getPropertyValue('--' + typeInfo.class.replace('post-type-','')) || '#6c757d'}"></i>
+                            <div class="post-list-details">
+                                <div class="post-list-title">${post.title}</div>
+                                <div class="post-list-meta">
+                                    <span class="post-type-badge ${typeInfo.class}">${typeInfo.name}</span>
+                                    Đăng bởi ${post.author || 'Ban Chủ Nhiệm'}
+                                </div>
+                            </div>
+                        </div>
                     `;
                 });
-                announcementListBody.innerHTML = html || '<tr><td colspan="2">Chưa có thông báo nào.</td></tr>';
+                
+                postListContainer.innerHTML = postsHtml || '<p>Chưa có bài đăng nào.</p>';
             } catch (error) {
-                console.error("Error loading announcements:", error);
-                announcementListBody.innerHTML = '<tr><td colspan="2">Lỗi khi tải thông báo.</td></tr>';
+                console.error("Error loading posts:", error);
+                postListContainer.innerHTML = '<p>Lỗi khi tải bảng tin.</p>';
             }
         }
+
+        function openPostViewer(postId) {
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) return;
+            
+            document.getElementById('postViewerTitle').textContent = post.title;
+            document.getElementById('postViewerContent').textContent = post.content;
+            
+            let metaHtml = `Đăng bởi ${post.author} vào ngày ${post.createdAt.toDate().toLocaleDateString('vi-VN')}`;
+            if (post.type === 'event' && post.eventDate) {
+                metaHtml += ` | <strong style="color: var(--fpt-orange);">Diễn ra vào: ${post.eventDate.toDate().toLocaleDateString('vi-VN')}</strong>`;
+            }
+            document.getElementById('postViewerMeta').innerHTML = metaHtml;
+
+            const imagesContainer = document.getElementById('postViewerImages');
+            imagesContainer.innerHTML = '';
+            if (post.imageUrls && post.imageUrls.length > 0) {
+                post.imageUrls.forEach(url => {
+                    imagesContainer.innerHTML += `<img src="${url}" alt="Post image">`;
+                });
+            }
+
+            postViewerModal.classList.add('show');
+        }
+
 
         // --- UI Event Listeners ---
         function setupEventListeners() {
@@ -635,6 +714,22 @@
                     signOut(auth).catch(error => console.error("Sign out error:", error));
                 }
             });
+
+            // Post Viewer Modal Listeners
+            postListContainer.addEventListener('click', (event) => {
+                const postItem = event.target.closest('.post-list-item');
+                if (postItem) {
+                    openPostViewer(postItem.dataset.postid);
+                }
+            });
+            
+            const closeBtn = postViewerModal.querySelector('.modal-close');
+            closeBtn.onclick = () => postViewerModal.classList.remove('show');
+            postViewerModal.onclick = (event) => {
+                if(event.target === postViewerModal) {
+                    postViewerModal.classList.remove('show');
+                }
+            }
         }
     </script>
 </body>
