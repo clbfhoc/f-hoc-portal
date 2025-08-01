@@ -24,6 +24,7 @@
             --white: #fff;
             --red: #e74c3c;
             --green: #2ecc71;
+            --yellow: #f1c40f;
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             --border-radius: 12px;
             --transition-speed: 0.4s;
@@ -328,9 +329,10 @@
         .action-buttons {
             display: flex;
             gap: 10px;
+            flex-wrap: nowrap;
         }
 
-        .role-badge {
+        .role-badge, .post-type-badge {
             padding: 4px 8px;
             border-radius: 5px;
             font-size: 12px;
@@ -342,14 +344,25 @@
         .role-admin { background-color: var(--fpt-orange); }
         .role-member { background-color: var(--primary-color); }
 
+        .post-type-announcement { background-color: var(--primary-color); }
+        .post-type-event { background-color: var(--fpt-orange); }
+        .post-type-reward { background-color: var(--green); }
+        .post-type-post { background-color: var(--secondary-color); }
+
         .btn {
             padding: 8px 12px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 500;
+            white-space: nowrap;
+        }
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
         .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-secondary { background-color: var(--secondary-color); color: white; }
         .btn-danger { background-color: var(--red); color: white; }
         .btn-success { background-color: var(--green); color: white; }
 
@@ -376,6 +389,8 @@
             max-width: 950px;
             border-radius: var(--border-radius);
             position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         .modal-close {
             color: #aaa;
@@ -412,6 +427,122 @@
             resize: vertical;
             min-height: 80px;
         }
+        
+        /* Image Preview Styles */
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+        }
+        .preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .image-preview-item.is-cover .preview-img {
+            border-color: var(--fpt-orange);
+        }
+        .remove-img-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 22px;
+            height: 22px;
+            background-color: var(--red);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            line-height: 1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+        .cover-icon {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            color: white;
+            background-color: rgba(0,0,0,0.5);
+            padding: 4px;
+            border-radius: 50%;
+            font-size: 16px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .image-preview-item:not(.is-cover):hover .cover-icon {
+            opacity: 0.7;
+        }
+        .image-preview-item.is-cover .cover-icon {
+            opacity: 1;
+            color: var(--yellow);
+        }
+
+
+        /* Viewer Modal Specific Styles */
+        .modal-header h2 {
+            margin-top: 0;
+            color: var(--text-color-dark);
+        }
+        .modal-body .viewer-cover-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+        .modal-body .post-meta {
+            font-size: 0.9rem;
+            color: var(--text-color-light);
+            margin: 5px 0 15px 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .modal-body .post-content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        .modal-body .post-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-body .post-images img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .modal-footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+        .modal-footer .btn {
+            margin-left: 10px;
+        }
+
+        /* Definition List for Viewers */
+        dl { margin: 0; }
+        dt { font-weight: 600; color: var(--text-color-dark); margin-top: 12px; }
+        dd { margin-left: 0; color: var(--text-color-light); white-space: pre-wrap; word-wrap: break-word; }
+
     </style>
 </head>
 <body class="loading">
@@ -428,11 +559,11 @@
             </div>
             <ul class="sidebar-menu">
                 <li><a href="#dashboard" class="nav-link active"><i class='bx bxs-dashboard'></i><span>Tổng quan</span></a></li>
+                <li><a href="#applications" class="nav-link"><i class='bx bx-user-plus'></i><span>Duyệt đơn</span></a></li>
                 <li><a href="#members" class="nav-link"><i class='bx bxs-group'></i><span>Thành viên</span></a></li>
+                <li><a href="#newsfeed" class="nav-link"><i class='bx bxs-news'></i><span>Bảng tin</span></a></li>
                 <li><a href="#schedule" class="nav-link"><i class='bx bxs-calendar'></i><span>Lịch Sinh Hoạt</span></a></li>
                 <li><a href="#attendance" class="nav-link"><i class='bx bxs-user-check'></i><span>Điểm Danh</span></a></li>
-                <li><a href="#announcements" class="nav-link"><i class='bx bxs-bell-ring'></i><span>Thông Báo</span></a></li>
-                <li><a href="#events" class="nav-link"><i class='bx bxs-calendar-event'></i><span>Sự kiện</span></a></li>
                 <li><a href="#funds" class="nav-link"><i class='bx bxs-wallet'></i><span>Quỹ CLB</span></a></li>
             </ul>
             <div class="sidebar-logout">
@@ -459,23 +590,43 @@
                         <div class="stat-icon" style="background-color: var(--primary-color-light); color: var(--primary-color);"><i class='bx bxs-group'></i></div>
                         <div class="stat-info"><h3 id="totalMembers">0</h3><p>Thành viên</p></div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background-color: var(--fpt-orange-light); color: var(--fpt-orange);"><i class='bx bxs-calendar-event'></i></div>
-                        <div class="stat-info"><h3 id="totalEvents">0</h3><p>Sự kiện</p></div>
+                     <div class="stat-card">
+                        <div class="stat-icon" style="background-color: var(--fpt-orange-light); color: var(--fpt-orange);"><i class='bx bxs-news'></i></div>
+                        <div class="stat-info"><h3 id="totalPosts">0</h3><p>Bài đăng</p></div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #e8f5e9; color: var(--green);"><i class='bx bxs-bell-ring'></i></div>
-                        <div class="stat-info"><h3 id="totalAnnouncements">0</h3><p>Thông báo</p></div>
+                        <div class="stat-icon" style="background-color: #e8f5e9; color: var(--green);"><i class='bx bxs-user-check'></i></div>
+                        <div class="stat-info"><h3 id="totalApplications">0</h3><p>Đơn chờ duyệt</p></div>
                     </div>
                 </div>
             </section>
             
+            <section id="applications" class="page-content card">
+                <div class="page-header"><h2>Duyệt đơn Đăng ký</h2></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Họ và tên</th><th>Email</th><th>Ban mong muốn</th><th>Ngày nộp</th><th>Hành động</th></tr></thead>
+                        <tbody id="applicationList"></tbody>
+                    </table>
+                </div>
+            </section>
+
             <section id="members" class="page-content card">
-                <div class="page-header"><h2>Quản lý Thành viên</h2></div>
+                <div class="page-header"><h2>Quản lý Thành viên</h2><button class="btn btn-success" id="addMemberBtn">Thêm Lời Mời</button></div>
                 <div class="table-container">
                     <table>
                         <thead><tr><th>Thành viên</th><th>Email</th><th>Vai trò</th><th>Ban</th><th>Hành động</th></tr></thead>
                         <tbody id="memberList"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="newsfeed" class="page-content card">
+                <div class="page-header"><h2>Quản lý Bảng tin</h2><button class="btn btn-success" id="addPostBtn">Tạo Bài Đăng</button></div>
+                 <div class="table-container">
+                    <table>
+                        <thead><tr><th>Tiêu đề</th><th>Loại</th><th>Người đăng</th><th>Ngày đăng</th><th>Hành động</th></tr></thead>
+                        <tbody id="postList"></tbody>
                     </table>
                 </div>
             </section>
@@ -484,7 +635,7 @@
                 <div class="page-header"><h2>Lịch Sinh Hoạt</h2><button class="btn btn-success" id="addScheduleBtn">Tạo Buổi Sinh Hoạt</button></div>
                 <div class="table-container">
                     <table>
-                        <thead><tr><th>Ngày</th><th>Nội dung</th><th>Hành động</th></tr></thead>
+                        <thead><tr><th>Ngày</th><th>Nội dung</th><th>Địa điểm</th><th>Hành động</th></tr></thead>
                         <tbody id="scheduleList"></tbody>
                     </table>
                 </div>
@@ -497,26 +648,6 @@
                     <table>
                         <thead><tr><th>Ngày</th><th>Nội dung</th><th>Tỷ lệ tham gia</th><th>Hành động</th></tr></thead>
                         <tbody id="attendanceSessionList"></tbody>
-                    </table>
-                </div>
-            </section>
-            
-            <section id="announcements" class="page-content card">
-                <div class="page-header"><h2>Quản lý Thông báo</h2><button class="btn btn-success" id="addAnnouncementBtn">Tạo Thông báo</button></div>
-                 <div class="table-container">
-                    <table>
-                        <thead><tr><th>Tiêu đề</th><th>Ngày đăng</th><th>Hành động</th></tr></thead>
-                        <tbody id="announcementList"></tbody>
-                    </table>
-                </div>
-            </section>
-            
-            <section id="events" class="page-content card">
-                <div class="page-header"><h2>Quản lý Sự kiện</h2><button class="btn btn-success" id="addEventBtn">Tạo Sự kiện</button></div>
-                <div class="table-container">
-                    <table>
-                        <thead><tr><th>Tên sự kiện</th><th>Ngày diễn ra</th><th>Hành động</th></tr></thead>
-                        <tbody id="eventList"></tbody>
                     </table>
                 </div>
             </section>
@@ -534,7 +665,22 @@
         </main>
     </div>
 
-    <!-- Edit Member Modal -->
+    <!-- Modals -->
+    <div id="addMemberModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="modal-close" data-modal="addMemberModal">&times;</span>
+            <h2>Thêm Lời mời Thành viên Mới</h2>
+            <form id="addMemberForm">
+                <div class="form-grid">
+                    <div class="form-group"><label for="addDisplayName">Họ và tên</label><input type="text" id="addDisplayName" required></div>
+                    <div class="form-group"><label for="addEmail">Email</label><input type="email" id="addEmail" required></div>
+                    <div class="form-group"><label for="addRole">Vai trò</label><select id="addRole"><option value="member">Thành viên</option><option value="admin">Ban Chủ nhiệm</option></select></div>
+                </div>
+                <div style="text-align: right; margin-top: 10px;"><button type="submit" class="btn btn-primary">Gửi Lời mời</button></div>
+            </form>
+        </div>
+    </div>
+    
     <div id="editMemberModal" class="modal">
         <div class="modal-content">
             <span class="modal-close" data-modal="editMemberModal">&times;</span>
@@ -547,7 +693,7 @@
                     <div class="form-group"><label for="editRole">Vai trò</label><select id="editRole"><option value="member">Thành viên</option><option value="admin">Ban Chủ nhiệm</option></select></div>
                     <div class="form-group"><label for="editClass">Lớp</label><input type="text" id="editClass" placeholder="VD: 10A1"></div>
                     <div class="form-group"><label for="editStudentId">MSHS</label><input type="text" id="editStudentId" placeholder="Mã số học sinh"></div>
-                    <div class="form-group"><label for="editDepartment">Ban</label><select id="editDepartment"><option value="">Chưa phân ban</option><option value="NS-HC-TC">Ban NS-HC-TC</option><option value="Truyền thông">Ban Truyền thông</option><option value="Chuyên môn">Ban Chuyên môn</option></select></div>
+                    <div class="form-group"><label for="editDepartment">Ban</label><select id="editDepartment"><option value="">Chưa phân ban</option><option value="NS-HC-TC">Ban NS-HC-TC</option><option value="Truyền thông">Ban Truyền thông</option><option value="Chuyên môn">Ban Chuyên môn</option><option value="Đối ngoại">Ban Đối ngoại</option></select></div>
                     <div class="form-group"><label for="editPhone">Số điện thoại</label><input type="tel" id="editPhone" placeholder="Số điện thoại"></div>
                     <div class="form-group"><label for="editDorm">Dorm</label><input type="text" id="editDorm" placeholder="VD: Dom A - 101"></div>
                     <div class="form-group"><label for="editFacebookUrl">Link Facebook</label><input type="url" id="editFacebookUrl" placeholder="https://www.facebook.com/..."></div>
@@ -560,22 +706,94 @@
         </div>
     </div>
     
-    <!-- Add/Edit Event Modal -->
-    <div id="eventModal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="modal-close" data-modal="eventModal">&times;</span><h2 id="eventModalTitle">Sự kiện</h2><form id="eventForm"><input type="hidden" id="eventId"><div class="form-group"><label for="eventName">Tên sự kiện</label><input type="text" id="eventName" required></div><div class="form-group"><label for="eventDate">Ngày diễn ra</label><input type="date" id="eventDate" required></div><div class="form-group"><label for="eventDescription">Mô tả</label><textarea id="eventDescription"></textarea></div><button type="submit" class="btn btn-primary">Lưu</button></form></div></div>
-    <!-- Add/Edit Announcement Modal -->
-    <div id="announcementModal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="modal-close" data-modal="announcementModal">&times;</span><h2 id="announcementModalTitle">Thông báo</h2><form id="announcementForm"><input type="hidden" id="announcementId"><div class="form-group"><label for="announcementTitle">Tiêu đề</label><input type="text" id="announcementTitle" required></div><div class="form-group"><label for="announcementContent">Nội dung</label><textarea id="announcementContent" required></textarea></div><button type="submit" class="btn btn-primary">Lưu</button></form></div></div>
-    <!-- Add Transaction Modal -->
+    <div id="postModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="modal-close" data-modal="postModal">&times;</span>
+            <h2 id="postModalTitle">Tạo Bài Đăng</h2>
+            <form id="postForm">
+                <input type="hidden" id="postId">
+                <div class="form-group">
+                    <label for="postType">Loại bài đăng</label>
+                    <select id="postType" required>
+                        <option value="announcement">Thông báo</option>
+                        <option value="event">Sự kiện</option>
+                        <option value="reward">Khen thưởng</option>
+                        <option value="post">Bài đăng</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="postTitle">Tiêu đề</label><input type="text" id="postTitle" required></div>
+                <div class="form-group" id="eventDateGroup" style="display: none;">
+                    <label for="eventDate">Ngày diễn ra</label>
+                    <input type="date" id="eventDate">
+                </div>
+                <div class="form-group"><label for="postContent">Nội dung</label><textarea id="postContent" required></textarea></div>
+                <div class="form-group">
+                    <label for="postImages">Thêm hình ảnh <span id="coverImageInstruction" style="display: none;">(Nhấp vào ảnh để chọn làm ảnh bìa)</span></label>
+                    <input type="file" id="postImages" multiple accept="image/*" style="display: block;">
+                </div>
+                <div id="postImagePreview" class="image-preview-container"></div>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </form>
+        </div>
+    </div>
+
     <div id="transactionModal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="modal-close" data-modal="transactionModal">&times;</span><h2>Thêm Giao dịch</h2><form id="transactionForm"><div class="form-group"><label for="transactionDate">Ngày</label><input type="date" id="transactionDate" required></div><div class="form-group"><label for="transactionDescription">Nội dung</label><input type="text" id="transactionDescription" required></div><div class="form-group"><label for="transactionAmount">Số tiền (VND)</label><input type="number" id="transactionAmount" required></div><div class="form-group"><label for="transactionType">Loại</label><select id="transactionType" required><option value="income">Thu</option><option value="expense">Chi</option></select></div><button type="submit" class="btn btn-primary">Lưu</button></form></div></div>
-    <!-- Add Schedule Modal -->
-    <div id="addScheduleModal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="modal-close" data-modal="addScheduleModal">&times;</span><h2>Tạo Buổi Sinh Hoạt</h2><form id="addScheduleForm"><div class="form-group"><label for="scheduleDate">Ngày</label><input type="date" id="scheduleDate" required></div><div class="form-group"><label for="scheduleDescription">Nội dung</label><input type="text" id="scheduleDescription" placeholder="VD: Họp CLB tháng 7" required></div><button type="submit" class="btn btn-primary">Tạo</button></form></div></div>
-    <!-- Take Attendance Modal -->
+    <div id="addScheduleModal" class="modal"><div class="modal-content" style="max-width: 500px;"><span class="modal-close" data-modal="addScheduleModal">&times;</span><h2>Tạo Buổi Sinh Hoạt</h2><form id="addScheduleForm"><div class="form-group"><label for="scheduleDate">Ngày</label><input type="date" id="scheduleDate" required></div><div class="form-group"><label for="scheduleLocation">Địa điểm</label><input type="text" id="scheduleLocation" placeholder="VD: Phòng A101"></div><div class="form-group"><label for="scheduleDescription">Nội dung</label><input type="text" id="scheduleDescription" placeholder="VD: Họp CLB tháng 7" required></div><button type="submit" class="btn btn-primary">Tạo</button></form></div></div>
     <div id="takeAttendanceModal" class="modal"><div class="modal-content"><span class="modal-close" data-modal="takeAttendanceModal">&times;</span><h2 id="takeAttendanceModalTitle">Điểm danh</h2><form id="takeAttendanceForm"><input type="hidden" id="attendanceSessionId"><div class="table-container"><table id="attendanceMemberTable"></table></div><div style="text-align: right; margin-top: 20px;"><button type="submit" class="btn btn-primary">Lưu Kết quả</button></div></form></div></div>
+    
+    <!-- Post Viewer Modal -->
+    <div id="postViewerModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="modal-close" data-modal="postViewerModal">&times;</span>
+            <div class="modal-header">
+                <h2 id="postViewerTitle"></h2>
+            </div>
+            <div class="modal-body">
+                <img id="postViewerCoverImage" class="viewer-cover-image" style="display:none;" alt="Ảnh bìa">
+                <p class="post-meta" id="postViewerMeta"></p>
+                <div class="post-content" id="postViewerContent"></div>
+                <div class="post-images" id="postViewerImages"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Application Viewer Modal -->
+    <div id="applicationViewerModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="modal-close" data-modal="applicationViewerModal">&times;</span>
+            <div class="modal-header">
+                <h2 id="applicationViewerName"></h2>
+            </div>
+            <div class="modal-body" id="applicationViewerDetails">
+                <!-- Details will be populated by JS -->
+            </div>
+            <div class="modal-footer" id="applicationViewerFooter">
+                <!-- Action buttons will be added here by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 id="confirmationTitle">Xác nhận hành động</h2>
+            </div>
+            <div class="modal-body">
+                <p id="confirmationMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="confirmCancelBtn">Hủy</button>
+                <button class="btn btn-danger" id="confirmOkBtn">Xác nhận</button>
+            </div>
+        </div>
+    </div>
 
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, updateDoc, deleteDoc, query, orderBy, addDoc, Timestamp, serverTimestamp, where } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, updateDoc, deleteDoc, query, orderBy, addDoc, Timestamp, serverTimestamp, where, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
         // --- Firebase Config ---
         const firebaseConfig = {
@@ -587,6 +805,9 @@
             appId: "1:922532756868:web:49780833880b310d1c71d1",
             measurementId: "G-8HNYH3VXVH"
         };
+        
+        // --- ImgBB API Key ---
+        const IMGBB_API_KEY = '77033c09101ee1976e8e756f31e7435f';
 
         // --- Initialize Services ---
         const app = initializeApp(firebaseConfig);
@@ -595,12 +816,22 @@
 
         // --- DOM Elements ---
         const memberListBody = document.getElementById('memberList');
+        const applicationListBody = document.getElementById('applicationList');
         const scheduleListBody = document.getElementById('scheduleList');
         const attendanceSessionListBody = document.getElementById('attendanceSessionList');
         const fundTransactionListBody = document.getElementById('fundTransactionList');
-        const eventListBody = document.getElementById('eventList');
-        const announcementListBody = document.getElementById('announcementList');
+        const postListBody = document.getElementById('postList');
         let currentUserRole = null;
+        
+        // --- State for image management & data caching ---
+        let existingImageUrls = [];
+        let newImageFiles = [];
+        let selectedCoverUrl = '';
+        let allPosts = [];
+        let allMembers = [];
+        let allApplications = [];
+        let allAttendanceSessions = [];
+        let allFunds = [];
 
         // --- Auth State Management ---
         onAuthStateChanged(auth, async (user) => {
@@ -625,7 +856,7 @@
         });
         
         // --- Main Function to Setup Page ---
-        async function initializePage(user) {
+        function initializePage(user) {
             document.getElementById('loader').style.display = 'none';
             document.body.classList.remove('loading');
             document.querySelector('.main-interface').style.display = 'flex';
@@ -635,42 +866,97 @@
                 document.getElementById('userAvatar').src = user.photoURL;
             }
             
-            await updateDashboardStats();
-            await loadAllMembers();
-            await loadScheduleAndAttendance();
-            await loadFundTransactions();
-            await loadEvents();
-            await loadAnnouncements();
+            // Setup real-time listeners
+            listenForApplications();
+            listenForMembers();
+            listenForPosts();
+            listenForScheduleAndAttendance();
+            listenForFundTransactions();
+            
             setupEventListeners();
         }
 
-        // --- Data Loading Functions ---
-        async function updateDashboardStats() {
-            try {
-                const usersSnapshot = await getDocs(collection(db, "users"));
-                const eventsSnapshot = await getDocs(collection(db, "events"));
-                const announcementsSnapshot = await getDocs(collection(db, "announcements"));
+        // --- Image Upload Function ---
+        async function uploadImages(files, submitButton) {
+            if (submitButton) submitButton.disabled = true;
+            const uploadPromises = [];
+            for (const file of files) {
+                const formData = new FormData();
+                formData.append('image', file);
+                formData.append('key', IMGBB_API_KEY);
 
-                document.getElementById('totalMembers').textContent = usersSnapshot.size;
-                document.getElementById('totalEvents').textContent = eventsSnapshot.size;
-                document.getElementById('totalAnnouncements').textContent = announcementsSnapshot.size;
-            } catch(error) {
-                console.error("Error updating dashboard:", error);
+                const promise = fetch('https://api.imgbb.com/1/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        return { url: result.data.url, originalFile: file };
+                    } else {
+                        throw new Error(result.error.message);
+                    }
+                });
+                uploadPromises.push(promise);
+            }
+            try {
+                const results = await Promise.all(uploadPromises);
+                return results;
+            } catch (error) {
+                console.error("Image upload failed:", error);
+                alert("Đã xảy ra lỗi khi tải ảnh lên. Vui lòng thử lại.");
+                return [];
+            } finally {
+                if (submitButton) submitButton.disabled = false;
             }
         }
-        
-        async function loadAllMembers(returnArray = false) {
-            memberListBody.innerHTML = '<tr><td colspan="5">Đang tải...</td></tr>';
-            try {
-                const q = query(collection(db, "users"), orderBy("displayName"));
-                const querySnapshot = await getDocs(q);
-                
+
+        // --- Real-time Data Listeners ---
+        function listenForApplications() {
+            const q = query(collection(db, "applications"), where("status", "==", "pending"));
+            onSnapshot(q, (querySnapshot) => {
+                allApplications = [];
+                querySnapshot.forEach(doc => {
+                    allApplications.push({ id: doc.id, ...doc.data() });
+                });
+
+                allApplications.sort((a, b) => (b.submittedAt?.toDate() || 0) - (a.submittedAt?.toDate() || 0));
+
+                let html = '';
+                allApplications.forEach(app => {
+                    const date = app.submittedAt.toDate().toLocaleDateString('vi-VN');
+                    html += `
+                        <tr data-id="${app.id}">
+                            <td>${app.displayName}</td>
+                            <td>${app.email}</td>
+                            <td>${app.desiredDepartment}</td>
+                            <td>${date}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-secondary view-app-btn">Xem</button>
+                                <button class="btn btn-success approve-app-btn">Duyệt</button>
+                                <button class="btn btn-danger reject-app-btn">Từ chối</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                applicationListBody.innerHTML = html || '<tr><td colspan="5">Không có đơn đăng ký nào chờ duyệt.</td></tr>';
+                const totalApplicationsEl = document.getElementById('totalApplications');
+                if(totalApplicationsEl) totalApplicationsEl.textContent = querySnapshot.size;
+            }, (error) => {
+                console.error("Error listening for applications:", error);
+                applicationListBody.innerHTML = '<tr><td colspan="5">Lỗi khi tải đơn đăng ký.</td></tr>';
+            });
+        }
+
+        function listenForMembers() {
+            const q = query(collection(db, "users"), orderBy("displayName"));
+            onSnapshot(q, (querySnapshot) => {
                 const members = [];
                 querySnapshot.forEach(doc => {
                     members.push({ id: doc.id, ...doc.data() });
                 });
                 
-                if (returnArray) return members;
+                allMembers = [...members]; // Update global cache
 
                 let membersHtml = '';
                 members.forEach(member => {
@@ -688,65 +974,108 @@
                     `;
                 });
                 memberListBody.innerHTML = membersHtml;
-            } catch (error) {
-                console.error("Error loading members:", error);
+                const totalMembersEl = document.getElementById('totalMembers');
+                if(totalMembersEl) totalMembersEl.textContent = querySnapshot.size;
+            }, (error) => {
+                console.error("Error listening for members:", error);
                 memberListBody.innerHTML = '<tr><td colspan="5">Lỗi khi tải danh sách.</td></tr>';
-            }
+            });
         }
         
-        async function loadScheduleAndAttendance() {
-            scheduleListBody.innerHTML = '<tr><td colspan="3">Đang tải...</td></tr>';
-            attendanceSessionListBody.innerHTML = '<tr><td colspan="4">Đang tải...</td></tr>';
-            try {
-                const q = query(collection(db, "attendance"), orderBy("date", "desc"));
-                const querySnapshot = await getDocs(q);
+        function listenForPosts() {
+            const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+            onSnapshot(q, (querySnapshot) => {
+                allPosts = [];
+                let html = '';
+                const typeMap = {
+                    announcement: 'Thông báo',
+                    event: 'Sự kiện',
+                    reward: 'Khen thưởng',
+                    post: 'Bài đăng'
+                };
+
+                querySnapshot.forEach((doc) => {
+                    const post = doc.data();
+                    allPosts.push({ id: doc.id, ...post });
+                    const postDate = post.createdAt?.toDate().toLocaleDateString('vi-VN') || 'Không rõ';
+                    html += `
+                        <tr data-id="${doc.id}">
+                            <td>${post.title}</td>
+                            <td><span class="post-type-badge post-type-${post.type}">${typeMap[post.type] || 'Khác'}</span></td>
+                            <td>${post.author || 'N/A'}</td>
+                            <td>${postDate}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-secondary view-post-btn">Xem</button>
+                                <button class="btn btn-primary edit-post-btn">Sửa</button>
+                                <button class="btn btn-danger delete-post-btn">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                postListBody.innerHTML = html || '<tr><td colspan="5">Chưa có bài đăng nào.</td></tr>';
+                const totalPostsEl = document.getElementById('totalPosts');
+                if(totalPostsEl) totalPostsEl.textContent = querySnapshot.size;
+            }, (error) => {
+                console.error("Error listening for posts: ", error);
+                postListBody.innerHTML = '<tr><td colspan="5">Lỗi khi tải bài đăng.</td></tr>';
+            });
+        }
+
+        function listenForScheduleAndAttendance() {
+            const q = query(collection(db, "attendance"), orderBy("date", "desc"));
+            onSnapshot(q, (querySnapshot) => {
+                allAttendanceSessions = [];
                 let scheduleHtml = '';
                 let attendanceHtml = '';
+
                 querySnapshot.forEach(doc => {
-                    const session = doc.data();
+                    const session = { id: doc.id, ...doc.data() };
+                    allAttendanceSessions.push(session);
                     const date = session.date.toDate().toLocaleDateString('vi-VN');
                     
                     scheduleHtml += `
                         <tr data-id="${doc.id}">
                             <td>${date}</td>
                             <td>${session.description}</td>
+                            <td>${session.location || 'Chưa có'}</td>
                             <td class="action-buttons">
                                 <button class="btn btn-danger delete-attendance-btn">Xóa</button>
                             </td>
                         </tr>
                     `;
                     
-                    const total = session.records ? Object.keys(session.records).length : 0;
-                    const present = session.records ? Object.values(session.records).filter(s => s === 'present').length : 0;
-                    const rate = total > 0 ? `${((present / total) * 100).toFixed(0)}%` : 'N/A';
+                    const sessionTotal = session.records ? Object.keys(session.records).length : 0;
+                    const sessionPresent = session.records ? Object.values(session.records).filter(s => s === 'present').length : 0;
+                    const rate = sessionTotal > 0 ? `${((sessionPresent / sessionTotal) * 100).toFixed(0)}%` : 'N/A';
                     attendanceHtml += `
                         <tr data-id="${doc.id}">
                             <td>${date}</td>
                             <td>${session.description}</td>
-                            <td>${rate} (${present}/${total})</td>
+                            <td>${rate} (${sessionPresent}/${sessionTotal})</td>
                             <td class="action-buttons">
                                 <button class="btn btn-primary view-attendance-btn">Điểm danh</button>
                             </td>
                         </tr>
                     `;
                 });
-                 scheduleListBody.innerHTML = scheduleHtml || '<tr><td colspan="3">Chưa có buổi sinh hoạt nào.</td></tr>';
+                 scheduleListBody.innerHTML = scheduleHtml || '<tr><td colspan="4">Chưa có buổi sinh hoạt nào.</td></tr>';
                  attendanceSessionListBody.innerHTML = attendanceHtml || '<tr><td colspan="4">Chưa có phiên điểm danh nào.</td></tr>';
-            } catch(error) {
-                 console.error("Error loading sessions:", error);
-                 scheduleListBody.innerHTML = '<tr><td colspan="3">Lỗi khi tải dữ liệu.</td></tr>';
+            }, (error) => {
+                 console.error("Error listening for sessions:", error);
+                 scheduleListBody.innerHTML = '<tr><td colspan="4">Lỗi khi tải dữ liệu.</td></tr>';
                  attendanceSessionListBody.innerHTML = '<tr><td colspan="4">Lỗi khi tải dữ liệu.</td></tr>';
-            }
+            });
         }
         
-        async function loadFundTransactions() {
-            fundTransactionListBody.innerHTML = '<tr><td colspan="5">Đang tải...</td></tr>';
-            try {
-                const q = query(collection(db, "funds"), orderBy("date", "desc"));
-                const querySnapshot = await getDocs(q);
+        function listenForFundTransactions() {
+            const q = query(collection(db, "funds"), orderBy("date", "desc"));
+            onSnapshot(q, (querySnapshot) => {
+                allFunds = [];
                 let html = '';
                 querySnapshot.forEach(doc => {
-                    const trans = doc.data();
+                    const trans = { id: doc.id, ...doc.data() };
+                    allFunds.push(trans);
+                    
                     const date = trans.date.toDate().toLocaleDateString('vi-VN');
                     const amount = (trans.type === 'income' ? '+' : '-') + trans.amount.toLocaleString('vi-VN');
                     html += `
@@ -762,69 +1091,217 @@
                     `;
                 });
                 fundTransactionListBody.innerHTML = html || '<tr><td colspan="5">Chưa có giao dịch nào.</td></tr>';
-            } catch (error) {
-                console.error("Error loading fund transactions:", error);
+            }, (error) => {
+                console.error("Error listening for fund transactions:", error);
                 fundTransactionListBody.innerHTML = '<tr><td colspan="5">Lỗi khi tải giao dịch.</td></tr>';
-            }
-        }
-
-        async function loadEvents() {
-            eventListBody.innerHTML = '<tr><td colspan="3">Đang tải...</td></tr>';
-            try {
-                const q = query(collection(db, "events"), orderBy("eventDate", "desc"));
-                const querySnapshot = await getDocs(q);
-                let eventsHtml = '';
-                querySnapshot.forEach((doc) => {
-                    const event = doc.data();
-                    const eventDate = event.eventDate?.toDate().toLocaleDateString('vi-VN') || 'Không rõ';
-                    eventsHtml += `
-                        <tr data-id="${doc.id}">
-                            <td>${event.name}</td>
-                            <td>${eventDate}</td>
-                            <td class="action-buttons">
-                                <button class="btn btn-primary edit-event-btn">Sửa</button>
-                                <button class="btn btn-danger delete-event-btn">Xóa</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                eventListBody.innerHTML = eventsHtml || '<tr><td colspan="3">Chưa có sự kiện nào.</td></tr>';
-            } catch (error) {
-                console.error("Error loading events: ", error);
-                eventListBody.innerHTML = '<tr><td colspan="3">Lỗi khi tải sự kiện.</td></tr>';
-            }
-        }
-
-        async function loadAnnouncements() {
-            announcementListBody.innerHTML = '<tr><td colspan="3">Đang tải...</td></tr>';
-            try {
-                const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
-                const querySnapshot = await getDocs(q);
-                let html = '';
-                querySnapshot.forEach((doc) => {
-                    const announcement = doc.data();
-                    const postDate = announcement.createdAt?.toDate().toLocaleDateString('vi-VN') || 'Không rõ';
-                    html += `
-                        <tr data-id="${doc.id}">
-                            <td>${announcement.title}</td>
-                            <td>${postDate}</td>
-                            <td class="action-buttons">
-                                <button class="btn btn-primary edit-announcement-btn">Sửa</button>
-                                <button class="btn btn-danger delete-announcement-btn">Xóa</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                announcementListBody.innerHTML = html || '<tr><td colspan="3">Chưa có thông báo nào.</td></tr>';
-            } catch (error) {
-                console.error("Error loading announcements: ", error);
-                announcementListBody.innerHTML = '<tr><td colspan="3">Lỗi khi tải thông báo.</td></tr>';
-            }
+            });
         }
 
         // --- Modal & Form Handling ---
         function openModal(modalId) { document.getElementById(modalId).classList.add('show'); }
         function closeModal(modalId) { document.getElementById(modalId).classList.remove('show'); }
+
+        function showConfirmation(message, onConfirm, options = {}) {
+            const modal = document.getElementById('confirmationModal');
+            const titleEl = document.getElementById('confirmationTitle');
+            const messageEl = document.getElementById('confirmationMessage');
+            const confirmBtn = document.getElementById('confirmOkBtn');
+            const cancelBtn = document.getElementById('confirmCancelBtn');
+
+            titleEl.textContent = options.title || 'Xác nhận hành động';
+            messageEl.textContent = message;
+            confirmBtn.textContent = options.okText || 'Xác nhận';
+            cancelBtn.textContent = options.cancelText || 'Hủy';
+
+            // Reset button classes
+            confirmBtn.className = 'btn';
+            if (options.okClass) {
+                confirmBtn.classList.add(options.okClass);
+            } else {
+                confirmBtn.classList.add('btn-danger');
+            }
+            cancelBtn.className = 'btn btn-secondary';
+
+            // Use a one-time event listener pattern
+            const confirmHandler = () => {
+                onConfirm();
+                closeModal('confirmationModal');
+            };
+
+            const cancelHandler = () => {
+                closeModal('confirmationModal');
+            };
+            
+            confirmBtn.addEventListener('click', confirmHandler, { once: true });
+            cancelBtn.addEventListener('click', cancelHandler, { once: true });
+            
+            // Need to remove listeners if modal is closed by other means (e.g., clicking outside)
+            const observer = new MutationObserver(() => {
+                if (!modal.classList.contains('show')) {
+                    confirmBtn.removeEventListener('click', confirmHandler);
+                    cancelBtn.removeEventListener('click', cancelHandler);
+                    observer.disconnect();
+                }
+            });
+            observer.observe(modal, { attributes: true });
+
+            openModal('confirmationModal');
+        }
+
+        function renderImagePreviews() {
+            const container = document.getElementById('postImagePreview');
+            const allImages = [...existingImageUrls.map(url => ({ url, isNew: false })), ...newImageFiles];
+            container.innerHTML = '';
+
+            allImages.forEach((imgData) => {
+                const url = imgData.isNew ? imgData.objectURL : imgData.url;
+                if (!url) return;
+                const item = document.createElement('div');
+                item.className = 'image-preview-item';
+                if (url === selectedCoverUrl) {
+                    item.classList.add('is-cover');
+                }
+                item.innerHTML = `
+                    <img src="${url}" class="preview-img" alt="Preview">
+                    <button type="button" class="remove-img-btn">&times;</button>
+                    <i class='bx bxs-star cover-icon'></i>
+                `;
+                container.appendChild(item);
+
+                item.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-img-btn')) {
+                        e.stopPropagation();
+                        if (imgData.isNew) {
+                            newImageFiles = newImageFiles.filter(f => f.objectURL !== url);
+                            URL.revokeObjectURL(url);
+                        } else {
+                            existingImageUrls = existingImageUrls.filter(u => u !== url);
+                        }
+                        if (selectedCoverUrl === url) {
+                            selectedCoverUrl = '';
+                        }
+                        renderImagePreviews(); // Re-render
+                    } else {
+                        // Set as cover
+                        selectedCoverUrl = url;
+                        renderImagePreviews(); // Re-render to update cover status
+                    }
+                });
+            });
+        }
+
+        function openPostModal(id = null, data = {}) {
+            const modal = document.getElementById('postModal');
+            const form = document.getElementById('postForm');
+            form.reset();
+            document.getElementById('postImagePreview').innerHTML = '';
+            existingImageUrls = [];
+            newImageFiles = [];
+            selectedCoverUrl = '';
+
+            modal.querySelector('#postModalTitle').textContent = id ? 'Chỉnh sửa Bài Đăng' : 'Tạo Bài Đăng Mới';
+            modal.querySelector('#postId').value = id || '';
+            
+            const postTypeSelect = modal.querySelector('#postType');
+            const eventDateGroup = document.getElementById('eventDateGroup');
+            const coverInstruction = document.getElementById('coverImageInstruction');
+
+            const type = data.type || 'announcement';
+            postTypeSelect.value = type;
+            eventDateGroup.style.display = (type === 'event') ? 'block' : 'none';
+            coverInstruction.style.display = (type === 'event' || type === 'post') ? 'inline' : 'none';
+
+            if (id) {
+                modal.querySelector('#postTitle').value = data.title || '';
+                modal.querySelector('#postContent').value = data.content || '';
+                if (data.type === 'event' && data.eventDate) {
+                    modal.querySelector('#eventDate').value = data.eventDate.toDate().toISOString().split('T')[0];
+                }
+                if (data.imageUrls && data.imageUrls.length > 0) {
+                    existingImageUrls = [...data.imageUrls];
+                    selectedCoverUrl = data.coverImageUrl || '';
+                    renderImagePreviews();
+                }
+            }
+            openModal('postModal');
+        }
+        
+        function openPostViewer(postId) {
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) return;
+            
+            document.getElementById('postViewerTitle').textContent = post.title;
+            document.getElementById('postViewerContent').textContent = post.content;
+            
+            const coverImageEl = document.getElementById('postViewerCoverImage');
+            if (post.coverImageUrl) {
+                coverImageEl.src = post.coverImageUrl;
+                coverImageEl.style.display = 'block';
+            } else {
+                coverImageEl.style.display = 'none';
+            }
+
+            let metaHtml = `Đăng bởi ${post.author} vào ngày ${post.createdAt.toDate().toLocaleDateString('vi-VN')}`;
+            if (post.type === 'event' && post.eventDate) {
+                metaHtml += ` | <strong style="color: var(--fpt-orange);">Diễn ra vào: ${post.eventDate.toDate().toLocaleDateString('vi-VN')}</strong>`;
+            }
+            document.getElementById('postViewerMeta').innerHTML = metaHtml;
+
+            const imagesContainer = document.getElementById('postViewerImages');
+            imagesContainer.innerHTML = '';
+            if (post.imageUrls && post.imageUrls.length > 0) {
+                post.imageUrls.forEach(url => {
+                    if (url !== post.coverImageUrl) { // Don't show cover image again in gallery
+                        imagesContainer.innerHTML += `<img src="${url}" alt="Post image">`;
+                    }
+                });
+            }
+
+            openModal('postViewerModal');
+        }
+
+        function openApplicationViewer(appId) {
+            const app = allApplications.find(a => a.id === appId);
+            if (!app) return;
+
+            document.getElementById('applicationViewerName').textContent = `Đơn đăng ký của ${app.displayName}`;
+            
+            const detailsContainer = document.getElementById('applicationViewerDetails');
+            const footerContainer = document.getElementById('applicationViewerFooter');
+            
+            const detailsMap = {
+                'Họ và tên': app.displayName,
+                'Email': app.email,
+                'Lớp': app.class,
+                'MSHS': app.studentId,
+                'Số điện thoại': app.phone,
+                'Dorm': app.dorm,
+                'Tên GVCN': app.homeroomTeacher,
+                'Tên GVQN': app.managingTeacher,
+                'Facebook': app.facebookUrl ? `<a href="${app.facebookUrl}" target="_blank" rel="noopener noreferrer">${app.facebookUrl}</a>` : 'Chưa cung cấp',
+                'Ngày nộp': app.submittedAt ? app.submittedAt.toDate().toLocaleString('vi-VN') : 'Chưa rõ',
+                'Biết đến CLB từ': app.howDidYouKnow,
+                'Ban mong muốn': app.desiredDepartment,
+                'Năng khiếu/Sở trường': app.strengths,
+                'Mong muốn khi tham gia': app.expectations
+            };
+
+            let detailsHtml = '<dl>';
+            for (const [key, value] of Object.entries(detailsMap)) {
+                detailsHtml += `<dt>${key}</dt><dd>${value || 'Chưa cung cấp'}</dd>`;
+            }
+            detailsHtml += '</dl>';
+            detailsContainer.innerHTML = detailsHtml;
+
+            footerContainer.innerHTML = `
+                <button class="btn btn-success" id="modalApproveBtn">Duyệt</button>
+                <button class="btn btn-danger" id="modalRejectBtn">Từ chối</button>
+            `;
+            footerContainer.querySelector('#modalApproveBtn').onclick = () => handleApproveApplication(appId);
+            footerContainer.querySelector('#modalRejectBtn').onclick = () => handleRejectApplication(appId);
+
+            openModal('applicationViewerModal');
+        }
 
         async function openEditMemberModal(userId) {
             const userDocRef = doc(db, "users", userId);
@@ -832,11 +1309,6 @@
             if (docSnap.exists()) {
                 const userData = docSnap.data();
                 
-                if (userData.role === 'superadmin' && currentUserRole !== 'superadmin') {
-                    alert("Bạn không có quyền chỉnh sửa thông tin của Super Admin.");
-                    return;
-                }
-
                 const form = document.getElementById('editMemberForm');
                 form.querySelector('#editUserId').value = userId;
                 form.querySelector('#editDisplayName').value = userData.displayName || '';
@@ -857,16 +1329,15 @@
             }
         }
         
-        async function openTakeAttendanceModal(sessionId, sessionData) {
+        function openTakeAttendanceModal(sessionId, sessionData) {
             const modal = document.getElementById('takeAttendanceModal');
             modal.querySelector('#takeAttendanceModalTitle').textContent = `Điểm danh: ${sessionData.description} (${sessionData.date.toDate().toLocaleDateString('vi-VN')})`;
             modal.querySelector('#attendanceSessionId').value = sessionId;
             const tableBody = modal.querySelector('#attendanceMemberTable');
             tableBody.innerHTML = '<tbody><tr><td>Đang tải danh sách...</td></tr></tbody>';
             
-            const members = await loadAllMembers(true);
             let tableHtml = '<thead><tr><th>Thành viên</th><th>Có mặt</th><th>Vắng (Có phép)</th><th>Vắng (Không phép)</th></tr></thead><tbody>';
-            members.forEach(member => {
+            allMembers.forEach(member => {
                 if (member.role !== 'superadmin') {
                     const status = sessionData.records ? sessionData.records[member.id] : null;
                     tableHtml += `
@@ -883,36 +1354,81 @@
             tableBody.innerHTML = tableHtml;
             openModal('takeAttendanceModal');
         }
-        
-        function openEventModal(id = null, data = {}) {
-            const modal = document.getElementById('eventModal');
-            const form = document.getElementById('eventForm');
-            form.reset();
-            modal.querySelector('#eventModalTitle').textContent = id ? 'Chỉnh sửa Sự kiện' : 'Tạo Sự kiện Mới';
-            modal.querySelector('#eventId').value = id || '';
-            if (id) {
-                modal.querySelector('#eventName').value = data.name || '';
-                modal.querySelector('#eventDate').value = data.eventDate?.toDate().toISOString().split('T')[0] || '';
-                modal.querySelector('#eventDescription').value = data.description || '';
-            }
-            openModal('eventModal');
-        }
-
-        function openAnnouncementModal(id = null, data = {}) {
-            const modal = document.getElementById('announcementModal');
-            const form = document.getElementById('announcementForm');
-            form.reset();
-            modal.querySelector('#announcementModalTitle').textContent = id ? 'Chỉnh sửa Thông báo' : 'Tạo Thông báo Mới';
-            modal.querySelector('#announcementId').value = id || '';
-            if (id) {
-                modal.querySelector('#announcementTitle').value = data.title || '';
-                modal.querySelector('#announcementContent').value = data.content || '';
-            }
-            openModal('announcementModal');
-        }
 
         // --- CRUD Operations ---
         
+        async function handleSavePost(event) {
+            event.preventDefault();
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const postId = document.getElementById('postId').value;
+            
+            const filesToUpload = newImageFiles.map(f => f.file);
+            const uploadResults = await uploadImages(filesToUpload, submitButton);
+            
+            const newImageUrls = uploadResults.map(r => r.url);
+            const finalImageUrls = [...existingImageUrls, ...newImageUrls];
+            
+            let finalCoverUrl = '';
+            const postType = document.getElementById('postType').value;
+            if (postType === 'event' || postType === 'post') {
+                if (selectedCoverUrl && selectedCoverUrl.startsWith('blob:')) {
+                    const coverFileObj = newImageFiles.find(f => f.objectURL === selectedCoverUrl);
+                    if (coverFileObj) {
+                        const correspondingResult = uploadResults.find(r => r.originalFile === coverFileObj.file);
+                        if(correspondingResult) finalCoverUrl = correspondingResult.url;
+                    }
+                } else {
+                    finalCoverUrl = selectedCoverUrl || '';
+                }
+            }
+            
+            const postData = { 
+                title: document.getElementById('postTitle').value, 
+                content: document.getElementById('postContent').value,
+                type: postType,
+                imageUrls: finalImageUrls,
+                coverImageUrl: finalCoverUrl,
+                author: auth.currentUser.displayName,
+            };
+
+            if (postData.type === 'event') {
+                const eventDateValue = document.getElementById('eventDate').value;
+                if (!eventDateValue) {
+                    alert("Vui lòng chọn ngày diễn ra cho sự kiện.");
+                    return;
+                }
+                postData.eventDate = Timestamp.fromDate(new Date(eventDateValue));
+            } else {
+                delete postData.eventDate; 
+            }
+
+            try {
+                if (postId) { 
+                    await updateDoc(doc(db, "posts", postId), postData); 
+                    alert("Cập nhật thành công!"); 
+                }
+                else { 
+                    postData.createdAt = serverTimestamp(); 
+                    await addDoc(collection(db, "posts"), postData); 
+                    alert("Tạo thành công!"); 
+                }
+                closeModal('postModal'); 
+            } catch (error) { 
+                console.error("Error saving post:", error); 
+                alert("Lỗi khi lưu bài đăng."); 
+            }
+        }
+
+        async function handleDeletePost(postId) {
+            showConfirmation("Bạn có chắc chắn muốn xóa bài đăng này?", async () => {
+                try { 
+                    await deleteDoc(doc(db, "posts", postId)); 
+                    alert("Xóa thành công."); 
+                }
+                catch(error) { console.error("Error deleting post:", error); alert("Lỗi khi xóa."); }
+            });
+        }
+
         async function handleUpdateMember(event) {
             event.preventDefault();
             const userId = document.getElementById('editUserId').value;
@@ -932,45 +1448,73 @@
                 await updateDoc(doc(db, "users", userId), updatedData);
                 alert("Cập nhật thành công!");
                 closeModal('editMemberModal');
-                loadAllMembers();
             } catch (error) { console.error("Error updating member:", error); alert("Lỗi khi cập nhật."); }
         }
         
         async function handleDeleteMember(userId) {
-            const userDocRef = doc(db, "users", userId);
-            const docSnap = await getDoc(userDocRef);
-            if (docSnap.exists() && docSnap.data().role === 'superadmin') {
-                 alert("Bạn không có quyền xóa Super Admin.");
-                 return;
+            if(auth.currentUser.uid === userId) {
+                alert("Bạn không thể tự xóa chính mình.");
+                return;
             }
 
-            if (confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
-                if(auth.currentUser.uid === userId) {
-                    alert("Bạn không thể tự xóa chính mình.");
-                    return;
-                }
+            showConfirmation("Bạn có chắc chắn muốn xóa thành viên này?", async () => {
                 try {
                     await deleteDoc(doc(db, "users", userId));
                     alert("Xóa thành viên thành công.");
-                    loadAllMembers();
-                    updateDashboardStats();
                 } catch (error) { console.error("Error deleting member:", error); alert("Lỗi khi xóa."); }
-            }
+            });
         }
         
+        async function handleApproveApplication(appId) {
+            showConfirmation("Bạn có chắc chắn muốn duyệt thành viên này?", async () => {
+                try {
+                    const appRef = doc(db, "applications", appId);
+                    const appSnap = await getDoc(appRef);
+                    if (appSnap.exists()) {
+                        const appData = appSnap.data();
+                        
+                        await setDoc(doc(db, "invitations", appData.email), {
+                            role: 'member',
+                            ...appData
+                        });
+
+                        await deleteDoc(appRef);
+                        alert("Duyệt thành công! Thành viên cần đăng nhập bằng email đã đăng ký để hoàn tất.");
+                        closeModal('applicationViewerModal');
+                    }
+                } catch (error) {
+                    console.error("Error approving application: ", error);
+                    alert("Lỗi khi duyệt đơn.");
+                }
+            }, { okText: 'Duyệt', okClass: 'btn-success' });
+        }
+
+        async function handleRejectApplication(appId) {
+            showConfirmation("Bạn có chắc chắn muốn từ chối đơn này?", async () => {
+                try {
+                    await deleteDoc(doc(db, "applications", appId));
+                    alert("Đã từ chối đơn đăng ký.");
+                    closeModal('applicationViewerModal');
+                } catch (error) {
+                    console.error("Error rejecting application: ", error);
+                    alert("Lỗi khi từ chối đơn.");
+                }
+            });
+        }
+
         async function handleAddSchedule(event) {
             event.preventDefault();
             const sessionData = {
                 date: Timestamp.fromDate(new Date(document.getElementById('scheduleDate').value)),
                 description: document.getElementById('scheduleDescription').value,
+                location: document.getElementById('scheduleLocation').value,
                 createdAt: serverTimestamp(),
                 records: {}
             };
             try {
-                const docRef = await addDoc(collection(db, "attendance"), sessionData);
+                await addDoc(collection(db, "attendance"), sessionData);
                 alert("Tạo buổi sinh hoạt thành công! Chuyển đến trang Điểm danh để bắt đầu.");
                 closeModal('addScheduleModal');
-                loadScheduleAndAttendance();
                 document.querySelector('a[href="#attendance"]').click();
             } catch (error) { console.error("Error creating session:", error); alert("Lỗi khi tạo."); }
         }
@@ -992,55 +1536,14 @@
                 await updateDoc(doc(db, "attendance", sessionId), { records });
                 alert("Lưu kết quả điểm danh thành công!");
                 closeModal('takeAttendanceModal');
-                loadScheduleAndAttendance();
             } catch(error) { console.error("Error saving attendance:", error); alert("Lỗi khi lưu."); }
         }
 
         async function handleDeleteAttendance(sessionId) {
-            if(confirm("Bạn có chắc chắn muốn xóa buổi sinh hoạt này?")) {
-                try { await deleteDoc(doc(db, "attendance", sessionId)); alert("Xóa thành công."); loadScheduleAndAttendance(); }
+            showConfirmation("Bạn có chắc chắn muốn xóa buổi sinh hoạt này?", async () => {
+                try { await deleteDoc(doc(db, "attendance", sessionId)); alert("Xóa thành công."); }
                 catch(error) { console.error("Error deleting session:", error); alert("Lỗi khi xóa."); }
-            }
-        }
-        
-        async function handleSaveEvent(event) {
-            event.preventDefault();
-            const eventId = document.getElementById('eventId').value;
-            const eventData = {
-                name: document.getElementById('eventName').value,
-                description: document.getElementById('eventDescription').value,
-                eventDate: Timestamp.fromDate(new Date(document.getElementById('eventDate').value)),
-            };
-            try {
-                if (eventId) { await updateDoc(doc(db, "events", eventId), eventData); alert("Cập nhật thành công!"); }
-                else { eventData.createdAt = serverTimestamp(); await addDoc(collection(db, "events"), eventData); alert("Tạo thành công!"); }
-                closeModal('eventModal'); loadEvents(); updateDashboardStats();
-            } catch (error) { console.error("Error saving event:", error); alert("Lỗi khi lưu."); }
-        }
-        
-        async function handleDeleteEvent(eventId) {
-            if(confirm("Bạn có chắc chắn muốn xóa sự kiện này?")) {
-                try { await deleteDoc(doc(db, "events", eventId)); alert("Xóa thành công."); loadEvents(); updateDashboardStats(); }
-                catch(error) { console.error("Error deleting event:", error); alert("Lỗi khi xóa."); }
-            }
-        }
-
-        async function handleSaveAnnouncement(event) {
-            event.preventDefault();
-            const announcementId = document.getElementById('announcementId').value;
-            const announcementData = { title: document.getElementById('announcementTitle').value, content: document.getElementById('announcementContent').value };
-            try {
-                if(announcementId) { await updateDoc(doc(db, "announcements", announcementId), announcementData); alert("Cập nhật thành công!"); }
-                else { announcementData.author = auth.currentUser.displayName; announcementData.createdAt = serverTimestamp(); await addDoc(collection(db, "announcements"), announcementData); alert("Tạo thành công!"); }
-                closeModal('announcementModal'); loadAnnouncements(); updateDashboardStats();
-            } catch (error) { console.error("Error saving announcement:", error); alert("Lỗi khi lưu."); }
-        }
-
-        async function handleDeleteAnnouncement(announcementId) {
-            if(confirm("Bạn có chắc chắn muốn xóa thông báo này?")) {
-                try { await deleteDoc(doc(db, "announcements", announcementId)); alert("Xóa thành công."); loadAnnouncements(); updateDashboardStats(); }
-                catch(error) { console.error("Error deleting announcement:", error); alert("Lỗi khi xóa."); }
-            }
+            });
         }
         
         async function handleSaveTransaction(event) {
@@ -1056,14 +1559,46 @@
                 await addDoc(collection(db, "funds"), transactionData);
                 alert("Thêm giao dịch thành công!");
                 closeModal('transactionModal');
-                loadFundTransactions();
             } catch (error) { console.error("Error saving transaction:", error); alert("Lỗi khi lưu."); }
         }
 
         async function handleDeleteTransaction(transactionId) {
-            if(confirm("Bạn có chắc chắn muốn xóa giao dịch này?")) {
-                try { await deleteDoc(doc(db, "funds", transactionId)); alert("Xóa thành công."); loadFundTransactions(); }
+            showConfirmation("Bạn có chắc chắn muốn xóa giao dịch này?", async () => {
+                try { await deleteDoc(doc(db, "funds", transactionId)); alert("Xóa thành công."); }
                 catch(error) { console.error("Error deleting transaction:", error); alert("Lỗi khi xóa."); }
+            });
+        }
+
+        async function handleAddMember(event) {
+            event.preventDefault();
+            const email = document.getElementById('addEmail').value.trim();
+            const displayName = document.getElementById('addDisplayName').value.trim();
+            const role = document.getElementById('addRole').value;
+
+            if (!email || !displayName) {
+                alert("Vui lòng nhập đầy đủ Tên và Email.");
+                return;
+            }
+
+            try {
+                const q = query(collection(db, "users"), where("email", "==", email));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    alert("Lỗi: Thành viên với email này đã tồn tại!");
+                    return;
+                }
+
+                await setDoc(doc(db, "invitations", email), {
+                    displayName: displayName,
+                    role: role,
+                    createdAt: serverTimestamp()
+                });
+
+                alert("Thêm lời mời thành công. Người dùng cần đăng nhập bằng Google với email này để kích hoạt tài khoản.");
+                closeModal('addMemberModal');
+            } catch (error) {
+                console.error("Error adding member invitation:", error);
+                alert("Lỗi khi thêm thành viên.");
             }
         }
 
@@ -1092,9 +1627,9 @@
             // Logout
             document.getElementById('logoutButton').addEventListener('click', (e) => {
                 e.preventDefault();
-                if(confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+                showConfirmation("Bạn có chắc chắn muốn đăng xuất?", () => {
                     signOut(auth).catch(error => console.error("Sign out error:", error));
-                }
+                }, {okText: 'Đăng xuất'});
             });
             
             // --- Modal Open/Close & Form Submission ---
@@ -1103,15 +1638,35 @@
             
             document.getElementById('addScheduleBtn').addEventListener('click', () => openModal('addScheduleModal'));
             document.getElementById('addTransactionBtn').addEventListener('click', () => openModal('transactionModal'));
-            document.getElementById('addEventBtn').addEventListener('click', () => openEventModal());
-            document.getElementById('addAnnouncementBtn').addEventListener('click', () => openAnnouncementModal());
+            document.getElementById('addPostBtn').addEventListener('click', () => openPostModal());
+            document.getElementById('addMemberBtn').addEventListener('click', () => {
+                document.getElementById('addMemberForm').reset();
+                openModal('addMemberModal');
+            });
 
             document.getElementById('editMemberForm').addEventListener('submit', handleUpdateMember);
             document.getElementById('addScheduleForm').addEventListener('submit', handleAddSchedule);
             document.getElementById('takeAttendanceForm').addEventListener('submit', handleSaveAttendance);
             document.getElementById('transactionForm').addEventListener('submit', handleSaveTransaction);
-            document.getElementById('eventForm').addEventListener('submit', handleSaveEvent);
-            document.getElementById('announcementForm').addEventListener('submit', handleSaveAnnouncement);
+            document.getElementById('postForm').addEventListener('submit', handleSavePost);
+            document.getElementById('addMemberForm').addEventListener('submit', handleAddMember);
+
+            document.getElementById('postType').addEventListener('change', (e) => {
+                const eventDateGroup = document.getElementById('eventDateGroup');
+                const coverInstruction = document.getElementById('coverImageInstruction');
+                const type = e.target.value;
+                eventDateGroup.style.display = (type === 'event') ? 'block' : 'none';
+                coverInstruction.style.display = (type === 'event' || type === 'post') ? 'inline' : 'none';
+            });
+
+            document.getElementById('postImages').addEventListener('change', (event) => {
+                for (const file of event.target.files) {
+                    const objectURL = URL.createObjectURL(file);
+                    newImageFiles.push({ file, objectURL });
+                }
+                renderImagePreviews();
+                event.target.value = ''; // Reset input
+            });
             
             // --- Event Delegation for table buttons ---
             const setupTableListeners = (tableBody) => {
@@ -1125,23 +1680,21 @@
                     if (target.matches('.delete-member-btn')) handleDeleteMember(docId);
                     if (target.matches('.delete-attendance-btn')) handleDeleteAttendance(docId);
                     if (target.matches('.view-attendance-btn')) {
-                        const docRef = doc(db, "attendance", docId);
-                        const docSnap = await getDoc(docRef);
-                        if(docSnap.exists()) openTakeAttendanceModal(docId, docSnap.data());
+                        const session = allAttendanceSessions.find(s => s.id === docId);
+                        if(session) openTakeAttendanceModal(docId, session);
                     }
                     if (target.matches('.delete-transaction-btn')) handleDeleteTransaction(docId);
-                    if (target.matches('.edit-event-btn')) {
-                        const docRef = doc(db, "events", docId);
-                        const docSnap = await getDoc(docRef);
-                        if(docSnap.exists()) openEventModal(docId, docSnap.data());
+                    if (target.matches('.edit-post-btn')) {
+                        const post = allPosts.find(p => p.id === docId);
+                        if(post) openPostModal(docId, post);
                     }
-                    if (target.matches('.delete-event-btn')) handleDeleteEvent(docId);
-                    if (target.matches('.edit-announcement-btn')) {
-                        const docRef = doc(db, "announcements", docId);
-                        const docSnap = await getDoc(docRef);
-                        if(docSnap.exists()) openAnnouncementModal(docId, docSnap.data());
+                    if (target.matches('.view-post-btn')) {
+                        openPostViewer(docId);
                     }
-                    if (target.matches('.delete-announcement-btn')) handleDeleteAnnouncement(docId);
+                    if (target.matches('.delete-post-btn')) handleDeletePost(docId);
+                    if (target.matches('.approve-app-btn')) handleApproveApplication(docId);
+                    if (target.matches('.reject-app-btn')) handleRejectApplication(docId);
+                    if (target.matches('.view-app-btn')) openApplicationViewer(docId);
                 });
             };
 
@@ -1149,9 +1702,127 @@
             setupTableListeners(attendanceSessionListBody);
             setupTableListeners(scheduleListBody);
             setupTableListeners(fundTransactionListBody);
-            setupTableListeners(eventListBody);
-            setupTableListeners(announcementListBody);
+            setupTableListeners(postListBody);
+            setupTableListeners(applicationListBody);
         }
+
+        // --- Report Generator ---
+        function setupReportGenerator() {
+            const monthSelect = document.getElementById('reportMonth');
+            const yearSelect = document.getElementById('reportYear');
+            const generateBtn = document.getElementById('generateReportBtn');
+
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
+
+            for (let i = 1; i <= 12; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Tháng ${i}`;
+                if (i === currentMonth) option.selected = true;
+                monthSelect.appendChild(option);
+            }
+
+            for (let i = currentYear; i >= currentYear - 5; i--) {
+                 const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Năm ${i}`;
+                yearSelect.appendChild(option);
+            }
+
+            generateBtn.addEventListener('click', generateReport);
+        }
+
+        function generateReport() {
+            const month = parseInt(document.getElementById('reportMonth').value);
+            const year = parseInt(document.getElementById('reportYear').value);
+
+            document.getElementById('reportTitle').textContent = `Báo cáo hoạt động tháng ${month}/${year}`;
+            
+            // 1. Activity Report
+            const startDate = new Date(year, month - 1, 1);
+            const endDate = new Date(year, month, 1);
+            
+            const filteredSessions = allAttendanceSessions.filter(session => {
+                const sessionDate = session.date.toDate();
+                return sessionDate >= startDate && sessionDate < endDate;
+            });
+
+            let activityHtml = '<div class="table-container"><table><thead><tr><th>Thời gian</th><th>Địa điểm</th><th>Số lượng tham dự</th><th>Nội dung</th></tr></thead><tbody>';
+            if (filteredSessions.length > 0) {
+                filteredSessions.forEach(session => {
+                    const presentCount = session.records ? Object.values(session.records).filter(s => s === 'present').length : 0;
+                    activityHtml += `
+                        <tr>
+                            <td>${session.date.toDate().toLocaleString('vi-VN')}</td>
+                            <td>${session.location || 'Chưa có'}</td>
+                            <td>${presentCount}</td>
+                            <td>${session.description}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                activityHtml += '<tr><td colspan="4">Không có buổi sinh hoạt nào trong tháng.</td></tr>';
+            }
+            activityHtml += '</tbody></table></div>';
+            document.getElementById('activityReportContent').innerHTML = activityHtml;
+
+            // 2. Event Report
+            const filteredEvents = allPosts.filter(post => {
+                if (post.type !== 'event' || !post.eventDate) return false;
+                const eventDate = post.eventDate.toDate();
+                return eventDate >= startDate && eventDate < endDate;
+            });
+            
+            let eventHtml = '<ul>';
+            if (filteredEvents.length > 0) {
+                filteredEvents.forEach(event => {
+                    eventHtml += `<li>${event.eventDate.toDate().toLocaleDateString('vi-VN')}: ${event.title}</li>`;
+                });
+            } else {
+                eventHtml += '<li>Không có sự kiện nào trong tháng.</li>';
+            }
+            eventHtml += '</ul>';
+            document.getElementById('eventReportContent').innerHTML = eventHtml;
+
+            // 3. Financial Report
+            const transactionsBefore = allFunds.filter(t => t.date.toDate() < startDate);
+            const transactionsThisMonth = allFunds.filter(t => {
+                const transDate = t.date.toDate();
+                return transDate >= startDate && transDate < endDate;
+            });
+
+            const startBalance = transactionsBefore.reduce((acc, trans) => {
+                return acc + (trans.type === 'income' ? trans.amount : -trans.amount);
+            }, 0);
+            
+            const incomeThisMonth = transactionsThisMonth
+                .filter(t => t.type === 'income')
+                .reduce((acc, trans) => acc + trans.amount, 0);
+
+            const expenseThisMonth = transactionsThisMonth
+                .filter(t => t.type === 'expense')
+                .reduce((acc, trans) => acc + trans.amount, 0);
+
+            const endBalance = startBalance + incomeThisMonth - expenseThisMonth;
+
+            let financialHtml = `<dl>
+                <dt>Quỹ còn lại tháng trước:</dt>
+                <dd>${startBalance.toLocaleString('vi-VN')} đồng</dd>
+                <dt>Tổng thu trong tháng ${month}:</dt>
+                <dd style="color: var(--green);">+ ${incomeThisMonth.toLocaleString('vi-VN')} đồng</dd>
+                <dt>Tổng chi trong tháng ${month}:</dt>
+                <dd style="color: var(--red);">- ${expenseThisMonth.toLocaleString('vi-VN')} đồng</dd>
+                <dt>Quỹ còn lại:</dt>
+                <dd><strong>${endBalance.toLocaleString('vi-VN')} đồng</strong></dd>
+            </dl>`;
+            document.getElementById('financialReportContent').innerHTML = financialHtml;
+
+
+            document.getElementById('reportOutput').style.display = 'block';
+        }
+
+
     </script>
 </body>
 </html>
