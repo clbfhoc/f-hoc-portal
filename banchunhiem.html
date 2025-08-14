@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Ban Chủ Nhiệm | F-Học Portal 2.0</title>
+    <title>Trang Mentor | F-Học Portal 3.0</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://i.ibb.co/ycSx4Q3D/F-H-c-PORTAL-1.png">
     <!-- Tailwind CSS CDN -->
@@ -22,20 +22,17 @@
         .sidebar {
             transition: width 0.3s ease;
         }
-        .sidebar-link .link-text {
-            transition: opacity 0.2s ease, transform 0.2s ease;
+        .sidebar.close {
+            width: 88px;
         }
-        .sidebar.close .link-text, .sidebar.close .logo-text {
+        .sidebar.close .link-text, .sidebar.close .logo-text, .sidebar.close .dropdown-arrow {
             opacity: 0;
-            transform: translateX(-10px);
             pointer-events: none;
         }
-        .sidebar.close .sidebar-menu {
-            align-items: center;
-        }
-        .sidebar.close .sidebar-link {
-            justify-content: center;
-        }
+        .sidebar.close .sidebar-menu { align-items: center; }
+        .sidebar.close .sidebar-link, .sidebar.close .dropdown-toggle { justify-content: center; }
+        .sidebar.close .dropdown-menu { display: none !important; }
+
         .page-content {
             display: none;
         }
@@ -47,41 +44,89 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* Modal Animation */
-        .modal-enter { animation: fadeIn 0.3s ease-out; }
-        .modal-leave { animation: fadeOut 0.3s ease-in; }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-
-        /* Hiệu ứng chuyển động & Style nhất quán */
-        .sidebar-link {
-            transition: transform 0.2s ease, background-color 0.2s ease;
+        /* Dropdown Menu */
+        .dropdown-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
         }
-        .sidebar-link:hover {
-            transform: translateX(4px);
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
         }
-        .form-group input, .form-group select, .form-group textarea {
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-        }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            transform: scale(1.02);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); /* blue-500 with opacity */
-        }
-         .role-badge {
-            padding: 4px 10px;
-            border-radius: 9999px;
-            font-size: 12px;
+        .dropdown-item.active {
+            color: #2563eb; /* blue-600 */
             font-weight: 600;
-            text-transform: capitalize;
-            color: white;
         }
-        .role-mentor { background-color: #ef4444; } /* red-500 */
-        .role-bcn { background-color: #f97316; } /* orange-500 */
+        .dropdown-toggle.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        
+        /* Kanban Board Styles */
+        .kanban-board {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+        .kanban-column {
+            flex: 0 0 320px;
+            width: 320px;
+            background-color: #f8fafc; /* slate-50 */
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+        .kanban-column-title {
+            font-weight: 600;
+            color: #475569; /* slate-600 */
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        .kanban-column-title .count {
+            margin-left: 0.5rem;
+            font-size: 0.875rem;
+            background-color: #e2e8f0; /* slate-200 */
+            color: #475569;
+            padding: 2px 8px;
+            border-radius: 99px;
+        }
+        .kanban-cards {
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .kanban-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+            cursor: grab;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .kanban-card:active {
+             cursor: grabbing;
+        }
+        .kanban-card.dragging {
+            opacity: 0.5;
+            transform: scale(1.05);
+        }
+        .priority-high { border-left: 4px solid #ef4444; } /* red-500 */
+        .priority-medium { border-left: 4px solid #f97316; } /* orange-500 */
+        .priority-low { border-left: 4px solid #3b82f6; } /* blue-500 */
+
+        .role-badge {
+            padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; text-transform: capitalize; color: white;
+        }
+        .role-mentor { background-color: #8b5cf6; } /* violet-500 */
+        .role-bcn { background-color: #ec4899; } /* pink-500 */
         .role-member { background-color: #3b82f6; } /* blue-500 */
     </style>
 </head>
@@ -97,13 +142,36 @@
             <div class="flex items-center justify-center mb-8 px-2">
                 <img src="https://i.ibb.co/Z6yWtdVP/F-H-c-PORTAL-3.png" alt="F-Hoc Portal Logo" class="logo-text w-auto h-10 transition-opacity duration-200">
             </div>
-            <ul class="sidebar-menu flex flex-col h-full">
+            <ul class="sidebar-menu flex flex-col h-full space-y-2">
                 <li><a href="#dashboard" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium active"><i class='bx bxs-dashboard text-2xl'></i><span class="link-text">Tổng quan</span></a></li>
-                <li><a href="#applications" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bx-user-plus text-2xl'></i><span class="link-text">Duyệt đơn</span></a></li>
-                <li><a href="#members" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-group text-2xl'></i><span class="link-text">Thành viên</span></a></li>
-                <li><a href="#schedule" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-calendar text-2xl'></i><span class="link-text">Lịch Sinh Hoạt</span></a></li>
-                <li><a href="#attendance" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-user-check text-2xl'></i><span class="link-text">Điểm Danh</span></a></li>
+                
+                <li class="dropdown-container">
+                    <a href="#" class="dropdown-toggle sidebar-link flex items-center justify-between gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium">
+                        <div class="flex items-center gap-3"><i class='bx bxs-group text-2xl'></i><span class="link-text">Thành viên</span></div>
+                        <i class='bx bx-chevron-down text-xl dropdown-arrow'></i>
+                    </a>
+                    <ul class="dropdown-menu pl-8 mt-1 space-y-1">
+                        <li><a href="#applications" class="nav-link dropdown-item block p-2 rounded-md text-slate-500 hover:bg-slate-100">Duyệt đơn</a></li>
+                        <li><a href="#members" class="nav-link dropdown-item block p-2 rounded-md text-slate-500 hover:bg-slate-100">Quản lý Thành viên</a></li>
+                    </ul>
+                </li>
+                
+                 <li><a href="#tasks" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bx-list-ul text-2xl'></i><span class="link-text">Công việc</span></a></li>
+
+                <li class="dropdown-container">
+                    <a href="#" class="dropdown-toggle sidebar-link flex items-center justify-between gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium">
+                        <div class="flex items-center gap-3"><i class='bx bxs-calendar-event text-2xl'></i><span class="link-text">Sinh hoạt</span></div>
+                        <i class='bx bx-chevron-down text-xl dropdown-arrow'></i>
+                    </a>
+                    <ul class="dropdown-menu pl-8 mt-1 space-y-1">
+                        <li><a href="#schedule" class="nav-link dropdown-item block p-2 rounded-md text-slate-500 hover:bg-slate-100">Lịch sinh hoạt</a></li>
+                        <li><a href="#attendance" class="nav-link dropdown-item block p-2 rounded-md text-slate-500 hover:bg-slate-100">Điểm danh</a></li>
+                    </ul>
+                </li>
+                
                 <li><a href="#funds" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-wallet text-2xl'></i><span class="link-text">Quỹ CLB</span></a></li>
+                <li><a href="#reports" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-report text-2xl'></i><span class="link-text">Báo Cáo</span></a></li>
+                
                 <li class="mt-auto"><a href="#" id="logoutButton" class="sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-red-50 hover:text-red-600 font-medium"><i class='bx bx-log-out text-2xl'></i><span class="link-text">Đăng xuất</span></a></li>
             </ul>
         </nav>
@@ -116,8 +184,8 @@
                     <h1 id="headerTitle" class="text-2xl font-bold text-slate-800">Tổng quan</h1>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span id="userName" class="font-semibold text-slate-700">Ban Chủ Nhiệm</span>
-                    <img id="userAvatar" src="https://placehold.co/48x48/fff0e6/f97316?text=B" alt="Avatar" class="w-12 h-12 rounded-md object-cover">
+                    <span id="userName" class="font-semibold text-slate-700">Mentor</span>
+                    <img id="userAvatar" src="https://placehold.co/48x48/f0f3ff/4a69bd?text=M" alt="Avatar" class="w-12 h-12 rounded-md object-cover">
                 </div>
             </header>
 
@@ -165,7 +233,28 @@
                     </div>
                 </div>
             </section>
-            
+
+            <section id="tasks" class="page-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Bảng Công việc</h2>
+                    <button id="addTaskBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"><i class='bx bx-plus'></i>Tạo Công việc</button>
+                </div>
+                <div id="kanban-board" class="kanban-board">
+                    <div class="kanban-column" data-status="todo">
+                        <h3 class="kanban-column-title"><i class='bx bx-list-ul mr-2 text-orange-500'></i> Cần làm <span id="todo-count" class="count">0</span></h3>
+                        <div id="kanban-todo" class="kanban-cards"></div>
+                    </div>
+                    <div class="kanban-column" data-status="inprogress">
+                        <h3 class="kanban-column-title"><i class='bx bx-run mr-2 text-blue-500'></i> Đang làm <span id="inprogress-count" class="count">0</span></h3>
+                        <div id="kanban-inprogress" class="kanban-cards"></div>
+                    </div>
+                    <div class="kanban-column" data-status="completed">
+                        <h3 class="kanban-column-title"><i class='bx bx-check-circle mr-2 text-green-500'></i> Hoàn thành <span id="completed-count" class="count">0</span></h3>
+                        <div id="kanban-completed" class="kanban-cards"></div>
+                    </div>
+                </div>
+            </section>
+
             <section id="schedule" class="page-content">
                  <div class="bg-white p-6 rounded-xl shadow-sm">
                     <div class="flex justify-between items-center mb-4">
@@ -208,83 +297,69 @@
                     </div>
                 </div>
             </section>
+
+            <section id="reports" class="page-content">
+                 <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                    <h2 class="text-xl font-bold text-slate-800 mb-4">Báo Cáo & Thống kê</h2>
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="form-group">
+                            <label for="reportMonth" class="text-sm font-medium text-slate-600">Chọn tháng:</label>
+                            <select id="reportMonth" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reportYear" class="text-sm font-medium text-slate-600">Chọn năm:</label>
+                            <select id="reportYear" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></select>
+                        </div>
+                        <button id="generateReportBtn" class="self-end bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors">Tạo Báo cáo</button>
+                    </div>
+                </div>
+                <div id="reportOutput" class="hidden">
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h2 id="reportTitle" class="text-xl font-bold text-slate-800 mb-6"></h2>
+                        <div class="space-y-8">
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-700 border-b pb-2 mb-3">1. Báo cáo Chuyên cần</h3>
+                                <div id="activityReportContent"></div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-700 border-b pb-2 mb-3">2. Báo cáo Quỹ</h3>
+                                <div id="financialReportContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
     <!-- Modals -->
     <div id="addMemberModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-slate-800">Thêm Lời mời</h2>
-                <button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="addMemberModal">&times;</button>
-            </div>
-            <form id="addMemberForm">
-                <div class="space-y-4">
-                    <div class="form-group"><label for="addDisplayName" class="block text-sm font-medium text-slate-700">Họ và tên</label><input type="text" id="addDisplayName" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" required></div>
-                    <div class="form-group"><label for="addEmail" class="block text-sm font-medium text-slate-700">Email</label><input type="email" id="addEmail" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" required></div>
-                    <div class="form-group"><label for="addRole" class="block text-sm font-medium text-slate-700">Vai trò</label><select id="addRole" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></select></div>
-                </div>
-                <div class="mt-6 text-right"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Gửi Lời mời</button></div>
-            </form>
+            <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-slate-800">Thêm Lời mời</h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="addMemberModal">&times;</button></div>
+            <form id="addMemberForm"><div class="space-y-4"><div class="form-group"><label for="addDisplayName" class="block text-sm font-medium text-slate-700">Họ và tên</label><input type="text" id="addDisplayName" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="addEmail" class="block text-sm font-medium text-slate-700">Email</label><input type="email" id="addEmail" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="addRole" class="block text-sm font-medium text-slate-700">Vai trò</label><select id="addRole" class="mt-1 block w-full rounded-md border-slate-300"><option value="member">Thành viên</option><option value="bcn">Ban Chủ nhiệm</option><option value="mentor">Mentor</option></select></div></div><div class="mt-6 text-right"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Gửi Lời mời</button></div></form>
         </div>
     </div>
 
     <div id="editMemberModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-slate-800">Chỉnh sửa Thành viên</h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="editMemberModal">&times;</button></div>
-            <form id="editMemberForm">
-                <input type="hidden" id="editUserId">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-group"><label class="block text-sm font-medium text-slate-700">Họ và tên</label><input type="text" id="editDisplayName" class="mt-1 block w-full rounded-md border-slate-300 bg-slate-100" disabled></div>
-                    <div class="form-group"><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" id="editEmail" class="mt-1 block w-full rounded-md border-slate-300 bg-slate-100" disabled></div>
-                    <div class="form-group"><label for="editRole" class="block text-sm font-medium text-slate-700">Vai trò</label><select id="editRole" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></select></div>
-                    <div class="form-group"><label for="editClass" class="block text-sm font-medium text-slate-700">Lớp</label><input type="text" id="editClass" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
-                    <div class="form-group"><label for="editStudentId" class="block text-sm font-medium text-slate-700">MSHS</label><input type="text" id="editStudentId" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
-                    <div class="form-group"><label for="editDepartment" class="block text-sm font-medium text-slate-700">Ban</label><select id="editDepartment" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"><option value="">Chưa phân ban</option><option value="NS-HC-TC">Ban NS-HC-TC</option><option value="Truyền thông">Ban Truyền thông</option><option value="Chuyên môn">Ban Chuyên môn</option><option value="Đối ngoại">Ban Đối ngoại</option></select></div>
-                    <div class="form-group"><label for="editPhone" class="block text-sm font-medium text-slate-700">Số điện thoại</label><input type="tel" id="editPhone" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
-                    <div class="form-group"><label for="editDorm" class="block text-sm font-medium text-slate-700">Dorm</label><input type="text" id="editDorm" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
-                    <div class="form-group"><label for="editFacebookUrl" class="block text-sm font-medium text-slate-700">Link Facebook</label><input type="url" id="editFacebookUrl" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
-                    <div class="form-group"><label for="editHomeroomTeacher" class="block text-sm font-medium text-slate-700">GVCN</label><input type="text" id="editHomeroomTeacher" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
-                    <div class="form-group"><label for="editManagingTeacher" class="block text-sm font-medium text-slate-700">GVQN</label><input type="text" id="editManagingTeacher" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
-                    <div class="md:col-span-2 form-group"><label for="editNotes" class="block text-sm font-medium text-slate-700">Ghi chú</label><textarea id="editNotes" rows="3" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></textarea></div>
-                </div>
-                <div class="mt-6 text-right"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Lưu thay đổi</button></div>
-            </form>
+            <form id="editMemberForm"><input type="hidden" id="editUserId"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="form-group"><label class="block text-sm font-medium text-slate-700">Họ và tên</label><input type="text" id="editDisplayName" class="mt-1 block w-full rounded-md border-slate-300 bg-slate-100" disabled></div><div class="form-group"><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" id="editEmail" class="mt-1 block w-full rounded-md border-slate-300 bg-slate-100" disabled></div><div class="form-group"><label for="editRole" class="block text-sm font-medium text-slate-700">Vai trò Hệ thống</label><select id="editRole" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"><option value="member">Thành viên</option><option value="bcn">Ban Chủ nhiệm</option><option value="mentor">Mentor</option></select></div><div class="form-group"><label for="editDepartmentRole" class="block text-sm font-medium text-slate-700">Vai trò Ban</label><select id="editDepartmentRole" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></select></div><div class="form-group md:col-span-2"><label for="editDepartment" class="block text-sm font-medium text-slate-700">Ban</label><select id="editDepartment" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"><option value="">Chưa phân ban</option><option value="Ban Chủ nhiệm">Ban Chủ nhiệm</option><option value="Nhân Sự">Ban Nhân Sự</option><option value="Hậu Cần">Ban Hậu Cần</option><option value="Tài Chính">Ban Tài Chính</option><option value="Chuyên Môn">Ban Chuyên Môn</option><option value="Truyền Thông">Ban Truyền Thông</option><option value="Đối Ngoại">Ban Đối Ngoại</option></select></div><div class="form-group"><label for="editClass" class="block text-sm font-medium text-slate-700">Lớp</label><input type="text" id="editClass" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div><div class="form-group"><label for="editStudentId" class="block text-sm font-medium text-slate-700">MSHS</label><input type="text" id="editStudentId" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div><div class="form-group"><label for="editPhone" class="block text-sm font-medium text-slate-700">Số điện thoại</label><input type="tel" id="editPhone" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div><div class="form-group"><label for="editDorm" class="block text-sm font-medium text-slate-700">Dorm</label><input type="text" id="editDorm" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div><div class="md:col-span-2 form-group"><label for="editNotes" class="block text-sm font-medium text-slate-700">Ghi chú</label><textarea id="editNotes" rows="3" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></textarea></div></div><div class="mt-6 text-right"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Lưu thay đổi</button></div></form>
         </div>
     </div>
+    
+    <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-lg w-full max-w-2xl p-6"><div class="flex justify-between items-center mb-4"><h2 id="taskModalTitle" class="text-xl font-bold text-slate-800">Tạo Công việc mới</h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="taskModal">&times;</button></div><form id="taskForm"><input type="hidden" id="taskId"><div class="space-y-4"><div class="form-group"><label for="taskTitle" class="block text-sm font-medium text-slate-700">Tiêu đề</label><input type="text" id="taskTitle" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="taskDescription" class="block text-sm font-medium text-slate-700">Mô tả</label><textarea id="taskDescription" rows="4" class="mt-1 block w-full rounded-md border-slate-300"></textarea></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="form-group"><label for="taskDeadline" class="block text-sm font-medium text-slate-700">Hạn chót</label><input type="date" id="taskDeadline" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="taskPriority" class="block text-sm font-medium text-slate-700">Ưu tiên</label><select id="taskPriority" class="mt-1 block w-full rounded-md border-slate-300"><option value="low">Thấp</option><option value="medium">Vừa</option><option value="high">Cao</option></select></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="form-group"><label for="taskAssigneeType" class="block text-sm font-medium text-slate-700">Giao cho</label><select id="taskAssigneeType" class="mt-1 block w-full rounded-md border-slate-300"><option value="department">Cả ban</option><option value="role">Trưởng ban</option><option value="individual">Thành viên cụ thể</option></select></div><div class="form-group"><label for="taskAssigneeValue" class="block text-sm font-medium text-slate-700">Đối tượng</label><select id="taskAssigneeValue" class="mt-1 block w-full rounded-md border-slate-300"></select></div></div><div class="form-group"><label for="taskStatus" class="block text-sm font-medium text-slate-700">Trạng thái</label><select id="taskStatus" class="mt-1 block w-full rounded-md border-slate-300"><option value="todo">Cần làm</option><option value="inprogress">Đang làm</option><option value="completed">Hoàn thành</option></select></div></div><div class="mt-6 text-right space-x-3"><button type="button" id="deleteTaskBtn" class="bg-red-100 text-red-700 px-4 py-2 rounded-lg font-semibold hover:bg-red-200 hidden">Xóa</button><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Lưu Công việc</button></div></form></div></div>
     
     <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6"><div class="flex justify-between items-center mb-4"><h2 id="transactionModalTitle" class="text-xl font-bold text-slate-800">Thêm Giao dịch</h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="transactionModal">&times;</button></div><form id="transactionForm"><input type="hidden" id="transactionId"><div class="space-y-4"><div class="form-group"><label for="transactionDate" class="block text-sm font-medium text-slate-700">Ngày</label><input type="date" id="transactionDate" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="transactionDescription" class="block text-sm font-medium text-slate-700">Nội dung</label><input type="text" id="transactionDescription" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="transactionAmount" class="block text-sm font-medium text-slate-700">Số tiền (VND)</label><input type="number" id="transactionAmount" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="transactionType" class="block text-sm font-medium text-slate-700">Loại</label><select id="transactionType" class="mt-1 block w-full rounded-md border-slate-300" required><option value="income">Thu</option><option value="expense">Chi</option></select></div></div><div class="mt-6 text-right"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Lưu</button></div></form></div></div>
     <div id="addScheduleModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6"><div class="flex justify-between items-center mb-4"><h2 id="scheduleModalTitle" class="text-xl font-bold text-slate-800">Tạo Buổi Sinh Hoạt</h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="addScheduleModal">&times;</button></div><form id="addScheduleForm"><input type="hidden" id="scheduleId"><div class="space-y-4"><div class="form-group"><label for="scheduleDate" class="block text-sm font-medium text-slate-700">Ngày</label><input type="date" id="scheduleDate" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="scheduleLocation" class="block text-sm font-medium text-slate-700">Địa điểm</label><input type="text" id="scheduleLocation" class="mt-1 block w-full rounded-md border-slate-300" placeholder="VD: Phòng A101"></div><div class="form-group"><label for="scheduleDescription" class="block text-sm font-medium text-slate-700">Nội dung</label><input type="text" id="scheduleDescription" class="mt-1 block w-full rounded-md border-slate-300" placeholder="VD: Họp CLB tháng 7" required></div></div><div class="mt-6 text-right"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Lưu</button></div></form></div></div>
     <div id="takeAttendanceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-lg w-full max-w-2xl p-6 max-h-[90vh] flex flex-col"><div class="flex justify-between items-center mb-4"><h2 id="takeAttendanceModalTitle" class="text-xl font-bold text-slate-800">Điểm danh</h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="takeAttendanceModal">&times;</button></div><form id="takeAttendanceForm" class="flex-grow flex flex-col"><input type="hidden" id="attendanceSessionId"><div class="overflow-y-auto flex-grow"><table id="attendanceMemberTable" class="w-full text-left"></table></div><div class="mt-6 text-right border-t pt-4"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Lưu Kết quả</button></div></form></div></div>
-    
-    <!-- Application Viewer Modal -->
-    <div id="applicationViewerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4"><h2 id="applicationViewerName" class="text-xl font-bold text-slate-800"></h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="applicationViewerModal">&times;</button></div>
-            <div id="applicationViewerDetails" class="space-y-4"></div>
-            <div id="applicationViewerFooter" class="mt-6 text-right space-x-3 border-t pt-4"></div>
-        </div>
-    </div>
-
-    <!-- Confirmation Modal -->
-    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 text-center">
-            <h2 id="confirmationTitle" class="text-xl font-bold text-slate-800 mb-2">Xác nhận hành động</h2>
-            <p id="confirmationMessage" class="text-slate-600 mb-6"></p>
-            <div class="flex justify-center gap-4">
-                <button id="confirmCancelBtn" class="bg-slate-200 text-slate-800 px-6 py-2 rounded-lg font-semibold hover:bg-slate-300">Hủy</button>
-                <button id="confirmOkBtn" class="bg-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-600">Xác nhận</button>
-            </div>
-        </div>
-    </div>
-
+    <div id="applicationViewerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4"><h2 id="applicationViewerName" class="text-xl font-bold text-slate-800"></h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="applicationViewerModal">&times;</button></div><div id="applicationViewerDetails" class="space-y-4"></div><div id="applicationViewerFooter" class="mt-6 text-right space-x-3 border-t pt-4"></div></div></div>
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 text-center"><h2 id="confirmationTitle" class="text-xl font-bold text-slate-800 mb-2">Xác nhận hành động</h2><p id="confirmationMessage" class="text-slate-600 mb-6"></p><div class="flex justify-center gap-4"><button id="confirmCancelBtn" class="bg-slate-200 text-slate-800 px-6 py-2 rounded-lg font-semibold hover:bg-slate-300">Hủy</button><button id="confirmOkBtn" class="bg-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-600">Xác nhận</button></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, updateDoc, deleteDoc, query, orderBy, addDoc, Timestamp, serverTimestamp, where, setDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-        // --- Firebase Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyAZwnpjX_9foS_OvXfljqsepEQVUJ3azgw",
             authDomain: "fhoc-portal.firebaseapp.com",
@@ -294,435 +369,299 @@
             appId: "1:372673589602:web:1cadfae68db4a78ca5fc3b"
         };
         
-        // --- Initialize Services ---
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- DOM Elements ---
-        const memberListBody = document.getElementById('memberList');
-        const applicationListBody = document.getElementById('applicationList');
-        const scheduleListBody = document.getElementById('scheduleList');
-        const attendanceSessionListBody = document.getElementById('attendanceSessionList');
-        const fundTransactionListBody = document.getElementById('fundTransactionList');
-        
-        // --- Data Caching ---
+        // --- Global State & Cache ---
         let allMembers = [];
         let allApplications = [];
         let allAttendanceSessions = [];
         let allFunds = [];
+        let allTasks = [];
+        let currentUserId = null;
         let currentUserRole = null;
 
         // --- Auth State Management ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
+                currentUserId = user.uid;
                 const userDocRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(userDocRef);
                 
-                if (docSnap.exists()) {
-                    currentUserRole = docSnap.data().role;
-                    if (currentUserRole === 'bcn' || currentUserRole === 'mentor') {
-                        initializePage(user);
-                    } else {
-                        alert("Bạn không có quyền truy cập trang này.");
-                        window.location.href = './member.html';
-                    }
+                if (docSnap.exists() && docSnap.data().role === 'mentor') {
+                    currentUserRole = 'mentor';
+                    initializePage(user);
                 } else {
-                    alert("Không tìm thấy thông tin tài khoản của bạn. Vui lòng liên hệ người quản trị.");
-                    signOut(auth);
-                    window.location.href = './index.html';
+                    alert("Bạn không có quyền truy cập trang này.");
+                    const userRole = docSnap.exists() ? docSnap.data().role : 'unknown';
+                    if(userRole === 'bcn') window.location.href = './banchunhiem.html';
+                    else if(userRole === 'member') window.location.href = './member.html';
+                    else window.location.href = './index.html';
                 }
             } else {
                 window.location.href = './index.html';
             }
         });
         
-        // --- Main Function to Setup Page ---
+        // --- Main Initialization ---
         function initializePage(user) {
             document.getElementById('loader').style.display = 'none';
             document.getElementById('main-interface').classList.remove('hidden');
             
-            document.getElementById('userName').textContent = user.displayName || 'Ban Chủ Nhiệm';
-            if(user.photoURL) {
-                document.getElementById('userAvatar').src = user.photoURL;
-            }
+            document.getElementById('userName').textContent = user.displayName || 'Mentor';
+            if(user.photoURL) document.getElementById('userAvatar').src = user.photoURL;
             
             listenForApplications();
             listenForMembers();
             listenForScheduleAndAttendance();
             listenForFundTransactions();
+            listenForTasks();
             
             setupEventListeners();
+            setupReportGenerator();
         }
 
         // --- Real-time Data Listeners ---
         function listenForApplications() {
             const q = query(collection(db, "applications"), where("status", "==", "pending"), orderBy("submittedAt", "desc"));
-            onSnapshot(q, (querySnapshot) => {
-                allApplications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                let html = '';
-                allApplications.forEach(app => {
-                    const date = app.submittedAt.toDate().toLocaleDateString('vi-VN');
-                    html += `
-                        <tr data-id="${app.id}" class="hover:bg-slate-50">
-                            <td class="p-3 font-medium text-slate-800">${app.displayName}</td>
-                            <td class="p-3">${app.email}</td>
-                            <td class="p-3">${app.desiredDepartment}</td>
-                            <td class="p-3">${date}</td>
-                            <td class="p-3 space-x-2">
-                                <button class="text-sm text-slate-600 hover:text-slate-900 font-medium view-app-btn">Xem</button>
-                                <button class="text-sm text-green-600 hover:text-green-900 font-medium approve-app-btn">Duyệt</button>
-                                <button class="text-sm text-red-600 hover:text-red-900 font-medium reject-app-btn">Từ chối</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                applicationListBody.innerHTML = html || '<tr><td colspan="5" class="text-center p-4 text-slate-500">Không có đơn đăng ký nào chờ duyệt.</td></tr>';
-                document.getElementById('totalApplications').textContent = querySnapshot.size;
-            }, (error) => {
-                console.error("Error listening for applications:", error);
-                applicationListBody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-red-500">Lỗi khi tải đơn đăng ký.</td></tr>';
-            });
+            onSnapshot(q, (snapshot) => {
+                allApplications = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderApplicationsTable();
+                document.getElementById('totalApplications').textContent = snapshot.size;
+            }, (error) => console.error("Error listening for applications:", error));
         }
 
         function listenForMembers() {
             const q = query(collection(db, "users"), orderBy("displayName"));
-            onSnapshot(q, (querySnapshot) => {
-                allMembers = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                let membersHtml = '';
-                allMembers.forEach(member => {
-                    membersHtml += `
-                        <tr data-id="${member.id}" class="hover:bg-slate-50">
-                            <td class="p-3"><div class="font-medium text-slate-800">${member.displayName || 'N/A'}</div><div class="text-xs text-slate-500">${member.class || ''}</div></td>
-                            <td class="p-3">${member.email}</td>
-                            <td class="p-3"><span class="role-badge role-${member.role}">${member.role}</span></td>
-                            <td class="p-3">${member.department || 'Chưa phân ban'}</td>
-                            <td class="p-3 space-x-2">
-                                <button class="text-sm text-blue-600 hover:text-blue-900 font-medium edit-member-btn">Sửa</button>
-                                <button class="text-sm text-red-600 hover:text-red-900 font-medium delete-member-btn">Xóa</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                memberListBody.innerHTML = membersHtml;
-                document.getElementById('totalMembers').textContent = querySnapshot.size;
-            }, (error) => {
-                console.error("Error listening for members:", error);
-                memberListBody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-red-500">Lỗi khi tải danh sách.</td></tr>';
-            });
+            onSnapshot(q, (snapshot) => {
+                allMembers = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderMembersTable();
+                document.getElementById('totalMembers').textContent = snapshot.size;
+                updateAssigneeDropdowns();
+            }, (error) => console.error("Error listening for members:", error));
         }
         
         function listenForScheduleAndAttendance() {
             const q = query(collection(db, "attendance"), orderBy("date", "desc"));
-            onSnapshot(q, (querySnapshot) => {
-                allAttendanceSessions = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
-                let scheduleHtml = '';
-                let attendanceHtml = '';
-
-                allAttendanceSessions.forEach(session => {
-                    const date = session.date.toDate().toLocaleDateString('vi-VN');
-                    
-                    scheduleHtml += `
-                        <tr data-id="${session.id}" class="hover:bg-slate-50">
-                            <td class="p-3">${date}</td>
-                            <td class="p-3">${session.description}</td>
-                            <td class="p-3">${session.location || 'Chưa có'}</td>
-                            <td class="p-3 space-x-2">
-                                <button class="text-sm text-blue-600 hover:text-blue-900 font-medium edit-schedule-btn">Sửa</button>
-                                <button class="text-sm text-red-600 hover:text-red-900 font-medium delete-attendance-btn">Xóa</button>
-                            </td>
-                        </tr>
-                    `;
-                    
-                    const totalMembersToCount = allMembers.filter(m => m.role !== 'mentor').length;
-                    const presentCount = session.records ? Object.values(session.records).filter(s => s === 'present').length : 0;
-                    const rate = totalMembersToCount > 0 ? `${((presentCount / totalMembersToCount) * 100).toFixed(0)}%` : 'N/A';
-
-                    attendanceHtml += `
-                        <tr data-id="${session.id}" class="hover:bg-slate-50">
-                            <td class="p-3">${date}</td>
-                            <td class="p-3">${session.description}</td>
-                            <td class="p-3">${rate} (${presentCount}/${totalMembersToCount})</td>
-                            <td class="p-3">
-                                <button class="bg-blue-500 text-white px-3 py-1 text-sm rounded-md hover:bg-blue-600 view-attendance-btn">Điểm danh</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                  scheduleListBody.innerHTML = scheduleHtml || '<tr><td colspan="4" class="text-center p-4 text-slate-500">Chưa có buổi sinh hoạt nào.</td></tr>';
-                  attendanceSessionListBody.innerHTML = attendanceHtml || '<tr><td colspan="4" class="text-center p-4 text-slate-500">Chưa có phiên điểm danh nào.</td></tr>';
-            }, (error) => {
-                  console.error("Error listening for sessions:", error);
-                  scheduleListBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-red-500">Lỗi khi tải dữ liệu.</td></tr>';
-                  attendanceSessionListBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-red-500">Lỗi khi tải dữ liệu.</td></tr>';
-            });
+            onSnapshot(q, (snapshot) => {
+                allAttendanceSessions = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderScheduleTable();
+                renderAttendanceTable();
+            }, (error) => console.error("Error listening for schedule:", error));
         }
         
         function listenForFundTransactions() {
             const q = query(collection(db, "funds"), orderBy("date", "desc"));
-            onSnapshot(q, (querySnapshot) => {
-                allFunds = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            onSnapshot(q, (snapshot) => {
+                allFunds = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderFundsTable();
+            }, (error) => console.error("Error listening for funds:", error));
+        }
 
-                let html = '';
-                let balance = allFunds.reduce((acc, trans) => acc + (trans.type === 'income' ? trans.amount : -trans.amount), 0);
+        function listenForTasks() {
+            const q = query(collection(db, "tasks"), orderBy("deadline", "asc"));
+            onSnapshot(q, (snapshot) => {
+                allTasks = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderKanbanBoard();
+            }, (error) => console.error("Error listening for tasks:", error));
+        }
 
-                allFunds.forEach(trans => {
-                    const date = trans.date.toDate().toLocaleDateString('vi-VN');
-                    const amount = (trans.type === 'income' ? '+' : '') + trans.amount.toLocaleString('vi-VN');
-                    html += `
-                        <tr data-id="${trans.id}" class="hover:bg-slate-50">
-                            <td class="p-3">${date}</td>
-                            <td class="p-3">${trans.description}</td>
-                            <td class="p-3 font-medium ${trans.type === 'income' ? 'text-green-600' : 'text-red-600'}">${amount}</td>
-                            <td class="p-3">${trans.type === 'income' ? 'Thu' : 'Chi'}</td>
-                            <td class="p-3 space-x-2">
-                                <button class="text-sm text-blue-600 hover:text-blue-900 font-medium edit-transaction-btn">Sửa</button>
-                                <button class="text-sm text-red-600 hover:text-red-900 font-medium delete-transaction-btn">Xóa</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                fundTransactionListBody.innerHTML = html || '<tr><td colspan="5" class="text-center p-4 text-slate-500">Chưa có giao dịch nào.</td></tr>';
-                document.getElementById('fundBalance').textContent = balance.toLocaleString('vi-VN');
-            }, (error) => {
-                console.error("Error listening for fund transactions:", error);
-                fundTransactionListBody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-red-500">Lỗi khi tải giao dịch.</td></tr>';
+        // --- Rendering Functions ---
+        function renderApplicationsTable() {
+            const tbody = document.getElementById('applicationList');
+            tbody.innerHTML = allApplications.map(app => `
+                <tr data-id="${app.id}" class="hover:bg-slate-50">
+                    <td class="p-3 font-medium text-slate-800">${app.displayName}</td>
+                    <td class="p-3">${app.email}</td>
+                    <td class="p-3">${app.desiredDepartment}</td>
+                    <td class="p-3">${app.submittedAt.toDate().toLocaleDateString('vi-VN')}</td>
+                    <td class="p-3 space-x-2"><button class="view-app-btn text-sm text-slate-600 hover:text-slate-900 font-medium">Xem</button></td>
+                </tr>
+            `).join('') || '<tr><td colspan="5" class="text-center p-4 text-slate-500">Không có đơn chờ duyệt.</td></tr>';
+        }
+
+        function renderMembersTable() {
+            const tbody = document.getElementById('memberList');
+            tbody.innerHTML = allMembers.map(member => `
+                <tr data-id="${member.id}" class="hover:bg-slate-50">
+                    <td class="p-3"><div class="font-medium text-slate-800">${member.displayName || 'N/A'}</div><div class="text-xs text-slate-500">${member.class || ''}</div></td>
+                    <td class="p-3">${member.email}</td>
+                    <td class="p-3"><span class="role-badge role-${member.role}">${member.role}</span></td>
+                    <td class="p-3">${member.department || 'Chưa phân ban'} (${member.departmentRole || 'Thành viên'})</td>
+                    <td class="p-3 space-x-2">
+                        <button class="edit-member-btn text-sm text-blue-600 hover:text-blue-900 font-medium">Sửa</button>
+                        <button class="delete-member-btn text-sm text-red-600 hover:text-red-900 font-medium">Xóa</button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="5" class="text-center p-4 text-slate-500">Chưa có thành viên.</td></tr>';
+        }
+
+        function renderScheduleTable() {
+            const tbody = document.getElementById('scheduleList');
+            tbody.innerHTML = allAttendanceSessions.map(session => `
+                <tr data-id="${session.id}" class="hover:bg-slate-50">
+                    <td class="p-3">${session.date.toDate().toLocaleDateString('vi-VN')}</td>
+                    <td class="p-3">${session.description}</td>
+                    <td class="p-3">${session.location || 'Chưa có'}</td>
+                    <td class="p-3 space-x-2">
+                        <button class="edit-schedule-btn text-sm text-blue-600 hover:text-blue-900 font-medium">Sửa</button>
+                        <button class="delete-attendance-btn text-sm text-red-600 hover:text-red-900 font-medium">Xóa</button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="4" class="text-center p-4 text-slate-500">Chưa có buổi sinh hoạt.</td></tr>';
+        }
+        
+        function renderAttendanceTable() {
+            const tbody = document.getElementById('attendanceSessionList');
+            tbody.innerHTML = allAttendanceSessions.map(session => {
+                const total = allMembers.filter(m => m.role !== 'mentor').length;
+                const present = session.records ? Object.values(session.records).filter(s => s === 'present').length : 0;
+                const rate = total > 0 ? `${((present / total) * 100).toFixed(0)}%` : 'N/A';
+                return `
+                    <tr data-id="${session.id}" class="hover:bg-slate-50">
+                        <td class="p-3">${session.date.toDate().toLocaleDateString('vi-VN')}</td>
+                        <td class="p-3">${session.description}</td>
+                        <td class="p-3">${rate} (${present}/${total})</td>
+                        <td class="p-3"><button class="view-attendance-btn bg-blue-500 text-white px-3 py-1 text-sm rounded-md hover:bg-blue-600">Điểm danh</button></td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="4" class="text-center p-4 text-slate-500">Chưa có phiên điểm danh.</td></tr>';
+        }
+
+        function renderFundsTable() {
+            const tbody = document.getElementById('fundTransactionList');
+            const balance = allFunds.reduce((acc, t) => acc + (t.type === 'income' ? t.amount : -t.amount), 0);
+            document.getElementById('fundBalance').textContent = balance.toLocaleString('vi-VN');
+            tbody.innerHTML = allFunds.map(trans => `
+                <tr data-id="${trans.id}" class="hover:bg-slate-50">
+                    <td class="p-3">${trans.date.toDate().toLocaleDateString('vi-VN')}</td>
+                    <td class="p-3">${trans.description}</td>
+                    <td class="p-3 font-medium ${trans.type === 'income' ? 'text-green-600' : 'text-red-600'}">${(trans.type === 'income' ? '+' : '-') + trans.amount.toLocaleString('vi-VN')}</td>
+                    <td class="p-3">${trans.type === 'income' ? 'Thu' : 'Chi'}</td>
+                    <td class="p-3 space-x-2">
+                        <button class="edit-transaction-btn text-sm text-blue-600 hover:text-blue-900 font-medium">Sửa</button>
+                        <button class="delete-transaction-btn text-sm text-red-600 hover:text-red-900 font-medium">Xóa</button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="5" class="text-center p-4 text-slate-500">Chưa có giao dịch.</td></tr>';
+        }
+
+        function renderKanbanBoard() {
+            const columns = { todo: document.getElementById('kanban-todo'), inprogress: document.getElementById('kanban-inprogress'), completed: document.getElementById('kanban-completed') };
+            Object.values(columns).forEach(col => col.innerHTML = '');
+            allTasks.forEach(task => {
+                const card = document.createElement('div');
+                card.className = `kanban-card priority-${task.priority}`;
+                card.dataset.id = task.id;
+                card.draggable = true;
+                const deadline = task.deadline.toDate();
+                const isOverdue = deadline < new Date() && task.status !== 'completed';
+                card.innerHTML = `<h4 class="font-semibold text-slate-800 mb-2">${task.title}</h4><p class="text-sm text-slate-600 mb-3 line-clamp-2">${task.description || ''}</p><div class="flex justify-between items-center text-xs text-slate-500"><span class="${isOverdue ? 'text-red-500 font-semibold' : ''}"><i class='bx bx-time-five'></i> ${deadline.toLocaleDateString('vi-VN')}</span><span>${getAssigneeName(task.assignees)}</span></div>`;
+                card.addEventListener('click', () => openTaskModal(task.id));
+                card.addEventListener('dragstart', handleDragStart);
+                columns[task.status].appendChild(card);
             });
+            document.getElementById('todo-count').textContent = columns.todo.children.length;
+            document.getElementById('inprogress-count').textContent = columns.inprogress.children.length;
+            document.getElementById('completed-count').textContent = columns.completed.children.length;
         }
 
-        // --- Modal & Form Handling ---
-        function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); document.getElementById(modalId).classList.add('flex'); }
-        function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); document.getElementById(modalId).classList.remove('flex'); }
-
-        function showConfirmation(message, onConfirm) {
-            const modal = document.getElementById('confirmationModal');
-            document.getElementById('confirmationMessage').textContent = message;
-            
-            const confirmBtn = document.getElementById('confirmOkBtn');
-            const cancelBtn = document.getElementById('confirmCancelBtn');
-
-            const confirmHandler = () => {
-                onConfirm();
-                closeModal('confirmationModal');
-            };
-            const cancelHandler = () => closeModal('confirmationModal');
-            
-            confirmBtn.addEventListener('click', confirmHandler, { once: true });
-            cancelBtn.addEventListener('click', cancelHandler, { once: true });
-            
-            openModal('confirmationModal');
-        }
-
+        // --- CRUD & Modal Functions ---
         function openApplicationViewer(appId) {
             const app = allApplications.find(a => a.id === appId);
             if (!app) return;
-
-            document.getElementById('applicationViewerName').textContent = `Đơn đăng ký của ${app.displayName}`;
-            
+            document.getElementById('applicationViewerName').textContent = `Đơn của ${app.displayName}`;
             const detailsContainer = document.getElementById('applicationViewerDetails');
             const footerContainer = document.getElementById('applicationViewerFooter');
-            
-            const detailsMap = {
+            detailsContainer.innerHTML = Object.entries({
                 'Họ và tên': app.displayName, 'Email': app.email, 'Lớp': app.class, 'MSHS': app.studentId,
-                'Số điện thoại': app.phone, 'Dorm': app.dorm, 'Tên GVCN': app.homeroomTeacher, 'Tên GVQN': app.managingTeacher,
-                'Facebook': app.facebookUrl ? `<a href="${app.facebookUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${app.facebookUrl}</a>` : 'Chưa cung cấp',
-                'Ngày nộp': app.submittedAt ? app.submittedAt.toDate().toLocaleString('vi-VN') : 'Chưa rõ',
-                'Biết đến CLB từ': app.howDidYouKnow, 'Ban mong muốn': app.desiredDepartment,
-                'Năng khiếu/Sở trường': app.strengths, 'Mong muốn khi tham gia': app.expectations
-            };
-
-            let detailsHtml = '<dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">';
-            for (const [key, value] of Object.entries(detailsMap)) {
-                detailsHtml += `<div><dt class="text-sm font-medium text-slate-600">${key}</dt><dd class="mt-1 text-slate-900">${value || 'Chưa cung cấp'}</dd></div>`;
-            }
-            detailsHtml += '</dl>';
-            detailsContainer.innerHTML = detailsHtml;
-
-            footerContainer.innerHTML = `
-                <button class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600" id="modalApproveBtn">Duyệt</button>
-                <button class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600" id="modalRejectBtn">Từ chối</button>
-            `;
-            footerContainer.querySelector('#modalApproveBtn').onclick = () => handleApproveApplication(appId);
-            footerContainer.querySelector('#modalRejectBtn').onclick = () => handleRejectApplication(appId);
-
+                'Số điện thoại': app.phone, 'Dorm': app.dorm, 'Facebook': `<a href="${app.facebookUrl}" target="_blank" class="text-blue-600 hover:underline">Link</a>`,
+                'Ngày nộp': app.submittedAt.toDate().toLocaleString('vi-VN'), 'Ban mong muốn': app.desiredDepartment,
+                'Năng khiếu': app.strengths, 'Mong muốn': app.expectations
+            }).map(([key, value]) => `<div><dt class="text-sm font-medium text-slate-600">${key}</dt><dd class="mt-1 text-slate-900">${value || 'N/A'}</dd></div>`).join('');
+            footerContainer.innerHTML = `<button class="approve-app-btn bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600">Duyệt</button><button class="reject-app-btn bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600">Từ chối</button>`;
+            footerContainer.querySelector('.approve-app-btn').onclick = () => handleApproveApplication(appId);
+            footerContainer.querySelector('.reject-app-btn').onclick = () => handleRejectApplication(appId);
             openModal('applicationViewerModal');
         }
 
-        function openEditMemberModal(userId) {
-            const user = allMembers.find(m => m.id === userId);
-            if (user) {
-                const form = document.getElementById('editMemberForm');
-                form.reset();
-                form.querySelector('#editUserId').value = userId;
-                form.querySelector('#editDisplayName').value = user.displayName || '';
-                form.querySelector('#editEmail').value = user.email || '';
-                
-                const editRoleSelect = form.querySelector('#editRole');
-                editRoleSelect.innerHTML = '<option value="member">Thành viên</option><option value="bcn">Ban Chủ nhiệm</option>';
-                if (currentUserRole === 'mentor') {
-                    editRoleSelect.innerHTML += '<option value="mentor">Mentor</option>';
-                }
-                editRoleSelect.value = user.role || 'member';
-
-                form.querySelector('#editDepartment').value = user.department || '';
-                form.querySelector('#editClass').value = user.class || '';
-                form.querySelector('#editStudentId').value = user.studentId || '';
-                form.querySelector('#editDorm').value = user.dorm || '';
-                form.querySelector('#editPhone').value = user.phone || '';
-                form.querySelector('#editHomeroomTeacher').value = user.homeroomTeacher || '';
-                form.querySelector('#editManagingTeacher').value = user.managingTeacher || '';
-                form.querySelector('#editFacebookUrl').value = user.facebookUrl || '';
-                form.querySelector('#editNotes').value = user.notes || '';
-                openModal('editMemberModal');
-            } else {
-                alert("Không tìm thấy thông tin thành viên.");
-            }
-        }
-        
-        function openTakeAttendanceModal(sessionId) {
-            const sessionData = allAttendanceSessions.find(s => s.id === sessionId);
-            if (!sessionData) return;
-
-            const modal = document.getElementById('takeAttendanceModal');
-            modal.querySelector('#takeAttendanceModalTitle').textContent = `Điểm danh: ${sessionData.description} (${sessionData.date.toDate().toLocaleDateString('vi-VN')})`;
-            modal.querySelector('#attendanceSessionId').value = sessionId;
-            const tableBody = modal.querySelector('#attendanceMemberTable');
-            
-            let tableHtml = '<thead><tr class="border-b"><th class="p-2">Thành viên</th><th class="p-2 text-center">Có mặt</th><th class="p-2 text-center">Vắng (CP)</th><th class="p-2 text-center">Vắng (KP)</th></tr></thead><tbody>';
-            allMembers.forEach(member => {
-                if (member.role === 'member' || member.role === 'bcn') {
-                    const status = (sessionData.records && sessionData.records[member.id]) ? sessionData.records[member.id] : 'absent_unexcused';
-                    tableHtml += `
-                        <tr data-userid="${member.id}" class="border-b last:border-b-0 hover:bg-slate-50">
-                            <td class="p-2 font-medium">${member.displayName}</td>
-                            <td class="p-2 text-center"><input type="radio" name="status_${member.id}" value="present" ${status === 'present' ? 'checked' : ''} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"></td>
-                            <td class="p-2 text-center"><input type="radio" name="status_${member.id}" value="absent_leave" ${status === 'absent_leave' ? 'checked' : ''} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"></td>
-                            <td class="p-2 text-center"><input type="radio" name="status_${member.id}" value="absent_unexcused" ${status === 'absent_unexcused' ? 'checked' : ''} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"></td>
-                        </tr>
-                    `;
-                }
+        async function handleApproveApplication(appId) {
+            const appData = allApplications.find(a => a.id === appId);
+            if (!appData) return;
+            showConfirmation(`Duyệt đơn của ${appData.displayName}?`, async () => {
+                try {
+                    const invitationProfile = { ...appData, role: 'member', departmentRole: 'Thành viên ban', department: appData.desiredDepartment };
+                    delete invitationProfile.id;
+                    delete invitationProfile.status;
+                    delete invitationProfile.submittedAt;
+                    delete invitationProfile.desiredDepartment;
+                    await setDoc(doc(db, "invitations", appData.email), invitationProfile);
+                    await deleteDoc(doc(db, "applications", appId));
+                    alert("Duyệt thành công! Lời mời đã được tạo.");
+                    closeModal('applicationViewerModal');
+                } catch (error) { console.error(error); alert("Lỗi khi duyệt đơn."); }
             });
-            tableHtml += '</tbody>';
-            tableBody.innerHTML = tableHtml;
-            openModal('takeAttendanceModal');
         }
 
-        // --- CRUD Operations ---
-        async function handleAddMember(event) {
-            event.preventDefault();
-            const email = document.getElementById('addEmail').value.trim();
-            const displayName = document.getElementById('addDisplayName').value.trim();
-            const role = document.getElementById('addRole').value;
-
-            if (!email || !displayName) return alert("Vui lòng nhập đầy đủ Tên và Email.");
-
-            try {
-                const userQuery = query(collection(db, "users"), where("email", "==", email));
-                const invQuery = query(collection(db, "invitations"), where("email", "==", email));
-                const [userSnapshot, invSnapshot] = await Promise.all([getDocs(userQuery), getDocs(invQuery)]);
-
-                if (!userSnapshot.empty) return alert("Lỗi: Thành viên với email này đã tồn tại!");
-                if (!invSnapshot.empty) return alert("Lỗi: Lời mời cho email này đã tồn tại!");
-
-                await setDoc(doc(db, "invitations", email), {
-                    displayName, role, email, createdAt: serverTimestamp()
-                });
-
-                alert("Thêm lời mời thành công.");
-                closeModal('addMemberModal');
-            } catch (error) {
-                console.error("Error adding member invitation:", error);
-                alert("Lỗi khi thêm thành viên.");
-            }
+        async function handleRejectApplication(appId) {
+            showConfirmation(`Từ chối đơn này?`, async () => {
+                try {
+                    await deleteDoc(doc(db, "applications", appId));
+                    alert("Đã từ chối đơn.");
+                    closeModal('applicationViewerModal');
+                } catch (error) { console.error(error); alert("Lỗi khi từ chối."); }
+            });
         }
 
         async function handleUpdateMember(event) {
             event.preventDefault();
             const userId = document.getElementById('editUserId').value;
-            const userToUpdate = allMembers.find(m => m.id === userId);
-            
-            if (currentUserRole !== 'mentor' && userToUpdate.role === 'mentor') {
-                return alert("Bạn không có quyền chỉnh sửa thông tin của Mentor.");
-            }
-
             const updatedData = {
                 role: document.getElementById('editRole').value,
                 department: document.getElementById('editDepartment').value,
+                departmentRole: document.getElementById('editDepartmentRole').value,
                 class: document.getElementById('editClass').value,
                 studentId: document.getElementById('editStudentId').value,
-                dorm: document.getElementById('editDorm').value,
                 phone: document.getElementById('editPhone').value,
-                homeroomTeacher: document.getElementById('editHomeroomTeacher').value,
-                managingTeacher: document.getElementById('editManagingTeacher').value,
-                facebookUrl: document.getElementById('editFacebookUrl').value,
+                dorm: document.getElementById('editDorm').value,
                 notes: document.getElementById('editNotes').value,
             };
             try {
                 await updateDoc(doc(db, "users", userId), updatedData);
                 alert("Cập nhật thành công!");
                 closeModal('editMemberModal');
-            } catch (error) { console.error("Error updating member:", error); alert("Lỗi khi cập nhật."); }
+            } catch (error) { console.error(error); alert("Lỗi khi cập nhật."); }
         }
 
         async function handleDeleteMember(userId) {
             if (auth.currentUser.uid === userId) return alert("Bạn không thể tự xóa chính mình.");
-            
-            const userToDelete = allMembers.find(m => m.id === userId);
-            if (currentUserRole !== 'mentor' && userToDelete.role === 'mentor') {
-                return alert("Bạn không có quyền xóa Mentor.");
-            }
-
             showConfirmation("Bạn có chắc chắn muốn xóa thành viên này? Hành động này không thể hoàn tác.", async () => {
                 try {
                     await deleteDoc(doc(db, "users", userId));
                     alert("Xóa thành viên thành công.");
-                } catch (error) {
-                    console.error("Error deleting member:", error);
-                    alert("Lỗi khi xóa thành viên.");
-                }
+                } catch (error) { console.error(error); alert("Lỗi khi xóa thành viên."); }
             });
+        }
+
+        async function handleAddMember(event) {
+            event.preventDefault();
+            const email = document.getElementById('addEmail').value.trim();
+            const displayName = document.getElementById('addDisplayName').value.trim();
+            const role = document.getElementById('addRole').value;
+            if (!email || !displayName) return alert("Vui lòng nhập đủ thông tin.");
+            try {
+                const userQuery = query(collection(db, "users"), where("email", "==", email));
+                const invQuery = query(collection(db, "invitations"), where("email", "==", email));
+                const [userSnapshot, invSnapshot] = await Promise.all([getDocs(userQuery), getDocs(invQuery)]);
+                if (!userSnapshot.empty) return alert("Email này đã là thành viên!");
+                if (!invSnapshot.empty) return alert("Email này đã được mời!");
+                await setDoc(doc(db, "invitations", email), { displayName, role, email, createdAt: serverTimestamp() });
+                alert("Thêm lời mời thành công.");
+                closeModal('addMemberModal');
+            } catch (error) { console.error(error); alert("Lỗi khi thêm lời mời."); }
         }
         
-        async function handleApproveApplication(appId) {
-            const appData = allApplications.find(a => a.id === appId);
-            if (!appData) return;
-
-            showConfirmation(`Bạn có chắc muốn duyệt đơn của ${appData.displayName}?`, async () => {
-                try {
-                    const invitationProfile = { ...appData };
-                    delete invitationProfile.id;
-                    delete invitationProfile.status;
-                    delete invitationProfile.submittedAt;
-                    invitationProfile.role = 'member';
-
-                    await setDoc(doc(db, "invitations", appData.email), invitationProfile);
-                    await deleteDoc(doc(db, "applications", appId));
-                    
-                    alert("Duyệt thành công! Lời mời đã được tạo.");
-                    closeModal('applicationViewerModal');
-                } catch (error) {
-                    console.error("Error approving application: ", error);
-                    alert("Lỗi khi duyệt đơn.");
-                }
-            });
-        }
-
-        async function handleRejectApplication(appId) {
-            const appData = allApplications.find(a => a.id === appId);
-            if (!appData) return;
-            showConfirmation(`Bạn có chắc chắn muốn từ chối đơn của ${appData.displayName}?`, async () => {
-                try {
-                    await deleteDoc(doc(db, "applications", appId));
-                    alert("Đã từ chối và xóa đơn đăng ký.");
-                    closeModal('applicationViewerModal');
-                } catch (error) {
-                    console.error("Error rejecting application: ", error);
-                    alert("Lỗi khi từ chối đơn.");
-                }
-            });
-        }
-
         async function handleSaveSchedule(event) {
             event.preventDefault();
             const scheduleId = document.getElementById('scheduleId').value;
@@ -734,17 +673,23 @@
             try {
                 if (scheduleId) {
                     await updateDoc(doc(db, "attendance", scheduleId), sessionData);
-                    alert("Cập nhật thành công!");
                 } else {
                     sessionData.createdAt = serverTimestamp();
                     sessionData.records = {};
                     await addDoc(collection(db, "attendance"), sessionData);
-                    alert("Tạo buổi sinh hoạt thành công!");
                 }
+                alert("Lưu lịch sinh hoạt thành công!");
                 closeModal('addScheduleModal');
-            } catch (error) { console.error("Error saving session:", error); alert("Lỗi khi lưu."); }
+            } catch (error) { console.error(error); alert("Lỗi khi lưu."); }
         }
-        
+
+        async function handleDeleteAttendance(sessionId) {
+            showConfirmation("Xóa buổi sinh hoạt này? Mọi dữ liệu điểm danh liên quan sẽ bị mất.", async () => {
+                try { await deleteDoc(doc(db, "attendance", sessionId)); alert("Xóa thành công."); }
+                catch(error) { console.error(error); alert("Lỗi khi xóa."); }
+            });
+        }
+
         async function handleSaveAttendance(event) {
             event.preventDefault();
             const sessionId = document.getElementById('attendanceSessionId').value;
@@ -754,21 +699,13 @@
                 const selectedStatus = row.querySelector(`input[name="status_${userId}"]:checked`);
                 if(selectedStatus) records[userId] = selectedStatus.value;
             });
-
             try {
                 await updateDoc(doc(db, "attendance", sessionId), { records });
                 alert("Lưu kết quả điểm danh thành công!");
                 closeModal('takeAttendanceModal');
-            } catch(error) { console.error("Error saving attendance:", error); alert("Lỗi khi lưu."); }
+            } catch(error) { console.error(error); alert("Lỗi khi lưu."); }
         }
 
-        async function handleDeleteAttendance(sessionId) {
-            showConfirmation("Bạn có chắc chắn muốn xóa buổi sinh hoạt này? Dữ liệu điểm danh liên quan sẽ bị mất.", async () => {
-                try { await deleteDoc(doc(db, "attendance", sessionId)); alert("Xóa thành công."); }
-                catch(error) { console.error("Error deleting session:", error); alert("Lỗi khi xóa."); }
-            });
-        }
-        
         async function handleSaveTransaction(event) {
             event.preventDefault();
             const transactionId = document.getElementById('transactionId').value;
@@ -781,128 +718,374 @@
             try {
                 if (transactionId) {
                     await updateDoc(doc(db, "funds", transactionId), transactionData);
-                    alert("Cập nhật giao dịch thành công!");
                 } else {
                     transactionData.createdAt = serverTimestamp();
                     await addDoc(collection(db, "funds"), transactionData);
-                    alert("Thêm giao dịch thành công!");
                 }
+                alert("Lưu giao dịch thành công!");
                 closeModal('transactionModal');
-            } catch (error) { console.error("Error saving transaction:", error); alert("Lỗi khi lưu."); }
+            } catch (error) { console.error(error); alert("Lỗi khi lưu."); }
         }
 
         async function handleDeleteTransaction(transactionId) {
-            showConfirmation("Bạn có chắc chắn muốn xóa giao dịch này?", async () => {
+            showConfirmation("Xóa giao dịch này?", async () => {
                 try { await deleteDoc(doc(db, "funds", transactionId)); alert("Xóa thành công."); }
-                catch(error) { console.error("Error deleting transaction:", error); alert("Lỗi khi xóa."); }
+                catch(error) { console.error(error); alert("Lỗi khi xóa."); }
             });
+        }
+        
+        // --- Task Management Logic ---
+        function getAssigneeName(assignees) {
+            if (!assignees) return 'Chưa giao';
+            switch(assignees.type) {
+                case 'department': return `Ban ${assignees.value}`;
+                case 'role': return `Trưởng ban ${assignees.value}`;
+                case 'individual': 
+                    const member = allMembers.find(m => m.id === assignees.value);
+                    return member ? member.displayName : 'Không rõ';
+                default: return 'Không rõ';
+            }
+        }
+
+        function openTaskModal(taskId = null) {
+            const form = document.getElementById('taskForm');
+            form.reset();
+            document.getElementById('taskId').value = '';
+            document.getElementById('deleteTaskBtn').classList.add('hidden');
+            
+            if (taskId) {
+                const task = allTasks.find(t => t.id === taskId);
+                if (task) {
+                    document.getElementById('taskModalTitle').textContent = 'Chỉnh sửa Công việc';
+                    document.getElementById('taskId').value = task.id;
+                    document.getElementById('taskTitle').value = task.title;
+                    document.getElementById('taskDescription').value = task.description;
+                    document.getElementById('taskDeadline').value = task.deadline.toDate().toISOString().split('T')[0];
+                    document.getElementById('taskPriority').value = task.priority;
+                    document.getElementById('taskStatus').value = task.status;
+                    document.getElementById('taskAssigneeType').value = task.assignees.type;
+                    updateAssigneeDropdowns();
+                    document.getElementById('taskAssigneeValue').value = task.assignees.value;
+                    document.getElementById('deleteTaskBtn').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('taskModalTitle').textContent = 'Tạo Công việc mới';
+                updateAssigneeDropdowns();
+            }
+            openModal('taskModal');
+        }
+
+        function updateAssigneeDropdowns() {
+            const typeSelect = document.getElementById('taskAssigneeType');
+            const valueSelect = document.getElementById('taskAssigneeValue');
+            const type = typeSelect.value;
+            valueSelect.innerHTML = '';
+            const departments = ["Ban Chủ nhiệm", "Nhân Sự", "Hậu Cần", "Tài Chính", "Chuyên Môn", "Truyền Thông", "Đối Ngoại"];
+            switch(type) {
+                case 'department': departments.forEach(d => valueSelect.add(new Option(d, d))); break;
+                case 'role': departments.forEach(d => valueSelect.add(new Option(`Trưởng ban ${d}`, d))); break;
+                case 'individual': allMembers.forEach(m => valueSelect.add(new Option(m.displayName, m.id))); break;
+            }
+        }
+
+        async function handleSaveTask(e) {
+            e.preventDefault();
+            const taskId = document.getElementById('taskId').value;
+            const taskData = {
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                deadline: Timestamp.fromDate(new Date(document.getElementById('taskDeadline').value)),
+                priority: document.getElementById('taskPriority').value,
+                status: document.getElementById('taskStatus').value,
+                assignees: { type: document.getElementById('taskAssigneeType').value, value: document.getElementById('taskAssigneeValue').value },
+                updatedAt: serverTimestamp()
+            };
+            try {
+                if (taskId) {
+                    await updateDoc(doc(db, "tasks", taskId), taskData);
+                } else {
+                    taskData.createdAt = serverTimestamp();
+                    taskData.assignerId = currentUserId;
+                    await addDoc(collection(db, "tasks"), taskData);
+                }
+                closeModal('taskModal');
+            } catch (error) { console.error(error); alert("Lỗi khi lưu công việc."); }
+        }
+        
+        async function handleDeleteTask() {
+            const taskId = document.getElementById('taskId').value;
+            if (!taskId) return;
+            showConfirmation("Xóa công việc này?", async () => {
+                try {
+                    await deleteDoc(doc(db, "tasks", taskId));
+                    closeModal('taskModal');
+                } catch (error) { console.error(error); alert("Lỗi khi xóa công việc."); }
+            });
+        }
+        
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.id);
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragOver(e) { e.preventDefault(); }
+
+        async function handleDrop(e) {
+            e.preventDefault();
+            const taskId = e.dataTransfer.getData('text/plain');
+            const newStatus = e.currentTarget.dataset.status;
+            const draggedElement = document.querySelector('.dragging');
+            if (draggedElement) draggedElement.classList.remove('dragging');
+            
+            try {
+                await updateDoc(doc(db, "tasks", taskId), { status: newStatus });
+            } catch (error) { console.error("Error updating task status:", error); }
         }
 
         // --- UI Event Listeners ---
         function setupEventListeners() {
             document.getElementById('sidebarToggle').addEventListener('click', () => {
-                const sidebar = document.getElementById('sidebar');
-                const mainContent = document.getElementById('main-content');
-                sidebar.classList.toggle('close');
-                if (sidebar.classList.contains('close')) {
-                    sidebar.style.width = '88px';
-                    mainContent.style.marginLeft = '88px';
-                } else {
-                    sidebar.style.width = '256px';
-                    mainContent.style.marginLeft = '256px';
-                }
+                document.getElementById('sidebar').classList.toggle('close');
+                document.getElementById('main-content').style.marginLeft = document.getElementById('sidebar').classList.contains('close') ? '88px' : '256px';
+            });
+
+            document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+                toggle.addEventListener('click', e => {
+                    e.preventDefault();
+                    const parent = toggle.closest('.dropdown-container');
+                    const menu = parent.querySelector('.dropdown-menu');
+                    const wasActive = toggle.classList.contains('active');
+                    document.querySelectorAll('.dropdown-toggle').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.dropdown-menu').forEach(m => m.style.maxHeight = '0px');
+                    if (!wasActive) {
+                        toggle.classList.add('active');
+                        menu.style.maxHeight = menu.scrollHeight + "px";
+                    }
+                });
             });
 
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active', 'bg-blue-50', 'text-blue-600'));
-                    link.classList.add('active', 'bg-blue-50', 'text-blue-600');
                     const targetId = link.getAttribute('href').substring(1);
+                    document.querySelectorAll('.nav-link, .dropdown-item').forEach(item => item.classList.remove('active'));
+                    link.classList.add('active');
+                    if (link.classList.contains('dropdown-item')) {
+                        link.closest('.dropdown-container').querySelector('.dropdown-toggle').classList.add('active');
+                    }
                     document.querySelectorAll('.page-content').forEach(content => content.classList.remove('active'));
                     document.getElementById(targetId).classList.add('active');
-                    document.getElementById('headerTitle').textContent = link.querySelector('.link-text').textContent;
-                });
-            });
-            
-            document.getElementById('logoutButton').addEventListener('click', (e) => {
-                e.preventDefault();
-                showConfirmation("Bạn có chắc chắn muốn đăng xuất?", () => {
-                    signOut(auth).catch(error => console.error("Sign out error:", error));
+                    document.getElementById('headerTitle').textContent = link.textContent;
                 });
             });
             
             document.querySelectorAll('.modal-close').forEach(el => el.onclick = () => closeModal(el.dataset.modal));
             
-            document.getElementById('addMemberBtn').addEventListener('click', () => {
-                document.getElementById('addMemberForm').reset();
-                const addRoleSelect = document.getElementById('addRole');
-                addRoleSelect.innerHTML = '<option value="member">Thành viên</option><option value="bcn">Ban Chủ nhiệm</option>';
-                if (currentUserRole === 'mentor') {
-                    addRoleSelect.innerHTML += '<option value="mentor">Mentor</option>';
-                }
-                openModal('addMemberModal');
-            });
-            document.getElementById('addScheduleBtn').addEventListener('click', () => {
-                document.getElementById('addScheduleForm').reset();
-                document.getElementById('scheduleId').value = '';
-                document.getElementById('scheduleModalTitle').textContent = 'Tạo Buổi Sinh Hoạt';
-                openModal('addScheduleModal');
-            });
-            document.getElementById('addTransactionBtn').addEventListener('click', () => {
-                document.getElementById('transactionForm').reset();
-                document.getElementById('transactionId').value = '';
-                document.getElementById('transactionModalTitle').textContent = 'Thêm Giao dịch';
-                openModal('transactionModal');
-            });
+            // Add buttons
+            document.getElementById('addMemberBtn').addEventListener('click', () => openModal('addMemberModal'));
+            document.getElementById('addScheduleBtn').addEventListener('click', () => openScheduleModal());
+            document.getElementById('addTransactionBtn').addEventListener('click', () => openTransactionModal());
+            document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal());
 
+            // Forms
             document.getElementById('addMemberForm').addEventListener('submit', handleAddMember);
             document.getElementById('editMemberForm').addEventListener('submit', handleUpdateMember);
             document.getElementById('addScheduleForm').addEventListener('submit', handleSaveSchedule);
             document.getElementById('takeAttendanceForm').addEventListener('submit', handleSaveAttendance);
             document.getElementById('transactionForm').addEventListener('submit', handleSaveTransaction);
+            document.getElementById('taskForm').addEventListener('submit', handleSaveTask);
+            document.getElementById('deleteTaskBtn').addEventListener('click', handleDeleteTask);
+            document.getElementById('taskAssigneeType').addEventListener('change', updateAssigneeDropdowns);
+            document.getElementById('logoutButton').addEventListener('click', (e) => { e.preventDefault(); showConfirmation("Bạn có muốn đăng xuất?", () => signOut(auth)); });
+            
+            // [NEW] Department Role Changer
+            document.getElementById('editDepartment').addEventListener('change', (e) => {
+                updateDepartmentRoles(e.target.value);
+            });
 
-            document.querySelector('#main-content').addEventListener('click', (event) => {
-                const target = event.target.closest('button');
-                if (!target) return;
-                const parentRow = target.closest('tr');
-                const docId = parentRow ? parentRow.dataset.id : null;
-
-                if (target.matches('.edit-member-btn')) openEditMemberModal(docId);
-                if (target.matches('.delete-member-btn')) handleDeleteMember(docId);
-                if (target.matches('.delete-attendance-btn')) handleDeleteAttendance(docId);
-                if (target.matches('.view-attendance-btn')) openTakeAttendanceModal(docId);
-                if (target.matches('.delete-transaction-btn')) handleDeleteTransaction(docId);
-                if (target.matches('.approve-app-btn')) handleApproveApplication(docId);
-                if (target.matches('.reject-app-btn')) handleRejectApplication(docId);
-                if (target.matches('.view-app-btn')) openApplicationViewer(docId);
-                if (target.matches('.edit-schedule-btn')) {
-                    const session = allAttendanceSessions.find(s => s.id === docId);
-                    if(session) {
-                        document.getElementById('addScheduleForm').reset();
-                        document.getElementById('scheduleId').value = docId;
-                        document.getElementById('scheduleDate').value = session.date.toDate().toISOString().split('T')[0];
-                        document.getElementById('scheduleDescription').value = session.description;
-                        document.getElementById('scheduleLocation').value = session.location;
-                        document.getElementById('scheduleModalTitle').textContent = 'Chỉnh sửa Buổi Sinh Hoạt';
-                        openModal('addScheduleModal');
-                    }
-                }
-                if (target.matches('.edit-transaction-btn')) {
-                    const trans = allFunds.find(f => f.id === docId);
-                    if(trans) {
-                        document.getElementById('transactionForm').reset();
-                        document.getElementById('transactionId').value = docId;
-                        document.getElementById('transactionDate').value = trans.date.toDate().toISOString().split('T')[0];
-                        document.getElementById('transactionDescription').value = trans.description;
-                        document.getElementById('transactionAmount').value = trans.amount;
-                        document.getElementById('transactionType').value = trans.type;
-                        document.getElementById('transactionModalTitle').textContent = 'Chỉnh sửa Giao dịch';
-                        openModal('transactionModal');
-                    }
-                }
+            // Kanban Drag & Drop
+            document.querySelectorAll('.kanban-column').forEach(column => {
+                column.addEventListener('dragover', handleDragOver);
+                column.addEventListener('drop', handleDrop);
+            });
+            
+            // Event Delegation for Tables
+            document.getElementById('main-content').addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (!button) return;
+                const row = button.closest('tr');
+                const id = row ? row.dataset.id : null;
+                if (button.matches('.view-app-btn')) openApplicationViewer(id);
+                if (button.matches('.edit-member-btn')) openEditMemberModal(id);
+                if (button.matches('.delete-member-btn')) handleDeleteMember(id);
+                if (button.matches('.edit-schedule-btn')) openScheduleModal(id);
+                if (button.matches('.delete-attendance-btn')) handleDeleteAttendance(id);
+                if (button.matches('.view-attendance-btn')) openTakeAttendanceModal(id);
+                if (button.matches('.edit-transaction-btn')) openTransactionModal(id);
+                if (button.matches('.delete-transaction-btn')) handleDeleteTransaction(id);
             });
         }
+        
+        function showConfirmation(message, onConfirm) {
+            const modal = document.getElementById('confirmationModal');
+            document.getElementById('confirmationMessage').textContent = message;
+            const confirmBtn = document.getElementById('confirmOkBtn');
+            const cancelBtn = document.getElementById('confirmCancelBtn');
+            const confirmHandler = () => { onConfirm(); closeModal('confirmationModal'); };
+            const cancelHandler = () => closeModal('confirmationModal');
+            confirmBtn.addEventListener('click', confirmHandler, { once: true });
+            cancelBtn.addEventListener('click', cancelHandler, { once: true });
+            openModal('confirmationModal');
+        }
+
+        function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); document.getElementById(modalId).classList.add('flex'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); document.getElementById(modalId).classList.remove('flex'); }
+
+        function updateDepartmentRoles(selectedDepartment, currentRole = null) {
+            const roleSelect = document.getElementById('editDepartmentRole');
+            roleSelect.innerHTML = ''; 
+
+            let roles = [];
+            if (selectedDepartment === 'Ban Chủ nhiệm') {
+                roles = ['Chủ Tịch', 'Phó Chủ Tịch', 'Thư Ký'];
+            } else if (selectedDepartment === 'Chuyên Môn') {
+                roles = ['Cố Vấn', 'Trưởng ban', 'Thành viên ban'];
+            } else if (selectedDepartment) {
+                roles = ['Trưởng ban', 'Thành viên ban'];
+            } else {
+                roles = [''];
+            }
+
+            roles.forEach(role => {
+                const option = new Option(role || 'Chưa có vai trò', role);
+                roleSelect.add(option);
+            });
+
+            if (currentRole && roles.includes(currentRole)) {
+                roleSelect.value = currentRole;
+            }
+        }
+
+        function openEditMemberModal(userId) { 
+            const user = allMembers.find(m => m.id === userId);
+            if (user) {
+                const form = document.getElementById('editMemberForm');
+                form.reset();
+                form.querySelector('#editUserId').value = userId;
+                form.querySelector('#editDisplayName').value = user.displayName || '';
+                form.querySelector('#editEmail').value = user.email || '';
+                form.querySelector('#editRole').value = user.role || 'member';
+                form.querySelector('#editDepartment').value = user.department || '';
+                
+                updateDepartmentRoles(user.department, user.departmentRole);
+
+                form.querySelector('#editClass').value = user.class || '';
+                form.querySelector('#editStudentId').value = user.studentId || '';
+                form.querySelector('#editPhone').value = user.phone || '';
+                form.querySelector('#editDorm').value = user.dorm || '';
+                form.querySelector('#editNotes').value = user.notes || '';
+                openModal('editMemberModal');
+            }
+        }
+
+        function openScheduleModal(scheduleId = null) {
+            const form = document.getElementById('addScheduleForm');
+            form.reset();
+            document.getElementById('scheduleId').value = '';
+            if (scheduleId) {
+                const session = allAttendanceSessions.find(s => s.id === scheduleId);
+                if (session) {
+                    document.getElementById('scheduleModalTitle').textContent = 'Chỉnh sửa Buổi Sinh Hoạt';
+                    document.getElementById('scheduleId').value = scheduleId;
+                    document.getElementById('scheduleDate').value = session.date.toDate().toISOString().split('T')[0];
+                    document.getElementById('scheduleDescription').value = session.description;
+                    document.getElementById('scheduleLocation').value = session.location || '';
+                }
+            } else {
+                document.getElementById('scheduleModalTitle').textContent = 'Tạo Buổi Sinh Hoạt';
+            }
+            openModal('addScheduleModal');
+        }
+
+        function openTakeAttendanceModal(sessionId) {
+            const sessionData = allAttendanceSessions.find(s => s.id === sessionId);
+            if (!sessionData) return;
+            const modal = document.getElementById('takeAttendanceModal');
+            modal.querySelector('#takeAttendanceModalTitle').textContent = `Điểm danh: ${sessionData.description}`;
+            modal.querySelector('#attendanceSessionId').value = sessionId;
+            const table = modal.querySelector('#attendanceMemberTable');
+            table.innerHTML = `<thead><tr class="border-b"><th class="p-2">Thành viên</th><th class="p-2 text-center">Có mặt</th><th class="p-2 text-center">Vắng (CP)</th><th class="p-2 text-center">Vắng (KP)</th></tr></thead><tbody>` + allMembers.filter(m => m.role !== 'mentor').map(member => {
+                const status = (sessionData.records && sessionData.records[member.id]) ? sessionData.records[member.id] : 'absent_unexcused';
+                return `<tr data-userid="${member.id}">
+                    <td class="p-2">${member.displayName}</td>
+                    <td class="p-2 text-center"><input type="radio" name="status_${member.id}" value="present" ${status === 'present' ? 'checked' : ''}></td>
+                    <td class="p-2 text-center"><input type="radio" name="status_${member.id}" value="absent_leave" ${status === 'absent_leave' ? 'checked' : ''}></td>
+                    <td class="p-2 text-center"><input type="radio" name="status_${member.id}" value="absent_unexcused" ${status === 'absent_unexcused' ? 'checked' : ''}></td>
+                </tr>`;
+            }).join('') + `</tbody>`;
+            openModal('takeAttendanceModal');
+        }
+
+        function openTransactionModal(transactionId = null) {
+            const form = document.getElementById('transactionForm');
+            form.reset();
+            document.getElementById('transactionId').value = '';
+            if (transactionId) {
+                const trans = allFunds.find(f => f.id === transactionId);
+                if (trans) {
+                    document.getElementById('transactionModalTitle').textContent = 'Chỉnh sửa Giao dịch';
+                    document.getElementById('transactionId').value = transactionId;
+                    document.getElementById('transactionDate').value = trans.date.toDate().toISOString().split('T')[0];
+                    document.getElementById('transactionDescription').value = trans.description;
+                    document.getElementById('transactionAmount').value = trans.amount;
+                    document.getElementById('transactionType').value = trans.type;
+                }
+            } else {
+                document.getElementById('transactionModalTitle').textContent = 'Thêm Giao dịch';
+            }
+            openModal('transactionModal');
+        }
+        
+        function setupReportGenerator() {
+            const monthSelect = document.getElementById('reportMonth');
+            const yearSelect = document.getElementById('reportYear');
+            const generateBtn = document.getElementById('generateReportBtn');
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
+            for (let i = 1; i <= 12; i++) monthSelect.add(new Option(`Tháng ${i}`, i));
+            monthSelect.value = currentMonth;
+            for (let i = currentYear; i >= currentYear - 5; i--) yearSelect.add(new Option(`Năm ${i}`, i));
+            generateBtn.addEventListener('click', generateReport);
+        }
+
+        function generateReport() {
+            const month = parseInt(document.getElementById('reportMonth').value);
+            const year = parseInt(document.getElementById('reportYear').value);
+            document.getElementById('reportOutput').classList.remove('hidden');
+            document.getElementById('reportTitle').textContent = `Báo cáo tháng ${month}/${year}`;
+            const startDate = new Date(year, month - 1, 1);
+            const endDate = new Date(year, month, 0, 23, 59, 59);
+            
+            // Activity Report
+            const filteredSessions = allAttendanceSessions.filter(s => s.date.toDate() >= startDate && s.date.toDate() <= endDate);
+            let activityHtml = '<div class="overflow-x-auto"><table class="w-full text-left">...</table></div>'; // Simplified for brevity
+            document.getElementById('activityReportContent').innerHTML = activityHtml || '<p>Không có dữ liệu chuyên cần.</p>';
+
+            // Financial Report
+            const startBalance = allFunds.filter(t => t.date.toDate() < startDate).reduce((acc, t) => acc + (t.type === 'income' ? t.amount : -t.amount), 0);
+            const transactionsThisMonth = allFunds.filter(t => t.date.toDate() >= startDate && t.date.toDate() <= endDate);
+            const income = transactionsThisMonth.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
+            const expense = transactionsThisMonth.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+            const endBalance = startBalance + income - expense;
+            let financialHtml = `<dl class="grid grid-cols-2 gap-4">
+                <div><dt>Số dư đầu kỳ:</dt><dd>${startBalance.toLocaleString('vi-VN')} VND</dd></div>
+                <div><dt>Tổng thu:</dt><dd class="text-green-600">+ ${income.toLocaleString('vi-VN')} VND</dd></div>
+                <div><dt>Tổng chi:</dt><dd class="text-red-600">- ${expense.toLocaleString('vi-VN')} VND</dd></div>
+                <div><dt>Số dư cuối kỳ:</dt><dd class="font-bold">${endBalance.toLocaleString('vi-VN')} VND</dd></div>
+            </dl>`;
+            document.getElementById('financialReportContent').innerHTML = financialHtml;
+        }
+
     </script>
 </body>
 </html>
