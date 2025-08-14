@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Mentor | F-Học Portal 2.0</title>
+    <!-- [NEW] Favicon -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/ycSx4Q3D/F-H-c-PORTAL-1.png">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Thư viện biểu tượng Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .sidebar {
+            transition: width 0.3s ease;
+        }
+        .sidebar-link .link-text {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .sidebar.close .link-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            pointer-events: none;
+        }
+        .sidebar.close .logo-text {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .sidebar.close .sidebar-menu {
+            align-items: center;
+        }
+        .sidebar.close .sidebar-link {
+            justify-content: center;
+        }
+        .page-content {
+            display: none;
+        }
+        .page-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        /* Modal Animation */
+        .modal-enter { animation: fadeIn 0.3s ease-out; }
+        .modal-leave { animation: fadeOut 0.3s ease-in; }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        /* --- [NEW] Hiệu ứng chuyển động --- */
+        .sidebar-link {
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        .sidebar-link:hover {
+            transform: translateX(4px);
+        }
+        .form-group input, .form-group select, .form-group textarea, .report-filters select {
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus, .report-filters select:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); /* blue-500 with opacity */
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <div id="loader" class="fixed inset-0 bg-slate-100 flex justify-center items-center z-[100]">
+        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <div id="main-interface" class="hidden md:flex w-full">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar bg-white h-screen fixed top-0 left-0 w-64 flex flex-col p-4 shadow-lg z-50">
+            <div class="flex items-center justify-center mb-8 px-2">
+                <!-- [UPDATED] Logo -->
+                <img src="https://i.ibb.co/Z6yWtdVP/F-H-c-PORTAL-3.png" alt="F-Hoc Portal Logo" class="logo-text w-auto h-10 transition-opacity duration-200">
+            </div>
+            <ul class="sidebar-menu flex flex-col h-full">
+                <li><a href="#dashboard" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium active"><i class='bx bxs-dashboard text-2xl'></i><span class="link-text">Tổng quan</span></a></li>
+                <li><a href="#applications" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bx-user-plus text-2xl'></i><span class="link-text">Duyệt đơn</span></a></li>
+                <li><a href="#members" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-group text-2xl'></i><span class="link-text">Thành viên</span></a></li>
+                <li><a href="#schedule" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-calendar text-2xl'></i><span class="link-text">Lịch Sinh Hoạt</span></a></li>
+                <li><a href="#attendance" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-user-check text-2xl'></i><span class="link-text">Điểm Danh</span></a></li>
+                <li><a href="#funds" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-wallet text-2xl'></i><span class="link-text">Quỹ CLB</span></a></li>
+                <li><a href="#reports" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-report text-2xl'></i><span class="link-text">Báo Cáo</span></a></li>
+                <li class="mt-auto"><a href="#" id="logoutButton" class="sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-red-50 hover:text-red-600 font-medium"><i class='bx bx-log-out text-2xl'></i><span class="link-text">Đăng xuất</span></a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main id="main-content" class="main-content w-full ml-64 p-6 transition-all duration-300">
+            <header class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6">
+                <div class="flex items-center gap-4">
+                    <i class='bx bx-menu text-2xl cursor-pointer text-slate-700' id="sidebarToggle"></i>
+                    <h1 id="headerTitle" class="text-2xl font-bold text-slate-800">Tổng quan</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="userName" class="font-semibold text-slate-700">Mentor</span>
+                    <!-- [UPDATED] Avatar -->
+                    <img id="userAvatar" src="https://placehold.co/48x48/f0f3ff/4a69bd?text=M" alt="Avatar" class="w-12 h-12 rounded-md object-cover">
+                </div>
+            </header>
+
+            <!-- Page Content Wrappers -->
+            <section id="dashboard" class="page-content active">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm flex items-center gap-5">
+                        <div class="bg-blue-100 text-blue-600 w-14 h-14 rounded-full flex items-center justify-center text-3xl"><i class='bx bxs-group'></i></div>
+                        <div><p class="text-slate-500">Tổng thành viên</p><h3 id="totalMembers" class="text-3xl font-bold text-slate-800">0</h3></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm flex items-center gap-5">
+                        <div class="bg-orange-100 text-orange-600 w-14 h-14 rounded-full flex items-center justify-center text-3xl"><i class='bx bxs-wallet-alt'></i></div>
+                        <div><p class="text-slate-500">Số dư quỹ (VND)</p><h3 id="fundBalance" class="text-3xl font-bold text-slate-800">0</h3></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm flex items-center gap-5">
+                        <div class="bg-green-100 text-green-600 w-14 h-14 rounded-full flex items-center justify-center text-3xl"><i class='bx bxs-user-plus'></i></div>
+                        <div><p class="text-slate-500">Đơn chờ duyệt</p><h3 id="totalApplications" class="text-3xl font-bold text-slate-800">0</h3></div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="applications" class="page-content">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-xl font-bold text-slate-800 mb-4">Duyệt đơn Đăng ký</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead><tr class="border-b border-slate-200 text-slate-500"><th class="p-3">Họ và tên</th><th class="p-3">Email</th><th class="p-3">Ban mong muốn</th><th class="p-3">Ngày nộp</th><th class="p-3">Hành động</th></tr></thead>
+                            <tbody id="applicationList" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="members" class="page-content">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-slate-800">Quản lý Thành viên</h2>
+                        <button id="addMemberBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center gap-2"><i class='bx bx-plus'></i>Thêm Lời mời</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead><tr class="border-b border-slate-200 text-slate-500"><th class="p-3">Thành viên</th><th class="p-3">Email</th><th class="p-3">Vai trò</th><th class="p-3">Ban</th><th class="p-3">Hành động</th></tr></thead>
+                            <tbody id="memberList" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="schedule" class="page-content">
+                 <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-slate-800">Lịch Sinh Hoạt</h2>
+                        <button id="addScheduleBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center gap-2"><i class='bx bx-plus'></i>Tạo Buổi Sinh Hoạt</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead><tr class="border-b border-slate-200 text-slate-500"><th class="p-3">Ngày</th><th class="p-3">Nội dung</th><th class="p-3">Địa điểm</th><th class="p-3">Hành động</th></tr></thead>
+                            <tbody id="scheduleList" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="attendance" class="page-content">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-xl font-bold text-slate-800 mb-2">Điểm Danh</h2>
+                    <p class="text-slate-500 mb-4">Chọn một buổi sinh hoạt từ bảng dưới đây để bắt đầu điểm danh.</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead><tr class="border-b border-slate-200 text-slate-500"><th class="p-3">Ngày</th><th class="p-3">Nội dung</th><th class="p-3">Tỷ lệ tham gia</th><th class="p-3">Hành động</th></tr></thead>
+                            <tbody id="attendanceSessionList" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="funds" class="page-content">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-slate-800">Quản lý Quỹ CLB</h2>
+                        <button id="addTransactionBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center gap-2"><i class='bx bx-plus'></i>Thêm Giao dịch</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead><tr class="border-b border-slate-200 text-slate-500"><th class="p-3">Ngày</th><th class="p-3">Nội dung</th><th class="p-3">Số tiền (VND)</th><th class="p-3">Loại</th><th class="p-3">Hành động</th></tr></thead>
+                            <tbody id="fundTransactionList" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="reports" class="page-content">
+                 <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+                    <h2 class="text-xl font-bold text-slate-800 mb-4">Báo Cáo & Thống kê</h2>
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="form-group">
+                            <label for="reportMonth" class="text-sm font-medium text-slate-600">Chọn tháng:</label>
+                            <select id="reportMonth" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reportYear" class="text-sm font-medium text-slate-600">Chọn năm:</label>
+                            <select id="reportYear" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></select>
+                        </div>
+                        <button id="generateReportBtn" class="self-end bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors">Tạo Báo cáo</button>
+                    </div>
+                </div>
+                <div id="reportOutput" class="hidden">
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h2 id="reportTitle" class="text-xl font-bold text-slate-800 mb-6"></h2>
+                        <div class="space-y-8">
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-700 border-b pb-2 mb-3">1. Báo cáo Chuyên cần</h3>
+                                <div id="activityReportContent"></div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-700 border-b pb-2 mb-3">2. Báo cáo Quỹ</h3>
+                                <div id="financialReportContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="addMemberModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-slate-800">Thêm Lời mời</h2>
+                <button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="addMemberModal">&times;</button>
+            </div>
+            <form id="addMemberForm">
+                <div class="space-y-4">
+                    <div class="form-group"><label for="addDisplayName" class="block text-sm font-medium text-slate-700">Họ và tên</label><input type="text" id="addDisplayName" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required></div>
+                    <div class="form-group"><label for="addEmail" class="block text-sm font-medium text-slate-700">Email</label><input type="email" id="addEmail" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required></div>
+                    <div class="form-group"><label for="addRole" class="block text-sm font-medium text-slate-700">Vai trò</label><select id="addRole" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"><option value="member">Thành viên</option><option value="bcn">Ban Chủ nhiệm</option></select></div>
+                </div>
+                <div class="mt-6 text-right"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Gửi Lời mời</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editMemberModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-slate-800">Chỉnh sửa Thành viên</h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="editMemberModal">&times;</button></div>
+            <form id="editMemberForm">
+                <input type="hidden" id="editUserId">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group"><label class="block text-sm font-medium text-slate-700">Họ và tên</label><input type="text" id="editDisplayName" class="mt-1 block w-full rounded-md border-slate-300 bg-slate-100" disabled></div>
+                    <div class="form-group"><label class="block text-sm font-medium text-slate-700">Email</label><input type="email" id="editEmail" class="mt-1 block w-full rounded-md border-slate-300 bg-slate-100" disabled></div>
+                    <div class="form-group"><label for="editRole" class="block text-sm font-medium text-slate-700">Vai trò</label><select id="editRole" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"><option value="member">Thành viên</option><option value="bcn">Ban Chủ nhiệm</option><option value="mentor">Mentor</option></select></div>
+                    <div class="form-group"><label for="editClass" class="block text-sm font-medium text-slate-700">Lớp</label><input type="text" id="editClass" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
+                    <div class="form-group"><label for="editStudentId" class="block text-sm font-medium text-slate-700">MSHS</label><input type="text" id="editStudentId" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
+                    <div class="form-group"><label for="editDepartment" class="block text-sm font-medium text-slate-700">Ban</label><select id="editDepartment" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"><option value="">Chưa phân ban</option><option value="NS-HC-TC">Ban NS-HC-TC</option><option value="Truyền thông">Ban Truyền thông</option><option value="Chuyên môn">Ban Chuyên môn</option><option value="Đối ngoại">Ban Đối ngoại</option></select></div>
+                    <div class="form-group"><label for="editPhone" class="block text-sm font-medium text-slate-700">Số điện thoại</label><input type="tel" id="editPhone" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
+                    <div class="form-group"><label for="editDorm" class="block text-sm font-medium text-slate-700">Dorm</label><input type="text" id="editDorm" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
+                    <div class="form-group"><label for="editFacebookUrl" class="block text-sm font-medium text-slate-700">Link Facebook</label><input type="url" id="editFacebookUrl" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
+                    <div class="form-group"><label for="editHomeroomTeacher" class="block text-sm font-medium text-slate-700">GVCN</label><input type="text" id="editHomeroomTeacher" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
+                    <div class="form-group"><label for="editManagingTeacher" class="block text-sm font-medium text-slate-700">GVQN</label><input type="text" id="editManagingTeacher" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></div>
+                    <div class="md:col-span-2 form-group"><label for="editNotes" class="block text-sm font-medium text-slate-700">Ghi chú</label><textarea id="editNotes" rows="3" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm"></textarea></div>
+                </div>
+                <div class="mt-6 text-right"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Lưu thay đổi</button></div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6"><div class="flex justify-between items-center mb-4"><h2 id="transactionModalTitle" class="text-xl font-bold text-slate-800">Thêm Giao dịch</h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="transactionModal">&times;</button></div><form id="transactionForm"><input type="hidden" id="transactionId"><div class="space-y-4"><div class="form-group"><label for="transactionDate" class="block text-sm font-medium text-slate-700">Ngày</label><input type="date" id="transactionDate" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="transactionDescription" class="block text-sm font-medium text-slate-700">Nội dung</label><input type="text" id="transactionDescription" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="transactionAmount" class="block text-sm font-medium text-slate-700">Số tiền (VND)</label><input type="number" id="transactionAmount" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="transactionType" class="block text-sm font-medium text-slate-700">Loại</label><select id="transactionType" class="mt-1 block w-full rounded-md border-slate-300" required><option value="income">Thu</option><option value="expense">Chi</option></select></div></div><div class="mt-6 text-right"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Lưu</button></div></form></div></div>
+    <div id="addScheduleModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6"><div class="flex justify-between items-center mb-4"><h2 id="scheduleModalTitle" class="text-xl font-bold text-slate-800">Tạo Buổi Sinh Hoạt</h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="addScheduleModal">&times;</button></div><form id="addScheduleForm"><input type="hidden" id="scheduleId"><div class="space-y-4"><div class="form-group"><label for="scheduleDate" class="block text-sm font-medium text-slate-700">Ngày</label><input type="date" id="scheduleDate" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="scheduleLocation" class="block text-sm font-medium text-slate-700">Địa điểm</label><input type="text" id="scheduleLocation" class="mt-1 block w-full rounded-md border-slate-300" placeholder="VD: Phòng A101"></div><div class="form-group"><label for="scheduleDescription" class="block text-sm font-medium text-slate-700">Nội dung</label><input type="text" id="scheduleDescription" class="mt-1 block w-full rounded-md border-slate-300" placeholder="VD: Họp CLB tháng 7" required></div></div><div class="mt-6 text-right"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Lưu</button></div></form></div></div>
+    <div id="takeAttendanceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-lg w-full max-w-2xl p-6 max-h-[90vh] flex flex-col"><div class="flex justify-between items-center mb-4"><h2 id="takeAttendanceModalTitle" class="text-xl font-bold text-slate-800">Điểm danh</h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="takeAttendanceModal">&times;</button></div><form id="takeAttendanceForm" class="flex-grow flex flex-col"><input type="hidden" id="attendanceSessionId"><div class="overflow-y-auto flex-grow"><table id="attendanceMemberTable" class="w-full text-left"></table></div><div class="mt-6 text-right border-t pt-4"><button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Lưu Kết quả</button></div></form></div></div>
+    
+    <!-- Application Viewer Modal -->
+    <div id="applicationViewerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4"><h2 id="applicationViewerName" class="text-xl font-bold text-slate-800"></h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="applicationViewerModal">&times;</button></div>
+            <div id="applicationViewerDetails" class="space-y-4"></div>
+            <div id="applicationViewerFooter" class="mt-6 text-right space-x-3 border-t pt-4"></div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 text-center">
+            <h2 id="confirmationTitle" class="text-xl font-bold text-slate-800 mb-2">Xác nhận hành động</h2>
+            <p id="confirmationMessage" class="text-slate-600 mb-6"></p>
+            <div class="flex justify-center gap-4">
+                <button id="confirmCancelBtn" class="bg-slate-200 text-slate-800 px-6 py-2 rounded-lg font-semibold hover:bg-slate-300">Hủy</button>
+                <button id="confirmOkBtn" class="bg-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-600">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, updateDoc, deleteDoc, query, orderBy, addDoc, Timestamp, serverTimestamp, where, setDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+        // --- Firebase Config ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZwnpjX_9foS_OvXfljqsepEQVUJ3azgw",
+            authDomain: "fhoc-portal.firebaseapp.com",
+            projectId: "fhoc-portal",
+            storageBucket: "fhoc-portal.appspot.com",
+            messagingSenderId: "372673589602",
+            appId: "1:372673589602:web:1cadfae68db4a78ca5fc3b"
+        };
+        
+        // --- Initialize Services ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- DOM Elements ---
+        const memberListBody = document.getElementById('memberList');
+        const applicationListBody = document.getElementById('applicationList');
+        const scheduleListBody = document.getElementById('scheduleList');
+        const attendanceSessionListBody = document.getElementById('attendanceSessionList');
+        const fundTransactionListBody = document.getElementById('fundTransactionList');
+        
+        // --- Data Caching ---
+        let allMembers = [];
+        let allApplications = [];
+        let allAttendanceSessions = [];
+        let allFunds = [];
+
+        // --- Auth State Management ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const usersCollectionRef = collection(db, "users");
+                const usersSnapshot = await getDocs(usersCollectionRef);
+
+                // Logic: If no users exist, the first one becomes a mentor
+                if (usersSnapshot.empty) {
+                    await setDoc(doc(db, "users", user.uid), {
+                        role: 'mentor',
+                        email: user.email,
+                        displayName: user.displayName,
+                        photoURL: user.photoURL,
+                        createdAt: serverTimestamp()
+                    });
+                    initializePage(user, 'mentor');
+                    return;
+                }
+
+                const userDocRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userDocRef);
+                
+                if (docSnap.exists() && docSnap.data().role === 'mentor') {
+                    initializePage(user, 'mentor');
+                } else {
+                    alert("Bạn không có quyền truy cập trang này.");
+                    const userRole = docSnap.exists() ? docSnap.data().role : 'unknown';
+                    if(userRole === 'bcn') window.location.href = './banchunhiem.html';
+                    else if(userRole === 'member') window.location.href = './member.html';
+                    else window.location.href = './index.html';
+                }
+            } else {
+                window.location.href = './index.html';
+            }
+        });
+        
+        // --- Main Function to Setup Page ---
+        function initializePage(user, role) {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('main-interface').classList.remove('hidden');
+            
+            document.getElementById('userName').textContent = user.displayName || 'Mentor';
+            if(user.photoURL) {
+                document.getElementById('userAvatar').src = user.photoURL;
+            }
+            
+            // Setup real-time listeners
+            listenForApplications();
+            listenForMembers();
+            listenForScheduleAndAttendance();
+            listenForFundTransactions();
+            
+            setupEventListeners();
+            setupReportGenerator();
+        }
+
+        // --- Real-time Data Listeners ---
+        function listenForApplications() {
+            const q = query(collection(db, "applications"), where("status", "==", "pending"), orderBy("submittedAt", "desc"));
+            onSnapshot(q, (querySnapshot) => {
+                allApplications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                let html = '';
+                allApplications.forEach(app => {
+                    const date = app.submittedAt.toDate().toLocaleDateString('vi-VN');
+                    html += `
+                        <tr data-id="${app.id}" class="hover:bg-slate-50">
+                            <td class="p-3 font-medium text-slate-800">${app.displayName}</td>
+                            <td class="p-3">${app.email}</td>
+                            <td class="p-3">${app.desiredDepartment}</td>
+                            <td class="p-3">${date}</td>
+                            <td class="p-3 action-buttons">
+                                <button class="text-sm text-slate-600 hover:text-slate-900 view-app-btn">Xem</button>
+                                <button class="text-sm text-green-600 hover:text-green-900 approve-app-btn">Duyệt</button>
+                                <button class="text-sm text-red-600 hover:text-red-900 reject-app-btn">Từ chối</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                applicationListBody.innerHTML = html || '<tr><td colspan="5" class="text-center p-4 text-slate-500">Không có đơn đăng ký nào chờ duyệt.</td></tr>';
+                document.getElementById('totalApplications').textContent = querySnapshot.size;
+            }, (error) => {
+                console.error("Error listening for applications:", error);
+                applicationListBody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-red-500">Lỗi khi tải đơn đăng ký.</td></tr>';
+            });
+        }
+
+        function listenForMembers() {
+            const q = query(collection(db, "users"), orderBy("displayName"));
+            onSnapshot(q, (querySnapshot) => {
+                allMembers = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                let membersHtml = '';
+                allMembers.forEach(member => {
+                    membersHtml += `
+                        <tr data-id="${member.id}" class="hover:bg-slate-50">
+                            <td class="p-3"><div class="font-medium text-slate-800">${member.displayName || 'N/A'}</div><div class="text-xs text-slate-500">${member.class || ''}</div></td>
+                            <td class="p-3">${member.email}</td>
+                            <td class="p-3"><span class="role-badge role-${member.role}">${member.role}</span></td>
+                            <td class="p-3">${member.department || 'Chưa phân ban'}</td>
+                            <td class="p-3 action-buttons">
+                                <button class="text-sm text-blue-600 hover:text-blue-900 edit-member-btn">Sửa</button>
+                                <button class="text-sm text-red-600 hover:text-red-900 delete-member-btn">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                memberListBody.innerHTML = membersHtml;
+                document.getElementById('totalMembers').textContent = querySnapshot.size;
+            }, (error) => {
+                console.error("Error listening for members:", error);
+                memberListBody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-red-500">Lỗi khi tải danh sách.</td></tr>';
+            });
+        }
+        
+        function listenForScheduleAndAttendance() {
+            const q = query(collection(db, "attendance"), orderBy("date", "desc"));
+            onSnapshot(q, (querySnapshot) => {
+                allAttendanceSessions = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                let scheduleHtml = '';
+                let attendanceHtml = '';
+
+                allAttendanceSessions.forEach(session => {
+                    const date = session.date.toDate().toLocaleDateString('vi-VN');
+                    
+                    scheduleHtml += `
+                        <tr data-id="${session.id}" class="hover:bg-slate-50">
+                            <td class="p-3">${date}</td>
+                            <td class="p-3">${session.description}</td>
+                            <td class="p-3">${session.location || 'Chưa có'}</td>
+                            <td class="p-3 action-buttons">
+                                <button class="text-sm text-blue-600 hover:text-blue-900 edit-schedule-btn">Sửa</button>
+                                <button class="text-sm text-red-600 hover:text-red-900 delete-attendance-btn">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    const totalMembersToCount = allMembers.filter(m => m.role !== 'mentor' && m.role !== 'it_admin').length;
+                    const presentCount = session.records ? Object.values(session.records).filter(s => s === 'present').length : 0;
+                    const rate = totalMembersToCount > 0 ? `${((presentCount / totalMembersToCount) * 100).toFixed(0)}%` : 'N/A';
+
+                    attendanceHtml += `
+                        <tr data-id="${session.id}" class="hover:bg-slate-50">
+                            <td class="p-3">${date}</td>
+                            <td class="p-3">${session.description}</td>
+                            <td class="p-3">${rate} (${presentCount}/${totalMembersToCount})</td>
+                            <td class="p-3 action-buttons">
+                                <button class="bg-blue-500 text-white px-3 py-1 text-sm rounded-md hover:bg-blue-600 view-attendance-btn">Điểm danh</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                 scheduleListBody.innerHTML = scheduleHtml || '<tr><td colspan="4" class="text-center p-4 text-slate-500">Chưa có buổi sinh hoạt nào.</td></tr>';
+                 attendanceSessionListBody.innerHTML = attendanceHtml || '<tr><td colspan="4" class="text-center p-4 text-slate-500">Chưa có phiên điểm danh nào.</td></tr>';
+            }, (error) => {
+                 console.error("Error listening for sessions:", error);
+                 scheduleListBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-red-500">Lỗi khi tải dữ liệu.</td></tr>';
+                 attendanceSessionListBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-red-500">Lỗi khi tải dữ liệu.</td></tr>';
+            });
+        }
+        
+        function listenForFundTransactions() {
+            const q = query(collection(db, "funds"), orderBy("date", "desc"));
+            onSnapshot(q, (querySnapshot) => {
+                allFunds = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                let html = '';
+                let balance = 0;
+                [...allFunds].reverse().forEach(trans => {
+                    balance += (trans.type === 'income' ? trans.amount : -trans.amount);
+                });
+
+                allFunds.forEach(trans => {
+                    const date = trans.date.toDate().toLocaleDateString('vi-VN');
+                    const amount = (trans.type === 'income' ? '+' : '') + trans.amount.toLocaleString('vi-VN');
+                    html += `
+                        <tr data-id="${trans.id}" class="hover:bg-slate-50">
+                            <td class="p-3">${date}</td>
+                            <td class="p-3">${trans.description}</td>
+                            <td class="p-3 font-medium ${trans.type === 'income' ? 'text-green-600' : 'text-red-600'}">${amount}</td>
+                            <td class="p-3">${trans.type === 'income' ? 'Thu' : 'Chi'}</td>
+                            <td class="p-3 action-buttons">
+                                <button class="text-sm text-blue-600 hover:text-blue-900 edit-transaction-btn">Sửa</button>
+                                <button class="text-sm text-red-600 hover:text-red-900 delete-transaction-btn">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                fundTransactionListBody.innerHTML = html || '<tr><td colspan="5" class="text-center p-4 text-slate-500">Chưa có giao dịch nào.</td></tr>';
+                document.getElementById('fundBalance').textContent = balance.toLocaleString('vi-VN');
+            }, (error) => {
+                console.error("Error listening for fund transactions:", error);
+                fundTransactionListBody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-red-500">Lỗi khi tải giao dịch.</td></tr>';
+            });
+        }
+
+        // --- Modal & Form Handling ---
+        function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); document.getElementById(modalId).classList.add('flex'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); document.getElementById(modalId).classList.remove('flex'); }
+
+        function showConfirmation(message, onConfirm, options = {}) {
+            const modal = document.getElementById('confirmationModal');
+            document.getElementById('confirmationMessage').textContent = message;
+            
+            const confirmBtn = document.getElementById('confirmOkBtn');
+            const cancelBtn = document.getElementById('confirmCancelBtn');
+
+            const confirmHandler = () => {
+                onConfirm();
+                closeModal('confirmationModal');
+            };
+
+            const cancelHandler = () => {
+                closeModal('confirmationModal');
+            };
+            
+            confirmBtn.addEventListener('click', confirmHandler, { once: true });
+            cancelBtn.addEventListener('click', cancelHandler, { once: true });
+            
+            openModal('confirmationModal');
+        }
+
+        function openApplicationViewer(appId) {
+            const app = allApplications.find(a => a.id === appId);
+            if (!app) return;
+
+            document.getElementById('applicationViewerName').textContent = `Đơn đăng ký của ${app.displayName}`;
+            
+            const detailsContainer = document.getElementById('applicationViewerDetails');
+            const footerContainer = document.getElementById('applicationViewerFooter');
+            
+            const detailsMap = {
+                'Họ và tên': app.displayName, 'Email': app.email, 'Lớp': app.class, 'MSHS': app.studentId,
+                'Số điện thoại': app.phone, 'Dorm': app.dorm, 'Tên GVCN': app.homeroomTeacher, 'Tên GVQN': app.managingTeacher,
+                'Facebook': app.facebookUrl ? `<a href="${app.facebookUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${app.facebookUrl}</a>` : 'Chưa cung cấp',
+                'Ngày nộp': app.submittedAt ? app.submittedAt.toDate().toLocaleString('vi-VN') : 'Chưa rõ',
+                'Biết đến CLB từ': app.howDidYouKnow, 'Ban mong muốn': app.desiredDepartment,
+                'Năng khiếu/Sở trường': app.strengths, 'Mong muốn khi tham gia': app.expectations
+            };
+
+            let detailsHtml = '<dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">';
+            for (const [key, value] of Object.entries(detailsMap)) {
+                detailsHtml += `<div><dt class="text-sm font-medium text-slate-600">${key}</dt><dd class="mt-1 text-slate-900">${value || 'Chưa cung cấp'}</dd></div>`;
+            }
+            detailsHtml += '</dl>';
+            detailsContainer.innerHTML = detailsHtml;
+
+            footerContainer.innerHTML = `
+                <button class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600" id="modalApproveBtn">Duyệt</button>
+                <button class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600" id="modalRejectBtn">Từ chối</button>
+            `;
+            footerContainer.querySelector('#modalApproveBtn').onclick = () => handleApproveApplication(appId);
+            footerContainer.querySelector('#modalRejectBtn').onclick = () => handleRejectApplication(appId);
+
+            openModal('applicationViewerModal');
+        }
+
+        async function openEditMemberModal(userId) {
+            const user = allMembers.find(m => m.id === userId);
+            if (user) {
+                const form = document.getElementById('editMemberForm');
+                form.reset();
+                form.querySelector('#editUserId').value = userId;
+                form.querySelector('#editDisplayName').value = user.displayName || '';
+                form.querySelector('#editEmail').value = user.email || '';
+                form.querySelector('#editRole').value = user.role || 'member';
+                form.querySelector('#editDepartment').value = user.department || '';
+                form.querySelector('#editClass').value = user.class || '';
+                form.querySelector('#editStudentId').value = user.studentId || '';
+                form.querySelector('#editDorm').value = user.dorm || '';
+                form.querySelector('#editPhone').value = user.phone || '';
+                form.querySelector('#editHomeroomTeacher').value = user.homeroomTeacher || '';
+                form.querySelector('#editManagingTeacher').value = user.managingTeacher || '';
+                form.querySelector('#editFacebookUrl').value = user.facebookUrl || '';
+                form.querySelector('#editNotes').value = user.notes || '';
+                openModal('editMemberModal');
+            } else {
+                alert("Không tìm thấy thông tin thành viên.");
+            }
+        }
+        
+        function openTakeAttendanceModal(sessionId) {
+            const sessionData = allAttendanceSessions.find(s => s.id === sessionId);
+            if (!sessionData) return;
+
+            const modal = document.getElementById('takeAttendanceModal');
+            modal.querySelector('#takeAttendanceModalTitle').textContent = `Điểm danh: ${sessionData.description} (${sessionData.date.toDate().toLocaleDateString('vi-VN')})`;
+            modal.querySelector('#attendanceSessionId').value = sessionId;
+            const tableBody = modal.querySelector('#attendanceMemberTable');
+            
+            let tableHtml = '<thead><tr class="border-b"><th class="p-2">Thành viên</th><th class="p-2 text-center">Có mặt</th><th class="p-2 text-center">Vắng (Có phép)</th><th class="p-2 text-center">Vắng (Không phép)</th></tr></thead><tbody>';
+            allMembers.forEach(member => {
+                if (member.role === 'member' || member.role === 'bcn') {
+                    const status = sessionData.records ? sessionData.records[member.id] : 'absent_unexcused';
+                    tableHtml += `
+                        <tr data-userid="${member.id}" class="border-b last:border-b-0 hover:bg-slate-50">
+                            <td class="p-2 font-medium">${member.displayName}</td>
+                            <td class="p-2 text-center"><input type="radio" name="status_${member.id}" value="present" ${status === 'present' ? 'checked' : ''} class="h-4 w-4 text-blue-600"></td>
+                            <td class="p-2 text-center"><input type="radio" name="status_${member.id}" value="absent_leave" ${status === 'absent_leave' ? 'checked' : ''} class="h-4 w-4 text-blue-600"></td>
+                            <td class="p-2 text-center"><input type="radio" name="status_${member.id}" value="absent_unexcused" ${status === 'absent_unexcused' ? 'checked' : ''} class="h-4 w-4 text-blue-600"></td>
+                        </tr>
+                    `;
+                }
+            });
+            tableHtml += '</tbody>';
+            tableBody.innerHTML = tableHtml;
+            openModal('takeAttendanceModal');
+        }
+
+        // --- CRUD Operations ---
+        async function handleAddMember(event) {
+            event.preventDefault();
+            const email = document.getElementById('addEmail').value.trim();
+            const displayName = document.getElementById('addDisplayName').value.trim();
+            const role = document.getElementById('addRole').value;
+
+            if (!email || !displayName) {
+                alert("Vui lòng nhập đầy đủ Tên và Email.");
+                return;
+            }
+
+            try {
+                // Check if user or invitation already exists
+                const userQuery = query(collection(db, "users"), where("email", "==", email));
+                const userSnapshot = await getDocs(userQuery);
+                if (!userSnapshot.empty) {
+                    alert("Lỗi: Thành viên với email này đã tồn tại!");
+                    return;
+                }
+                const invQuery = query(collection(db, "invitations"), where("email", "==", email));
+                const invSnapshot = await getDocs(invQuery);
+                if (!invSnapshot.empty) {
+                    alert("Lỗi: Lời mời cho email này đã tồn tại!");
+                    return;
+                }
+
+                await setDoc(doc(db, "invitations", email), {
+                    displayName: displayName,
+                    role: role,
+                    email: email,
+                    createdAt: serverTimestamp()
+                });
+
+                alert("Thêm lời mời thành công. Người dùng cần đăng nhập bằng Google với email này để kích hoạt tài khoản.");
+                closeModal('addMemberModal');
+            } catch (error) {
+                console.error("Error adding member invitation:", error);
+                alert("Lỗi khi thêm thành viên.");
+            }
+        }
+
+        async function handleUpdateMember(event) {
+            event.preventDefault();
+            const userId = document.getElementById('editUserId').value;
+            const updatedData = {
+                role: document.getElementById('editRole').value,
+                department: document.getElementById('editDepartment').value,
+                class: document.getElementById('editClass').value,
+                studentId: document.getElementById('editStudentId').value,
+                dorm: document.getElementById('editDorm').value,
+                phone: document.getElementById('editPhone').value,
+                homeroomTeacher: document.getElementById('editHomeroomTeacher').value,
+                managingTeacher: document.getElementById('editManagingTeacher').value,
+                facebookUrl: document.getElementById('editFacebookUrl').value,
+                notes: document.getElementById('editNotes').value,
+            };
+            try {
+                await updateDoc(doc(db, "users", userId), updatedData);
+                alert("Cập nhật thành công!");
+                closeModal('editMemberModal');
+            } catch (error) { console.error("Error updating member:", error); alert("Lỗi khi cập nhật."); }
+        }
+
+        async function handleDeleteMember(userId) {
+            if (auth.currentUser.uid === userId) {
+                alert("Bạn không thể tự xóa chính mình.");
+                return;
+            }
+            showConfirmation("Bạn có chắc chắn muốn xóa thành viên này? Hành động này không thể hoàn tác.", async () => {
+                try {
+                    await deleteDoc(doc(db, "users", userId));
+                    alert("Xóa thành viên thành công.");
+                } catch (error) {
+                    console.error("Error deleting member:", error);
+                    alert("Lỗi khi xóa thành viên.");
+                }
+            });
+        }
+        
+        async function handleApproveApplication(appId) {
+            const appData = allApplications.find(a => a.id === appId);
+            if (!appData) return;
+
+            showConfirmation(`Bạn có chắc muốn duyệt đơn của ${appData.displayName}?`, async () => {
+                try {
+                    const invitationProfile = { ...appData };
+                    delete invitationProfile.id;
+                    delete invitationProfile.status;
+                    delete invitationProfile.submittedAt;
+                    invitationProfile.role = 'member';
+
+                    await setDoc(doc(db, "invitations", appData.email), invitationProfile);
+                    await deleteDoc(doc(db, "applications", appId));
+                    
+                    alert("Duyệt thành công! Lời mời đã được tạo, người dùng cần đăng nhập bằng email đã đăng ký để hoàn tất.");
+                    closeModal('applicationViewerModal');
+                } catch (error) {
+                    console.error("Error approving application: ", error);
+                    alert("Lỗi khi duyệt đơn.");
+                }
+            });
+        }
+
+        async function handleRejectApplication(appId) {
+             const appData = allApplications.find(a => a.id === appId);
+            if (!appData) return;
+            showConfirmation(`Bạn có chắc chắn muốn từ chối đơn của ${appData.displayName}?`, async () => {
+                try {
+                    await deleteDoc(doc(db, "applications", appId));
+                    alert("Đã từ chối và xóa đơn đăng ký.");
+                    closeModal('applicationViewerModal');
+                } catch (error) {
+                    console.error("Error rejecting application: ", error);
+                    alert("Lỗi khi từ chối đơn.");
+                }
+            });
+        }
+
+        async function handleSaveSchedule(event) {
+            event.preventDefault();
+            const scheduleId = document.getElementById('scheduleId').value;
+            const sessionData = {
+                date: Timestamp.fromDate(new Date(document.getElementById('scheduleDate').value)),
+                description: document.getElementById('scheduleDescription').value,
+                location: document.getElementById('scheduleLocation').value,
+            };
+            try {
+                if (scheduleId) {
+                    await updateDoc(doc(db, "attendance", scheduleId), sessionData);
+                    alert("Cập nhật thành công!");
+                } else {
+                    sessionData.createdAt = serverTimestamp();
+                    sessionData.records = {};
+                    await addDoc(collection(db, "attendance"), sessionData);
+                    alert("Tạo buổi sinh hoạt thành công!");
+                }
+                closeModal('addScheduleModal');
+            } catch (error) { console.error("Error saving session:", error); alert("Lỗi khi lưu."); }
+        }
+        
+        async function handleSaveAttendance(event) {
+            event.preventDefault();
+            const sessionId = document.getElementById('attendanceSessionId').value;
+            const records = {};
+            const rows = document.querySelectorAll('#attendanceMemberTable tbody tr');
+            rows.forEach(row => {
+                const userId = row.dataset.userid;
+                const selectedStatus = row.querySelector(`input[name="status_${userId}"]:checked`);
+                if(selectedStatus) {
+                    records[userId] = selectedStatus.value;
+                }
+            });
+
+            try {
+                await updateDoc(doc(db, "attendance", sessionId), { records });
+                alert("Lưu kết quả điểm danh thành công!");
+                closeModal('takeAttendanceModal');
+            } catch(error) { console.error("Error saving attendance:", error); alert("Lỗi khi lưu."); }
+        }
+
+        async function handleDeleteAttendance(sessionId) {
+            showConfirmation("Bạn có chắc chắn muốn xóa buổi sinh hoạt này? Mọi dữ liệu điểm danh liên quan sẽ bị mất.", async () => {
+                try { await deleteDoc(doc(db, "attendance", sessionId)); alert("Xóa thành công."); }
+                catch(error) { console.error("Error deleting session:", error); alert("Lỗi khi xóa."); }
+            });
+        }
+        
+        async function handleSaveTransaction(event) {
+            event.preventDefault();
+            const transactionId = document.getElementById('transactionId').value;
+            const transactionData = {
+                date: Timestamp.fromDate(new Date(document.getElementById('transactionDate').value)),
+                description: document.getElementById('transactionDescription').value,
+                amount: Number(document.getElementById('transactionAmount').value),
+                type: document.getElementById('transactionType').value,
+            };
+            try {
+                if (transactionId) {
+                    await updateDoc(doc(db, "funds", transactionId), transactionData);
+                    alert("Cập nhật giao dịch thành công!");
+                } else {
+                    transactionData.createdAt = serverTimestamp();
+                    await addDoc(collection(db, "funds"), transactionData);
+                    alert("Thêm giao dịch thành công!");
+                }
+                closeModal('transactionModal');
+            } catch (error) { console.error("Error saving transaction:", error); alert("Lỗi khi lưu."); }
+        }
+
+        async function handleDeleteTransaction(transactionId) {
+            showConfirmation("Bạn có chắc chắn muốn xóa giao dịch này?", async () => {
+                try { await deleteDoc(doc(db, "funds", transactionId)); alert("Xóa thành công."); }
+                catch(error) { console.error("Error deleting transaction:", error); alert("Lỗi khi xóa."); }
+            });
+        }
+
+        // --- UI Event Listeners ---
+        function setupEventListeners() {
+            // Sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('main-content');
+                sidebar.classList.toggle('close');
+                if (sidebar.classList.contains('close')) {
+                    sidebar.style.width = '88px';
+                    mainContent.style.marginLeft = '88px';
+                } else {
+                    sidebar.style.width = '256px'; // 16rem
+                    mainContent.style.marginLeft = '256px';
+                }
+            });
+
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active', 'bg-blue-50', 'text-blue-600'));
+                    link.classList.add('active', 'bg-blue-50', 'text-blue-600');
+                    const targetId = link.getAttribute('href').substring(1);
+                    document.querySelectorAll('.page-content').forEach(content => content.classList.remove('active'));
+                    document.getElementById(targetId).classList.add('active');
+                    document.getElementById('headerTitle').textContent = link.querySelector('.link-text').textContent;
+                });
+            });
+            
+            // Logout
+            document.getElementById('logoutButton').addEventListener('click', (e) => {
+                e.preventDefault();
+                showConfirmation("Bạn có chắc chắn muốn đăng xuất?", () => {
+                    signOut(auth).catch(error => console.error("Sign out error:", error));
+                });
+            });
+            
+            // --- Modal Open/Close & Form Submission ---
+            document.querySelectorAll('.modal-close').forEach(el => el.onclick = () => closeModal(el.dataset.modal));
+            
+            document.getElementById('addMemberBtn').addEventListener('click', () => {
+                document.getElementById('addMemberForm').reset();
+                openModal('addMemberModal');
+            });
+            document.getElementById('addScheduleBtn').addEventListener('click', () => {
+                document.getElementById('addScheduleForm').reset();
+                document.getElementById('scheduleId').value = '';
+                document.getElementById('scheduleModalTitle').textContent = 'Tạo Buổi Sinh Hoạt';
+                openModal('addScheduleModal');
+            });
+            document.getElementById('addTransactionBtn').addEventListener('click', () => {
+                document.getElementById('transactionForm').reset();
+                document.getElementById('transactionId').value = '';
+                document.getElementById('transactionModalTitle').textContent = 'Thêm Giao dịch';
+                openModal('transactionModal');
+            });
+
+            document.getElementById('addMemberForm').addEventListener('submit', handleAddMember);
+            document.getElementById('editMemberForm').addEventListener('submit', handleUpdateMember);
+            document.getElementById('addScheduleForm').addEventListener('submit', handleSaveSchedule);
+            document.getElementById('takeAttendanceForm').addEventListener('submit', handleSaveAttendance);
+            document.getElementById('transactionForm').addEventListener('submit', handleSaveTransaction);
+
+            // --- Event Delegation for table buttons ---
+            const mainContentEl = document.querySelector('.main-content');
+            mainContentEl.addEventListener('click', async (event) => {
+                const target = event.target.closest('button');
+                if (!target) return;
+                const parentRow = target.closest('tr');
+                const docId = parentRow ? parentRow.dataset.id : null;
+
+                if (target.matches('.edit-member-btn')) openEditMemberModal(docId);
+                if (target.matches('.delete-member-btn')) handleDeleteMember(docId);
+                if (target.matches('.delete-attendance-btn')) handleDeleteAttendance(docId);
+                if (target.matches('.view-attendance-btn')) openTakeAttendanceModal(docId);
+                if (target.matches('.delete-transaction-btn')) handleDeleteTransaction(docId);
+                if (target.matches('.approve-app-btn')) handleApproveApplication(docId);
+                if (target.matches('.reject-app-btn')) handleRejectApplication(docId);
+                if (target.matches('.view-app-btn')) openApplicationViewer(docId);
+                if (target.matches('.edit-schedule-btn')) {
+                    const session = allAttendanceSessions.find(s => s.id === docId);
+                    if(session) {
+                        document.getElementById('addScheduleForm').reset();
+                        document.getElementById('scheduleId').value = docId;
+                        document.getElementById('scheduleDate').value = session.date.toDate().toISOString().split('T')[0];
+                        document.getElementById('scheduleDescription').value = session.description;
+                        document.getElementById('scheduleLocation').value = session.location;
+                        document.getElementById('scheduleModalTitle').textContent = 'Chỉnh sửa Buổi Sinh Hoạt';
+                        openModal('addScheduleModal');
+                    }
+                }
+                if (target.matches('.edit-transaction-btn')) {
+                    const trans = allFunds.find(f => f.id === docId);
+                    if(trans) {
+                        document.getElementById('transactionForm').reset();
+                        document.getElementById('transactionId').value = docId;
+                        document.getElementById('transactionDate').value = trans.date.toDate().toISOString().split('T')[0];
+                        document.getElementById('transactionDescription').value = trans.description;
+                        document.getElementById('transactionAmount').value = trans.amount;
+                        document.getElementById('transactionType').value = trans.type;
+                        document.getElementById('transactionModalTitle').textContent = 'Chỉnh sửa Giao dịch';
+                        openModal('transactionModal');
+
+                    }
+                }
+            });
+        }
+
+        // --- Report Generator ---
+        function setupReportGenerator() {
+            const monthSelect = document.getElementById('reportMonth');
+            const yearSelect = document.getElementById('reportYear');
+            const generateBtn = document.getElementById('generateReportBtn');
+
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
+
+            for (let i = 1; i <= 12; i++) {
+                monthSelect.appendChild(new Option(`Tháng ${i}`, i));
+            }
+            monthSelect.value = currentMonth;
+
+            for (let i = currentYear; i >= currentYear - 5; i--) {
+                yearSelect.appendChild(new Option(`Năm ${i}`, i));
+            }
+
+            generateBtn.addEventListener('click', generateReport);
+        }
+
+        function generateReport() {
+            const month = parseInt(document.getElementById('reportMonth').value);
+            const year = parseInt(document.getElementById('reportYear').value);
+
+            document.getElementById('reportOutput').classList.remove('hidden');
+            document.getElementById('reportTitle').textContent = `Báo cáo hoạt động tháng ${month}/${year}`;
+            
+            const startDate = new Date(year, month - 1, 1);
+            const endDate = new Date(year, month, 0, 23, 59, 59);
+            
+            // 1. Activity Report
+            const filteredSessions = allAttendanceSessions.filter(session => {
+                const sessionDate = session.date.toDate();
+                return sessionDate >= startDate && sessionDate <= endDate;
+            });
+
+            let activityHtml = '<div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="border-b"><th class="p-2">Ngày</th><th class="p-2">Nội dung</th><th class="p-2">Tham gia</th><th class="p-2">Vắng có phép</th><th class="p-2">Vắng không phép</th></tr></thead><tbody>';
+            if (filteredSessions.length > 0) {
+                filteredSessions.forEach(session => {
+                    const records = session.records || {};
+                    const presentCount = Object.values(records).filter(s => s === 'present').length;
+                    const absentLeaveCount = Object.values(records).filter(s => s === 'absent_leave').length;
+                    const absentUnexcusedCount = Object.values(records).filter(s => s === 'absent_unexcused').length;
+                    activityHtml += `
+                        <tr class="border-b last:border-0">
+                            <td class="p-2">${session.date.toDate().toLocaleDateString('vi-VN')}</td>
+                            <td class="p-2">${session.description}</td>
+                            <td class="p-2">${presentCount}</td>
+                            <td class="p-2">${absentLeaveCount}</td>
+                            <td class="p-2">${absentUnexcusedCount}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                activityHtml += '<tr><td colspan="5" class="text-center p-4 text-slate-500">Không có buổi sinh hoạt nào trong tháng.</td></tr>';
+            }
+            activityHtml += '</tbody></table></div>';
+            document.getElementById('activityReportContent').innerHTML = activityHtml;
+
+            // 2. Financial Report
+            const transactionsBefore = allFunds.filter(t => t.date.toDate() < startDate);
+            const transactionsThisMonth = allFunds.filter(t => {
+                const transDate = t.date.toDate();
+                return transDate >= startDate && transDate <= endDate;
+            });
+
+            const startBalance = transactionsBefore.reduce((acc, trans) => acc + (trans.type === 'income' ? trans.amount : -trans.amount), 0);
+            const incomeThisMonth = transactionsThisMonth.filter(t => t.type === 'income').reduce((acc, trans) => acc + trans.amount, 0);
+            const expenseThisMonth = transactionsThisMonth.filter(t => t.type === 'expense').reduce((acc, trans) => acc + trans.amount, 0);
+            const endBalance = startBalance + incomeThisMonth - expenseThisMonth;
+
+            let financialHtml = `<dl class="grid grid-cols-2 gap-4">
+                <div><dt class="text-sm font-medium text-slate-600">Số dư đầu kỳ:</dt><dd class="text-slate-900 font-semibold">${startBalance.toLocaleString('vi-VN')} VND</dd></div>
+                <div><dt class="text-sm font-medium text-slate-600">Tổng thu trong kỳ:</dt><dd class="text-green-600 font-semibold">+ ${incomeThisMonth.toLocaleString('vi-VN')} VND</dd></div>
+                <div><dt class="text-sm font-medium text-slate-600">Tổng chi trong kỳ:</dt><dd class="text-red-600 font-semibold">- ${expenseThisMonth.toLocaleString('vi-VN')} VND</dd></div>
+                <div><dt class="text-sm font-medium text-slate-600">Số dư cuối kỳ:</dt><dd class="text-slate-900 font-bold text-lg">${endBalance.toLocaleString('vi-VN')} VND</dd></div>
+            </dl>`;
+            document.getElementById('financialReportContent').innerHTML = financialHtml;
+        }
+
+    </script>
+</body>
+</html>

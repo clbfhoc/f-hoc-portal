@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | F-Học Portal 2.0</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/ycSx4Q3D/F-H-c-PORTAL-1.png">
+    <!-- Thư viện biểu tượng Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* --- General Styling & CSS Variables --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --fpt-orange: #FF6600;
+            --white: #FFFFFF;
+            --slate-100: #f1f5f9;
+            --slate-800: #1e293b;
+            --slate-600: #475569;
+            --slate-500: #64748b;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--slate-100);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--slate-600);
+        }
+        
+        /* --- Login Container --- */
+        .login-container {
+            position: relative;
+            background: var(--white);
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 420px;
+            z-index: 1;
+        }
+
+        .login-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .login-container h1 {
+            color: var(--slate-800);
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-container p {
+            font-size: 16px;
+            margin-bottom: 40px;
+            color: var(--slate-500);
+        }
+
+        /* --- Upgraded Google Sign-In Button --- */
+        .google-signin-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 24px;
+            border: 1px solid #e2e8f0; /* slate-200 */
+            border-radius: 50px;
+            background-color: #fff;
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .google-signin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.1);
+            border-color: #cbd5e1; /* slate-300 */
+        }
+
+        .google-signin-btn.loading {
+            pointer-events: none;
+        }
+        
+        .google-signin-btn .btn-text {
+             transition: opacity 0.3s ease;
+        }
+        
+        .google-signin-btn.loading .btn-text {
+             opacity: 0;
+        }
+
+        .google-signin-btn img {
+            width: 22px;
+            height: 22px;
+            margin-right: 12px;
+        }
+        
+        .loader {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--fpt-orange);
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: none;
+            animation: spin 1s linear infinite;
+        }
+        
+        .google-signin-btn.loading .loader {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        /* --- Footer --- */
+        footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 12px;
+            color: var(--slate-500);
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginBox">
+        <img src="https://i.ibb.co/G3n129SV/376711044-972555127379465-1600218481060437658-n-removebg-preview.png" alt="F-Hoc Logo" class="login-logo">
+        <h1>F-Học Portal 2.0</h1>
+        <p>Nơi tri thức được chia sẻ</p>
+        
+        <div id="signInButton" class="google-signin-btn">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+            <span class="btn-text">Đăng nhập bằng Google</span>
+            <div class="loader"></div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 F-Học Club. All rights reserved.
+    </footer>
+
+    <!-- Firebase SDK - Cấu hình và Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+        // Cấu hình Firebase của bạn
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZwnpjX_9foS_OvXfljqsepEQVUJ3azgw",
+            authDomain: "fhoc-portal.firebaseapp.com",
+            projectId: "fhoc-portal",
+            storageBucket: "fhoc-portal.appspot.com",
+            messagingSenderId: "372673589602",
+            appId: "1:372673589602:web:1cadfae68db4a78ca5fc3b"
+        };
+
+        // Khởi tạo các dịch vụ Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Xử lý Đăng nhập ---
+        const signInButton = document.getElementById('signInButton');
+
+        signInButton.addEventListener('click', async () => {
+            signInButton.classList.add('loading');
+            const provider = new GoogleAuthProvider();
+
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                const email = user.email;
+                const userDocRef = doc(db, "users", user.uid);
+
+                // 1. Kiểm tra xem người dùng đã có trong hệ thống chưa
+                const docSnap = await getDoc(userDocRef);
+                let userRole = null;
+
+                if (docSnap.exists()) {
+                    // Người dùng đã tồn tại, lấy vai trò
+                    userRole = docSnap.data().role;
+                } else {
+                    // Người dùng chưa tồn tại, kiểm tra xem có lời mời không
+                    const invitationRef = doc(db, "invitations", email);
+                    const invitationSnap = await getDoc(invitationRef);
+
+                    if (invitationSnap.exists()) {
+                        // CÓ LỜI MỜI: Tạo tài khoản với dữ liệu từ lời mời
+                        const invitationData = invitationSnap.data();
+                        userRole = invitationData.role;
+                        
+                        const newUserProfile = {
+                            ...invitationData,
+                            email: user.email,
+                            photoURL: user.photoURL,
+                            createdAt: serverTimestamp()
+                        };
+
+                        await setDoc(userDocRef, newUserProfile);
+                        
+                        // Xóa lời mời sau khi đã sử dụng
+                        await deleteDoc(invitationRef);
+                    } else {
+                         // KHÔNG CÓ LỜI MỜI: Chuyển đến trang đăng ký
+                        alert('Tài khoản của bạn chưa được đăng ký. Vui lòng điền đơn đăng ký.');
+                        window.location.href = './register.html';
+                        return; // Dừng xử lý tại đây
+                    }
+                }
+                
+                // 2. Điều hướng dựa trên vai trò
+                switch (userRole) {
+                    case 'mentor':
+                        window.location.href = './admin.html';
+                        break;
+                    case 'bcn':
+                         window.location.href = './banchunhiem.html';
+                        break;
+                    case 'member':
+                        window.location.href = './member.html';
+                        break;
+                    default:
+                        alert('Tài khoản của bạn có vai trò không xác định. Vui lòng liên hệ người quản trị.');
+                        await signOut(auth);
+                }
+
+            } catch (error) {
+                console.error('Lỗi đăng nhập:', error);
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    alert('Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.');
+                }
+            } finally {
+                signInButton.classList.remove('loading');
+            }
+        });
+    </script>
+
+</body>
+</html>

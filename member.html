@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Thành Viên | F-Học Portal 2.0</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/ycSx4Q3D/F-H-c-PORTAL-1.png">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Thư viện biểu tượng Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .sidebar {
+            transition: width 0.3s ease;
+        }
+        .sidebar-link .link-text {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .sidebar.close .link-text, .sidebar.close .logo-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            pointer-events: none;
+        }
+        .sidebar.close .sidebar-menu {
+            align-items: center;
+        }
+        .sidebar.close .sidebar-link {
+            justify-content: center;
+        }
+        .page-content {
+            display: none;
+        }
+        .page-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        /* Modal Animation */
+        .modal-enter { animation: fadeIn 0.3s ease-out; }
+        .modal-leave { animation: fadeOut 0.3s ease-in; }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        /* Hiệu ứng chuyển động & Style nhất quán */
+        .sidebar-link {
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        .sidebar-link:hover {
+            transform: translateX(4px);
+        }
+        .attendance-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-present { background-color: #22c55e; } /* green-500 */
+        .status-absent_leave { background-color: #f97316; } /* orange-500 */
+        .status-absent_unexcused { background-color: #ef4444; } /* red-500 */
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <div id="loader" class="fixed inset-0 bg-slate-100 flex justify-center items-center z-[100]">
+        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <div id="main-interface" class="hidden md:flex w-full">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar bg-white h-screen fixed top-0 left-0 w-64 flex flex-col p-4 shadow-lg z-50">
+            <div class="flex items-center justify-center mb-8 px-2">
+                <img src="https://i.ibb.co/Z6yWtdVP/F-H-c-PORTAL-3.png" alt="F-Hoc Portal Logo" class="logo-text w-auto h-10 transition-opacity duration-200">
+            </div>
+            <ul class="sidebar-menu flex flex-col h-full">
+                <li><a href="#dashboard" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium active"><i class='bx bxs-user-circle text-2xl'></i><span class="link-text">Thông tin của tôi</span></a></li>
+                <li><a href="#schedule" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-calendar text-2xl'></i><span class="link-text">Lịch sinh hoạt</span></a></li>
+                <li><a href="#attendance" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-user-check text-2xl'></i><span class="link-text">Chuyên cần</span></a></li>
+                <li class="mt-auto"><a href="#" id="logoutButton" class="sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-red-50 hover:text-red-600 font-medium"><i class='bx bx-log-out text-2xl'></i><span class="link-text">Đăng xuất</span></a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main id="main-content" class="main-content w-full ml-64 p-6 transition-all duration-300">
+            <header class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6">
+                <div class="flex items-center gap-4">
+                    <i class='bx bx-menu text-2xl cursor-pointer text-slate-700' id="sidebarToggle"></i>
+                    <h1 id="headerTitle" class="text-2xl font-bold text-slate-800">Thông tin của tôi</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="userName" class="font-semibold text-slate-700">Thành viên</span>
+                    <img id="userAvatar" src="https://placehold.co/48x48/f0f3ff/4a69bd?text=TV" alt="Avatar" class="w-12 h-12 rounded-md object-cover">
+                </div>
+            </header>
+
+            <!-- Page Content Wrappers -->
+            <section id="dashboard" class="page-content active">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <!-- Collapsible Header -->
+                    <div id="userInfoToggle" class="flex justify-between items-center cursor-pointer -mx-6 -mt-6 -mb-6 px-6 py-6">
+                        <h2 id="welcomeMessage" class="text-xl font-bold text-slate-800">Chào mừng bạn!</h2>
+                        <div class="flex items-center gap-2 text-slate-500 text-sm">
+                            <span id="toggleText">Xem chi tiết</span>
+                            <i class='bx bx-chevron-down text-2xl transition-transform duration-300'></i>
+                        </div>
+                    </div>
+                    <!-- [UPDATED] Collapsible Content Structure -->
+                    <div id="userInfoContainer" class="overflow-hidden transition-all duration-500 ease-in-out" style="max-height: 0px;">
+                         <div class="mt-4 border-t pt-4">
+                            <div id="userInfo" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                <!-- User info will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="schedule" class="page-content">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-xl font-bold text-slate-800 mb-4">Lịch Sinh Hoạt CLB</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead><tr class="border-b border-slate-200 text-slate-500"><th class="p-3">Ngày</th><th class="p-3">Nội dung</th><th class="p-3">Địa điểm</th></tr></thead>
+                            <tbody id="scheduleList" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="attendance" class="page-content">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-xl font-bold text-slate-800 mb-4">Lịch sử Chuyên cần</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead><tr class="border-b border-slate-200 text-slate-500"><th class="p-3">Ngày</th><th class="p-3">Nội dung</th><th class="p-3">Trạng thái</th></tr></thead>
+                            <tbody id="attendanceHistoryList" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 text-center">
+            <h2 id="confirmationTitle" class="text-xl font-bold text-slate-800 mb-2">Xác nhận hành động</h2>
+            <p id="confirmationMessage" class="text-slate-600 mb-6"></p>
+            <div class="flex justify-center gap-4">
+                <button id="confirmCancelBtn" class="bg-slate-200 text-slate-800 px-6 py-2 rounded-lg font-semibold hover:bg-slate-300">Hủy</button>
+                <button id="confirmOkBtn" class="bg-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-600">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+        // --- Firebase Config ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZwnpjX_9foS_OvXfljqsepEQVUJ3azgw",
+            authDomain: "fhoc-portal.firebaseapp.com",
+            projectId: "fhoc-portal",
+            storageBucket: "fhoc-portal.appspot.com",
+            messagingSenderId: "372673589602",
+            appId: "1:372673589602:web:1cadfae68db4a78ca5fc3b"
+        };
+
+        // --- Initialize Services ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- DOM Elements ---
+        const scheduleListBody = document.getElementById('scheduleList');
+        const attendanceHistoryListBody = document.getElementById('attendanceHistoryList');
+        
+        // --- Auth State Management ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userDocRef);
+                
+                if (docSnap.exists()) {
+                    initializePage(user, docSnap.data());
+                } else {
+                    alert("Tài khoản của bạn không tồn tại trong hệ thống hoặc đang chờ duyệt.");
+                    signOut(auth);
+                    window.location.href = './index.html';
+                }
+            } else {
+                window.location.href = './index.html';
+            }
+        });
+        
+        // --- Main Function to Setup Page ---
+        function initializePage(user, userData) {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('main-interface').classList.remove('hidden');
+            
+            document.getElementById('userName').textContent = user.displayName || 'Thành viên';
+            document.getElementById('welcomeMessage').textContent = `Chào mừng trở lại, ${user.displayName || 'Thành viên'}!`;
+            if(user.photoURL) {
+                document.getElementById('userAvatar').src = user.photoURL;
+            }
+            
+            displayUserInfo(userData);
+            listenForScheduleAndAttendance(user.uid);
+            setupEventListeners();
+        }
+        
+        function displayUserInfo(userData) {
+            const container = document.getElementById('userInfo');
+            const detailsMap = {
+                'Họ và tên': userData.displayName,
+                'Email': userData.email,
+                'Vai trò': userData.role,
+                'Ban': userData.department || 'Chưa phân ban',
+                'Lớp': userData.class,
+                'MSHS': userData.studentId,
+                'Số điện thoại': userData.phone,
+                'Dorm': userData.dorm,
+                'GVCN': userData.homeroomTeacher,
+                'GVQN': userData.managingTeacher,
+                'Facebook': userData.facebookUrl ? `<a href="${userData.facebookUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Xem trang cá nhân</a>` : 'Chưa cung cấp',
+            };
+
+            let html = '';
+            for (const [key, value] of Object.entries(detailsMap)) {
+                html += `<div><dt class="text-sm font-medium text-slate-600">${key}</dt><dd class="mt-1 text-slate-900">${value || 'Chưa cung cấp'}</dd></div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function listenForScheduleAndAttendance(userId) {
+            const q = query(collection(db, "attendance"), orderBy("date", "desc"));
+            onSnapshot(q, (querySnapshot) => {
+                let scheduleHtml = '';
+                let attendanceHtml = '';
+                const statusMap = {
+                    present: { text: 'Có mặt', class: 'status-present' },
+                    absent_leave: { text: 'Vắng (Có phép)', class: 'status-absent_leave' },
+                    absent_unexcused: { text: 'Vắng (Không phép)', class: 'status-absent_unexcused' }
+                };
+
+                querySnapshot.forEach(doc => {
+                    const session = doc.data();
+                    const date = session.date.toDate().toLocaleDateString('vi-VN');
+                    
+                    scheduleHtml += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3">${date}</td>
+                            <td class="p-3">${session.description}</td>
+                            <td class="p-3">${session.location || 'N/A'}</td>
+                        </tr>
+                    `;
+
+                    if (session.records && typeof session.records[userId] !== 'undefined') {
+                        const status = session.records[userId];
+                        const statusInfo = statusMap[status] || { text: 'Chưa điểm danh', class: '' };
+                        attendanceHtml += `
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3">${date}</td>
+                                <td class="p-3">${session.description}</td>
+                                <td class="p-3"><span class="attendance-status ${statusInfo.class}">${statusInfo.text}</span></td>
+                            </tr>
+                        `;
+                    }
+                });
+
+                scheduleListBody.innerHTML = scheduleHtml || '<tr><td colspan="3" class="text-center p-4 text-slate-500">Chưa có lịch sinh hoạt.</td></tr>';
+                attendanceHistoryListBody.innerHTML = attendanceHtml || '<tr><td colspan="3" class="text-center p-4 text-slate-500">Chưa có dữ liệu chuyên cần.</td></tr>';
+            }, (error) => {
+                console.error("Error listening for schedule/attendance:", error);
+                scheduleListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-red-500">Lỗi khi tải dữ liệu.</td></tr>';
+                attendanceHistoryListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-red-500">Lỗi khi tải dữ liệu.</td></tr>';
+            });
+        }
+        
+        // --- UI Event Listeners ---
+        function setupEventListeners() {
+            document.getElementById('sidebarToggle').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('main-content');
+                sidebar.classList.toggle('close');
+                if (sidebar.classList.contains('close')) {
+                    sidebar.style.width = '88px';
+                    mainContent.style.marginLeft = '88px';
+                } else {
+                    sidebar.style.width = '256px';
+                    mainContent.style.marginLeft = '256px';
+                }
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active', 'bg-blue-50', 'text-blue-600'));
+                    link.classList.add('active', 'bg-blue-50', 'text-blue-600');
+                    const targetId = link.getAttribute('href').substring(1);
+                    document.querySelectorAll('.page-content').forEach(content => content.classList.remove('active'));
+                    document.getElementById(targetId).classList.add('active');
+                    document.getElementById('headerTitle').textContent = link.querySelector('span').textContent;
+                });
+            });
+            
+            document.getElementById('logoutButton').addEventListener('click', (e) => {
+                e.preventDefault();
+                showConfirmation("Bạn có chắc chắn muốn đăng xuất?", () => {
+                    signOut(auth).catch(error => console.error("Sign out error:", error));
+                });
+            });
+
+            // [UPDATED] Event listener for collapsible user info
+            const userInfoToggle = document.getElementById('userInfoToggle');
+            const userInfoContainer = document.getElementById('userInfoContainer');
+            const userInfoContentWrapper = userInfoContainer.children[0];
+            const userInfoIcon = userInfoToggle.querySelector('i');
+            const toggleText = document.getElementById('toggleText');
+
+            userInfoToggle.addEventListener('click', () => {
+                const isOpening = userInfoContainer.style.maxHeight === '0px';
+                userInfoIcon.classList.toggle('rotate-180', isOpening);
+                toggleText.textContent = isOpening ? 'Thu gọn' : 'Xem chi tiết';
+                
+                if (isOpening) {
+                    userInfoContainer.style.maxHeight = userInfoContentWrapper.scrollHeight + 'px';
+                } else {
+                    userInfoContainer.style.maxHeight = '0px';
+                }
+            });
+        }
+        
+        function showConfirmation(message, onConfirm) {
+            const modal = document.getElementById('confirmationModal');
+            document.getElementById('confirmationMessage').textContent = message;
+            
+            const confirmBtn = document.getElementById('confirmOkBtn');
+            const cancelBtn = document.getElementById('confirmCancelBtn');
+
+            const confirmHandler = () => {
+                onConfirm();
+                closeModal('confirmationModal');
+            };
+            const cancelHandler = () => closeModal('confirmationModal');
+            
+            confirmBtn.addEventListener('click', confirmHandler, { once: true });
+            cancelBtn.addEventListener('click', cancelHandler, { once: true });
+            
+            openModal('confirmationModal');
+        }
+
+        function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); document.getElementById(modalId).classList.add('flex'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); document.getElementById(modalId).classList.remove('flex'); }
+    </script>
+</body>
+</html>
