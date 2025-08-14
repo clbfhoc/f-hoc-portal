@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Thành Viên | F-Học Portal 2.0</title>
+    <title>Trang Thành Viên | F-Học Portal 3.0</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://i.ibb.co/ycSx4Q3D/F-H-c-PORTAL-1.png">
     <!-- Tailwind CSS CDN -->
@@ -22,20 +22,16 @@
         .sidebar {
             transition: width 0.3s ease;
         }
-        .sidebar-link .link-text {
-            transition: opacity 0.2s ease, transform 0.2s ease;
+        .sidebar.close {
+            width: 88px;
         }
         .sidebar.close .link-text, .sidebar.close .logo-text {
             opacity: 0;
-            transform: translateX(-10px);
             pointer-events: none;
         }
-        .sidebar.close .sidebar-menu {
-            align-items: center;
-        }
-        .sidebar.close .sidebar-link {
-            justify-content: center;
-        }
+        .sidebar.close .sidebar-menu { align-items: center; }
+        .sidebar.close .sidebar-link { justify-content: center; }
+
         .page-content {
             display: none;
         }
@@ -47,35 +43,30 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
-        
-        /* Modal Animation */
-        .modal-enter { animation: fadeIn 0.3s ease-out; }
-        .modal-leave { animation: fadeOut 0.3s ease-in; }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Hiệu ứng chuyển động & Style nhất quán */
-        .sidebar-link {
-            transition: transform 0.2s ease, background-color 0.2s ease;
-        }
-        .sidebar-link:hover {
-            transform: translateX(4px);
-        }
-        .attendance-status {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 9999px;
-            color: white;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .status-present { background-color: #22c55e; } /* green-500 */
-        .status-absent_leave { background-color: #f97316; } /* orange-500 */
-        .status-absent_unexcused { background-color: #ef4444; } /* red-500 */
+        /* Kanban & Attendance Styles */
+        .kanban-board { display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 1rem; }
+        .kanban-column { flex: 0 0 320px; width: 320px; background-color: #f8fafc; border-radius: 0.75rem; padding: 1rem; }
+        .kanban-column-title { font-weight: 600; color: #475569; margin-bottom: 1rem; display: flex; align-items: center; }
+        .kanban-column-title .count { margin-left: 0.5rem; font-size: 0.875rem; background-color: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 99px; }
+        .kanban-cards { min-height: 200px; display: flex; flex-direction: column; gap: 1rem; }
+        .kanban-card { background-color: white; border-radius: 0.5rem; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: grab; transition: all 0.2s ease; display: flex; flex-direction: column; }
+        .kanban-card:active { cursor: grabbing; }
+        .kanban-card.dragging { opacity: 0.5; transform: scale(1.05); }
+        .priority-high { border-left: 4px solid #ef4444; }
+        .priority-medium { border-left: 4px solid #f97316; }
+        .priority-low { border-left: 4px solid #3b82f6; }
+
+        .attendance-status { display: inline-block; padding: 5px 12px; border-radius: 9999px; color: white; font-size: 12px; font-weight: 500; }
+        .status-present { background-color: #22c55e; }
+        .status-absent_leave { background-color: #f97316; }
+        .status-absent_unexcused { background-color: #ef4444; }
     </style>
 </head>
 <body class="bg-slate-100">
@@ -90,8 +81,9 @@
             <div class="flex items-center justify-center mb-8 px-2">
                 <img src="https://i.ibb.co/Z6yWtdVP/F-H-c-PORTAL-3.png" alt="F-Hoc Portal Logo" class="logo-text w-auto h-10 transition-opacity duration-200">
             </div>
-            <ul class="sidebar-menu flex flex-col h-full">
+            <ul class="sidebar-menu flex flex-col h-full space-y-2">
                 <li><a href="#dashboard" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium active"><i class='bx bxs-user-circle text-2xl'></i><span class="link-text">Thông tin của tôi</span></a></li>
+                <li><a href="#tasks" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bx-list-check text-2xl'></i><span class="link-text">Công việc</span></a></li>
                 <li><a href="#schedule" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-calendar text-2xl'></i><span class="link-text">Lịch sinh hoạt</span></a></li>
                 <li><a href="#attendance" class="nav-link sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 font-medium"><i class='bx bxs-user-check text-2xl'></i><span class="link-text">Chuyên cần</span></a></li>
                 <li class="mt-auto"><a href="#" id="logoutButton" class="sidebar-link flex items-center gap-3 p-3 rounded-lg text-slate-600 hover:bg-red-50 hover:text-red-600 font-medium"><i class='bx bx-log-out text-2xl'></i><span class="link-text">Đăng xuất</span></a></li>
@@ -114,7 +106,6 @@
             <!-- Page Content Wrappers -->
             <section id="dashboard" class="page-content active">
                 <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <!-- Collapsible Header -->
                     <div id="userInfoToggle" class="flex justify-between items-center cursor-pointer -mx-6 -mt-6 -mb-6 px-6 py-6">
                         <h2 id="welcomeMessage" class="text-xl font-bold text-slate-800">Chào mừng bạn!</h2>
                         <div class="flex items-center gap-2 text-slate-500 text-sm">
@@ -122,61 +113,45 @@
                             <i class='bx bx-chevron-down text-2xl transition-transform duration-300'></i>
                         </div>
                     </div>
-                    <!-- [UPDATED] Collapsible Content Structure -->
                     <div id="userInfoContainer" class="overflow-hidden transition-all duration-500 ease-in-out" style="max-height: 0px;">
-                         <div class="mt-4 border-t pt-4">
-                            <div id="userInfo" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                                <!-- User info will be dynamically inserted here -->
-                            </div>
+                         <div class="border-t pt-6">
+                            <div id="userInfo" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4"></div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section id="schedule" class="page-content">
-                <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h2 class="text-xl font-bold text-slate-800 mb-4">Lịch Sinh Hoạt CLB</h2>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead><tr class="border-b border-slate-200 text-slate-500"><th class="p-3">Ngày</th><th class="p-3">Nội dung</th><th class="p-3">Địa điểm</th></tr></thead>
-                            <tbody id="scheduleList" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
+            <section id="tasks" class="page-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Công việc của bạn</h2>
+                    <button id="addTaskBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 hidden"><i class='bx bx-plus'></i>Giao việc mới</button>
                 </div>
+                <div id="kanban-board" class="kanban-board">
+                    <div class="kanban-column" data-status="todo"><h3 class="kanban-column-title"><i class='bx bx-list-ul mr-2 text-orange-500'></i> Cần làm <span id="todo-count" class="count">0</span></h3><div id="kanban-todo" class="kanban-cards"></div></div>
+                    <div class="kanban-column" data-status="inprogress"><h3 class="kanban-column-title"><i class='bx bx-run mr-2 text-blue-500'></i> Đang làm <span id="inprogress-count" class="count">0</span></h3><div id="kanban-inprogress" class="kanban-cards"></div></div>
+                    <div class="kanban-column" data-status="completed"><h3 class="kanban-column-title"><i class='bx bx-check-circle mr-2 text-green-500'></i> Hoàn thành <span id="completed-count" class="count">0</span></h3><div id="kanban-completed" class="kanban-cards"></div></div>
+                </div>
+            </section>
+
+            <section id="schedule" class="page-content">
+                <div class="bg-white p-6 rounded-xl shadow-sm"><h2 class="text-xl font-bold text-slate-800 mb-4">Lịch Sinh Hoạt CLB</h2><div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="border-b border-slate-200 text-slate-500"><th class="p-3">Ngày</th><th class="p-3">Nội dung</th><th class="p-3">Địa điểm</th></tr></thead><tbody id="scheduleList" class="divide-y divide-slate-100"></tbody></table></div></div>
             </section>
             
             <section id="attendance" class="page-content">
-                <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h2 class="text-xl font-bold text-slate-800 mb-4">Lịch sử Chuyên cần</h2>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead><tr class="border-b border-slate-200 text-slate-500"><th class="p-3">Ngày</th><th class="p-3">Nội dung</th><th class="p-3">Trạng thái</th></tr></thead>
-                            <tbody id="attendanceHistoryList" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
-                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm"><h2 class="text-xl font-bold text-slate-800 mb-4">Lịch sử Chuyên cần</h2><div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="border-b border-slate-200 text-slate-500"><th class="p-3">Ngày</th><th class="p-3">Nội dung</th><th class="p-3">Trạng thái</th></tr></thead><tbody id="attendanceHistoryList" class="divide-y divide-slate-100"></tbody></table></div></div>
             </section>
         </main>
     </div>
     
-    <!-- Confirmation Modal -->
-    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 text-center">
-            <h2 id="confirmationTitle" class="text-xl font-bold text-slate-800 mb-2">Xác nhận hành động</h2>
-            <p id="confirmationMessage" class="text-slate-600 mb-6"></p>
-            <div class="flex justify-center gap-4">
-                <button id="confirmCancelBtn" class="bg-slate-200 text-slate-800 px-6 py-2 rounded-lg font-semibold hover:bg-slate-300">Hủy</button>
-                <button id="confirmOkBtn" class="bg-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-600">Xác nhận</button>
-            </div>
-        </div>
-    </div>
+    <!-- Modals -->
+    <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-lg w-full max-w-2xl p-6"><div class="flex justify-between items-center mb-4"><h2 id="taskModalTitle" class="text-xl font-bold text-slate-800"></h2><button class="modal-close text-2xl text-slate-500 hover:text-slate-800" data-modal="taskModal">&times;</button></div><form id="taskForm"><input type="hidden" id="taskId"><div class="space-y-4"><div class="form-group"><label for="taskTitle" class="block text-sm font-medium text-slate-700">Tiêu đề</label><input type="text" id="taskTitle" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="taskDescription" class="block text-sm font-medium text-slate-700">Mô tả</label><textarea id="taskDescription" rows="4" class="mt-1 block w-full rounded-md border-slate-300"></textarea></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="form-group"><label for="taskDeadline" class="block text-sm font-medium text-slate-700">Hạn chót</label><input type="date" id="taskDeadline" class="mt-1 block w-full rounded-md border-slate-300" required></div><div class="form-group"><label for="taskPriority" class="block text-sm font-medium text-slate-700">Ưu tiên</label><select id="taskPriority" class="mt-1 block w-full rounded-md border-slate-300"><option value="low">Thấp</option><option value="medium">Vừa</option><option value="high">Cao</option></select></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="form-group"><label for="taskAssigneeType" class="block text-sm font-medium text-slate-700">Giao cho</label><select id="taskAssigneeType" class="mt-1 block w-full rounded-md border-slate-300"><option value="department">Cả ban</option><option value="individual">Thành viên cụ thể</option></select></div><div class="form-group"><label for="taskAssigneeValue" class="block text-sm font-medium text-slate-700">Đối tượng</label><select id="taskAssigneeValue" class="mt-1 block w-full rounded-md border-slate-300"></select></div></div><div id="taskStatusContainer" class="form-group"><label for="taskStatus" class="block text-sm font-medium text-slate-700">Trạng thái</label><select id="taskStatus" class="mt-1 block w-full rounded-md border-slate-300"><option value="todo">Cần làm</option><option value="inprogress">Đang làm</option><option value="completed">Hoàn thành</option></select></div></div><div class="mt-6 text-right space-x-3"><button type="button" id="deleteTaskBtn" class="bg-red-100 text-red-700 px-4 py-2 rounded-lg font-semibold hover:bg-red-200 hidden">Xóa</button><button type="submit" id="taskSubmitBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Lưu</button></div></form></div></div>
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 text-center"><h2 id="confirmationTitle" class="text-xl font-bold text-slate-800 mb-2">Xác nhận hành động</h2><p id="confirmationMessage" class="text-slate-600 mb-6"></p><div class="flex justify-center gap-4"><button id="confirmCancelBtn" class="bg-slate-200 text-slate-800 px-6 py-2 rounded-lg font-semibold hover:bg-slate-300">Hủy</button><button id="confirmOkBtn" class="bg-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-600">Xác nhận</button></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, query, orderBy, onSnapshot, where, updateDoc, addDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-        // --- Firebase Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyAZwnpjX_9foS_OvXfljqsepEQVUJ3azgw",
             authDomain: "fhoc-portal.firebaseapp.com",
@@ -186,15 +161,16 @@
             appId: "1:372673589602:web:1cadfae68db4a78ca5fc3b"
         };
 
-        // --- Initialize Services ---
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- DOM Elements ---
-        const scheduleListBody = document.getElementById('scheduleList');
-        const attendanceHistoryListBody = document.getElementById('attendanceHistoryList');
-        
+        // --- Global State ---
+        let currentUserData = null;
+        let allTasks = [];
+        let departmentMembers = [];
+        let allMembers = []; // To resolve assigner names
+
         // --- Auth State Management ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -202,9 +178,10 @@
                 const docSnap = await getDoc(userDocRef);
                 
                 if (docSnap.exists()) {
-                    initializePage(user, docSnap.data());
+                    currentUserData = { id: user.uid, ...docSnap.data() };
+                    initializePage(user, currentUserData);
                 } else {
-                    alert("Tài khoản của bạn không tồn tại trong hệ thống hoặc đang chờ duyệt.");
+                    alert("Tài khoản của bạn không tồn tại hoặc đang chờ duyệt.");
                     signOut(auth);
                     window.location.href = './index.html';
                 }
@@ -213,19 +190,34 @@
             }
         });
         
-        // --- Main Function to Setup Page ---
-        function initializePage(user, userData) {
+        // --- Main Initialization ---
+        async function initializePage(user, userData) {
             document.getElementById('loader').style.display = 'none';
             document.getElementById('main-interface').classList.remove('hidden');
             
             document.getElementById('userName').textContent = user.displayName || 'Thành viên';
             document.getElementById('welcomeMessage').textContent = `Chào mừng trở lại, ${user.displayName || 'Thành viên'}!`;
-            if(user.photoURL) {
-                document.getElementById('userAvatar').src = user.photoURL;
+            if(user.photoURL) document.getElementById('userAvatar').src = user.photoURL;
+
+            // Fetch all members to resolve names later
+            const usersQuery = query(collection(db, "users"));
+            onSnapshot(usersQuery, (snapshot) => {
+                allMembers = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            });
+
+            // Show/hide "Giao việc mới" button based on role
+            if (['Trưởng ban', 'Cố Vấn', 'Chủ Tịch', 'Phó Chủ Tịch'].includes(userData.departmentRole)) {
+                document.getElementById('addTaskBtn').classList.remove('hidden');
+                // Fetch members of the same department for assignment
+                const q = query(collection(db, "users"), where("department", "==", userData.department));
+                onSnapshot(q, (snapshot) => {
+                    departmentMembers = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                });
             }
             
             displayUserInfo(userData);
             listenForScheduleAndAttendance(user.uid);
+            listenForTasks(user.uid, userData.department);
             setupEventListeners();
         }
         
@@ -234,8 +226,9 @@
             const detailsMap = {
                 'Họ và tên': userData.displayName,
                 'Email': userData.email,
-                'Vai trò': userData.role,
+                'Vai trò CLB': userData.role,
                 'Ban': userData.department || 'Chưa phân ban',
+                'Vai trò Ban': userData.departmentRole || 'Thành viên',
                 'Lớp': userData.class,
                 'MSHS': userData.studentId,
                 'Số điện thoại': userData.phone,
@@ -244,79 +237,242 @@
                 'GVQN': userData.managingTeacher,
                 'Facebook': userData.facebookUrl ? `<a href="${userData.facebookUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Xem trang cá nhân</a>` : 'Chưa cung cấp',
             };
-
-            let html = '';
-            for (const [key, value] of Object.entries(detailsMap)) {
-                html += `<div><dt class="text-sm font-medium text-slate-600">${key}</dt><dd class="mt-1 text-slate-900">${value || 'Chưa cung cấp'}</dd></div>`;
-            }
-            container.innerHTML = html;
+            container.innerHTML = Object.entries(detailsMap).map(([key, value]) => `<div><dt class="text-sm font-medium text-slate-600">${key}</dt><dd class="mt-1 text-slate-900">${value || 'Chưa cung cấp'}</dd></div>`).join('');
         }
 
+        // --- Real-time Listeners ---
         function listenForScheduleAndAttendance(userId) {
             const q = query(collection(db, "attendance"), orderBy("date", "desc"));
-            onSnapshot(q, (querySnapshot) => {
+            onSnapshot(q, (snapshot) => {
+                const scheduleListBody = document.getElementById('scheduleList');
+                const attendanceHistoryListBody = document.getElementById('attendanceHistoryList');
                 let scheduleHtml = '';
                 let attendanceHtml = '';
-                const statusMap = {
-                    present: { text: 'Có mặt', class: 'status-present' },
-                    absent_leave: { text: 'Vắng (Có phép)', class: 'status-absent_leave' },
-                    absent_unexcused: { text: 'Vắng (Không phép)', class: 'status-absent_unexcused' }
-                };
+                const statusMap = { present: { text: 'Có mặt', class: 'status-present' }, absent_leave: { text: 'Vắng (CP)', class: 'status-absent_leave' }, absent_unexcused: { text: 'Vắng (KP)', class: 'status-absent_unexcused' } };
 
-                querySnapshot.forEach(doc => {
+                snapshot.forEach(doc => {
                     const session = doc.data();
                     const date = session.date.toDate().toLocaleDateString('vi-VN');
-                    
-                    scheduleHtml += `
-                        <tr class="hover:bg-slate-50">
-                            <td class="p-3">${date}</td>
-                            <td class="p-3">${session.description}</td>
-                            <td class="p-3">${session.location || 'N/A'}</td>
-                        </tr>
-                    `;
-
+                    scheduleHtml += `<tr><td class="p-3">${date}</td><td class="p-3">${session.description}</td><td class="p-3">${session.location || 'N/A'}</td></tr>`;
                     if (session.records && typeof session.records[userId] !== 'undefined') {
-                        const status = session.records[userId];
-                        const statusInfo = statusMap[status] || { text: 'Chưa điểm danh', class: '' };
-                        attendanceHtml += `
-                            <tr class="hover:bg-slate-50">
-                                <td class="p-3">${date}</td>
-                                <td class="p-3">${session.description}</td>
-                                <td class="p-3"><span class="attendance-status ${statusInfo.class}">${statusInfo.text}</span></td>
-                            </tr>
-                        `;
+                        const statusInfo = statusMap[session.records[userId]] || { text: 'Chưa điểm danh', class: '' };
+                        attendanceHtml += `<tr><td class="p-3">${date}</td><td class="p-3">${session.description}</td><td class="p-3"><span class="attendance-status ${statusInfo.class}">${statusInfo.text}</span></td></tr>`;
                     }
                 });
+                scheduleListBody.innerHTML = scheduleHtml || '<tr><td colspan="3" class="text-center p-4">Chưa có lịch.</td></tr>';
+                attendanceHistoryListBody.innerHTML = attendanceHtml || '<tr><td colspan="3" class="text-center p-4">Chưa có dữ liệu.</td></tr>';
+            });
+        }
 
-                scheduleListBody.innerHTML = scheduleHtml || '<tr><td colspan="3" class="text-center p-4 text-slate-500">Chưa có lịch sinh hoạt.</td></tr>';
-                attendanceHistoryListBody.innerHTML = attendanceHtml || '<tr><td colspan="3" class="text-center p-4 text-slate-500">Chưa có dữ liệu chuyên cần.</td></tr>';
-            }, (error) => {
-                console.error("Error listening for schedule/attendance:", error);
-                scheduleListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-red-500">Lỗi khi tải dữ liệu.</td></tr>';
-                attendanceHistoryListBody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-red-500">Lỗi khi tải dữ liệu.</td></tr>';
+        function listenForTasks(userId, department) {
+            const q = query(collection(db, "tasks"), orderBy("deadline", "asc"));
+            onSnapshot(q, (snapshot) => {
+                allTasks = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                // Filter tasks for the current user
+                const myTasks = allTasks.filter(task => 
+                    (task.assignees.type === 'individual' && task.assignees.value === userId) ||
+                    (task.assignees.type === 'department' && task.assignees.value === department) ||
+                    (task.assignees.type === 'role' && task.assignees.value === department && ['Trưởng ban', 'Cố Vấn', 'Chủ Tịch', 'Phó Chủ Tịch'].includes(currentUserData.departmentRole))
+                );
+                renderKanbanBoard(myTasks);
+            });
+        }
+
+        // --- Rendering ---
+        function renderKanbanBoard(tasks) {
+            const columns = { todo: document.getElementById('kanban-todo'), inprogress: document.getElementById('kanban-inprogress'), completed: document.getElementById('kanban-completed') };
+            Object.values(columns).forEach(col => col.innerHTML = '');
+            tasks.forEach(task => {
+                const card = document.createElement('div');
+                card.className = `kanban-card priority-${task.priority}`;
+                card.dataset.id = task.id;
+                card.draggable = true;
+                const deadline = task.deadline.toDate();
+                const isOverdue = deadline < new Date() && task.status !== 'completed';
+                card.innerHTML = `
+                    <h4 class="font-semibold text-slate-800 mb-2 line-clamp-2">${task.title}</h4>
+                    <p class="text-sm text-slate-500 mb-3 line-clamp-1">${task.description || 'Không có mô tả'}</p>
+                    <div class="flex justify-between items-center text-xs text-slate-500 mt-auto pt-2 border-t border-slate-100">
+                        <span class="${isOverdue ? 'text-red-500 font-semibold' : ''}">
+                            <i class='bx bx-time-five'></i> ${deadline.toLocaleDateString('vi-VN')}
+                        </span>
+                        <div class="flex items-center gap-1" title="Người thực hiện: ${getAssigneeName(task.assignees)}">
+                            <i class='bx bxs-user'></i>
+                            <span>${getAssigneeShortName(task.assignees)}</span>
+                        </div>
+                    </div>`;
+                const isCreator = ['Trưởng ban', 'Cố Vấn', 'Chủ Tịch', 'Phó Chủ Tịch'].includes(currentUserData.departmentRole) && task.assignerId === currentUserData.id;
+                card.addEventListener('click', () => openTaskModal(task.id, isCreator));
+                card.addEventListener('dragstart', handleDragStart);
+                columns[task.status].appendChild(card);
+            });
+            document.getElementById('todo-count').textContent = columns.todo.children.length;
+            document.getElementById('inprogress-count').textContent = columns.inprogress.children.length;
+            document.getElementById('completed-count').textContent = columns.completed.children.length;
+        }
+        
+        function getAssigneeName(assignees) {
+            if (!assignees) return 'Chưa giao';
+            switch(assignees.type) {
+                case 'department': return `Cả ban ${assignees.value}`;
+                case 'individual': 
+                    const member = allMembers.find(m => m.id === assignees.value);
+                    return member ? member.displayName : 'Không rõ';
+                default: return 'Không rõ';
+            }
+        }
+
+        function getAssigneeShortName(assignees) {
+            if (!assignees) return 'N/A';
+            switch(assignees.type) {
+                case 'department': return 'Cả ban';
+                case 'individual': 
+                    const member = allMembers.find(m => m.id === assignees.value);
+                    return member ? member.displayName.split(' ').pop() : 'N/A';
+                default: return 'N/A';
+            }
+        }
+
+        // --- Task Modal & Logic ---
+        function openTaskModal(taskId = null, isEditable = false) {
+            const form = document.getElementById('taskForm');
+            form.reset();
+            const modalTitle = document.getElementById('taskModalTitle');
+            const submitButton = document.getElementById('taskSubmitBtn');
+            const deleteButton = document.getElementById('deleteTaskBtn');
+            const fields = form.querySelectorAll('input, select, textarea');
+
+            fields.forEach(f => f.disabled = !isEditable);
+            submitButton.style.display = 'inline-block'; // Always show submit button
+            deleteButton.style.display = 'none';
+            document.getElementById('taskStatusContainer').style.display = 'block';
+
+            if (taskId) {
+                const task = allTasks.find(t => t.id === taskId);
+                if (!task) return;
+                
+                modalTitle.textContent = isEditable ? 'Chỉnh sửa Công việc' : 'Chi tiết Công việc';
+                document.getElementById('taskId').value = task.id;
+                document.getElementById('taskTitle').value = task.title;
+                document.getElementById('taskDescription').value = task.description;
+                document.getElementById('taskDeadline').value = task.deadline.toDate().toISOString().split('T')[0];
+                document.getElementById('taskPriority').value = task.priority;
+                document.getElementById('taskStatus').value = task.status;
+                document.getElementById('taskAssigneeType').value = task.assignees.type;
+                updateAssigneeDropdowns(isEditable);
+                document.getElementById('taskAssigneeValue').value = task.assignees.value;
+
+                if (isEditable) {
+                    deleteButton.style.display = 'inline-block';
+                    submitButton.textContent = 'Lưu thay đổi';
+                } else {
+                    fields.forEach(f => {
+                        if (f.id !== 'taskStatus') f.disabled = true;
+                        else f.disabled = false;
+                    });
+                    submitButton.textContent = 'Cập nhật Trạng thái';
+                }
+            } else { // Creating new task
+                modalTitle.textContent = 'Giao việc mới';
+                updateAssigneeDropdowns(true);
+                submitButton.textContent = 'Giao việc';
+            }
+            openModal('taskModal');
+        }
+
+        function updateAssigneeDropdowns(isCreator) {
+            const typeSelect = document.getElementById('taskAssigneeType');
+            const valueSelect = document.getElementById('taskAssigneeValue');
+            const type = typeSelect.value;
+            valueSelect.innerHTML = '';
+
+            if (type === 'department') {
+                valueSelect.add(new Option(`Ban ${currentUserData.department}`, currentUserData.department));
+            } else if (type === 'individual') {
+                departmentMembers.forEach(m => {
+                    if (m.id !== currentUserData.id) { // Don't assign to self
+                        valueSelect.add(new Option(m.displayName, m.id));
+                    }
+                });
+            }
+            typeSelect.disabled = !isCreator;
+            valueSelect.disabled = !isCreator;
+        }
+
+        async function handleSaveTask(e) {
+            e.preventDefault();
+            const taskId = document.getElementById('taskId').value;
+            
+            const isLeader = ['Trưởng ban', 'Cố Vấn', 'Chủ Tịch', 'Phó Chủ Tịch'].includes(currentUserData.departmentRole);
+            if (!isLeader && taskId) {
+                const newStatus = document.getElementById('taskStatus').value;
+                try {
+                    await updateDoc(doc(db, "tasks", taskId), { status: newStatus, updatedAt: serverTimestamp() });
+                    closeModal('taskModal');
+                } catch (error) { console.error(error); alert("Lỗi khi cập nhật trạng thái."); }
+                return;
+            }
+
+            const taskData = {
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                deadline: Timestamp.fromDate(new Date(document.getElementById('taskDeadline').value)),
+                priority: document.getElementById('taskPriority').value,
+                status: document.getElementById('taskStatus').value,
+                assignees: { type: document.getElementById('taskAssigneeType').value, value: document.getElementById('taskAssigneeValue').value },
+                updatedAt: serverTimestamp()
+            };
+            try {
+                if (taskId) {
+                    await updateDoc(doc(db, "tasks", taskId), taskData);
+                } else {
+                    taskData.createdAt = serverTimestamp();
+                    taskData.assignerId = currentUserId;
+                    taskData.department = currentUserData.department;
+                    await addDoc(collection(db, "tasks"), taskData);
+                }
+                closeModal('taskModal');
+            } catch (error) { console.error(error); alert("Lỗi khi lưu công việc."); }
+        }
+
+        async function handleDeleteTask() {
+            const taskId = document.getElementById('taskId').value;
+            if (!taskId) return;
+            showConfirmation("Xóa công việc này?", async () => {
+                try {
+                    await deleteDoc(doc(db, "tasks", taskId));
+                    closeModal('taskModal');
+                } catch (error) { console.error(error); alert("Lỗi khi xóa công việc."); }
             });
         }
         
+        // --- Drag & Drop ---
+        function handleDragStart(e) { e.dataTransfer.setData('text/plain', e.target.dataset.id); e.target.classList.add('dragging'); }
+        function handleDragOver(e) { e.preventDefault(); }
+        async function handleDrop(e) {
+            e.preventDefault();
+            const taskId = e.dataTransfer.getData('text/plain');
+            const newStatus = e.currentTarget.dataset.status;
+            const draggedElement = document.querySelector('.dragging');
+            if (draggedElement) draggedElement.classList.remove('dragging');
+            try {
+                await updateDoc(doc(db, "tasks", taskId), { status: newStatus });
+            } catch (error) { console.error("Error updating task status:", error); }
+        }
+
         // --- UI Event Listeners ---
         function setupEventListeners() {
             document.getElementById('sidebarToggle').addEventListener('click', () => {
                 const sidebar = document.getElementById('sidebar');
-                const mainContent = document.getElementById('main-content');
                 sidebar.classList.toggle('close');
-                if (sidebar.classList.contains('close')) {
-                    sidebar.style.width = '88px';
-                    mainContent.style.marginLeft = '88px';
-                } else {
-                    sidebar.style.width = '256px';
-                    mainContent.style.marginLeft = '256px';
-                }
+                document.getElementById('main-content').style.marginLeft = sidebar.classList.contains('close') ? '88px' : '256px';
             });
 
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active', 'bg-blue-50', 'text-blue-600'));
-                    link.classList.add('active', 'bg-blue-50', 'text-blue-600');
+                    document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active'));
+                    link.classList.add('active');
                     const targetId = link.getAttribute('href').substring(1);
                     document.querySelectorAll('.page-content').forEach(content => content.classList.remove('active'));
                     document.getElementById(targetId).classList.add('active');
@@ -324,49 +480,40 @@
                 });
             });
             
-            document.getElementById('logoutButton').addEventListener('click', (e) => {
-                e.preventDefault();
-                showConfirmation("Bạn có chắc chắn muốn đăng xuất?", () => {
-                    signOut(auth).catch(error => console.error("Sign out error:", error));
-                });
-            });
-
-            // [UPDATED] Event listener for collapsible user info
+            document.getElementById('logoutButton').addEventListener('click', (e) => { e.preventDefault(); showConfirmation("Bạn có chắc chắn muốn đăng xuất?", () => signOut(auth)); });
+            
             const userInfoToggle = document.getElementById('userInfoToggle');
             const userInfoContainer = document.getElementById('userInfoContainer');
-            const userInfoContentWrapper = userInfoContainer.children[0];
-            const userInfoIcon = userInfoToggle.querySelector('i');
-            const toggleText = document.getElementById('toggleText');
-
             userInfoToggle.addEventListener('click', () => {
                 const isOpening = userInfoContainer.style.maxHeight === '0px';
-                userInfoIcon.classList.toggle('rotate-180', isOpening);
-                toggleText.textContent = isOpening ? 'Thu gọn' : 'Xem chi tiết';
-                
-                if (isOpening) {
-                    userInfoContainer.style.maxHeight = userInfoContentWrapper.scrollHeight + 'px';
-                } else {
-                    userInfoContainer.style.maxHeight = '0px';
-                }
+                userInfoToggle.querySelector('i').classList.toggle('rotate-180', isOpening);
+                document.getElementById('toggleText').textContent = isOpening ? 'Thu gọn' : 'Xem chi tiết';
+                userInfoContainer.style.maxHeight = isOpening ? userInfoContainer.children[0].scrollHeight + 'px' : '0px';
+            });
+
+            // Modals & Forms
+            document.querySelectorAll('.modal-close').forEach(el => el.onclick = () => closeModal(el.dataset.modal));
+            document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal(null, true));
+            document.getElementById('taskForm').addEventListener('submit', handleSaveTask);
+            document.getElementById('deleteTaskBtn').addEventListener('click', handleDeleteTask);
+            document.getElementById('taskAssigneeType').addEventListener('change', () => updateAssigneeDropdowns(true));
+
+            // Kanban Drag & Drop
+            document.querySelectorAll('.kanban-column').forEach(column => {
+                column.addEventListener('dragover', handleDragOver);
+                column.addEventListener('drop', handleDrop);
             });
         }
         
         function showConfirmation(message, onConfirm) {
             const modal = document.getElementById('confirmationModal');
             document.getElementById('confirmationMessage').textContent = message;
-            
             const confirmBtn = document.getElementById('confirmOkBtn');
             const cancelBtn = document.getElementById('confirmCancelBtn');
-
-            const confirmHandler = () => {
-                onConfirm();
-                closeModal('confirmationModal');
-            };
+            const confirmHandler = () => { onConfirm(); closeModal('confirmationModal'); };
             const cancelHandler = () => closeModal('confirmationModal');
-            
             confirmBtn.addEventListener('click', confirmHandler, { once: true });
             cancelBtn.addEventListener('click', cancelHandler, { once: true });
-            
             openModal('confirmationModal');
         }
 
