@@ -6,18 +6,17 @@
     <title>Đăng ký Thành viên | F-Học Portal</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
 
         :root {
             --fpt-orange: #FF6600;
-            --primary-color: #4a69bd;
-            --text-dark: #343a40;
-            --background-color: #f0f2f5;
-            --card-background: rgba(255, 255, 255, 0.25);
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --border-color: rgba(255, 255, 255, 0.4);
-            --success-color: #2ecc71;
-            --red: #e74c3c;
+            --primary-color: #007bff; /* A brighter blue */
+            --text-dark: #212529;
+            --text-light: #6c757d;
+            --background-light: #f8f9fa;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --red: #dc3545;
         }
 
         *, *::before, *::after {
@@ -26,46 +25,34 @@
 
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            /* [CHANGE] Brighter, simpler background */
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
             margin: 0;
-            padding: 60px 20px;
+            /* [CHANGE] Adjusted padding for responsiveness */
+            padding: 40px 15px;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align to top to see form start */
+            align-items: flex-start;
             min-height: 100vh;
             color: var(--text-dark);
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
         .form-container {
-            background-color: var(--card-background);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 30px 40px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            /* [CHANGE] Solid white background for a cleaner look */
+            background-color: #ffffff;
+            /* [CHANGE] Removed glassmorphism effects */
+            padding: 30px;
+            border-radius: 16px;
+            /* [CHANGE] Softer, more modern shadow */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 800px;
             animation: fadeInDown 0.8s ease-out forwards;
         }
         
         @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .form-header {
@@ -87,25 +74,26 @@
         }
 
         .form-header h1 {
-            color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            /* [CHANGE] Dark color for readability */
+            color: var(--text-dark);
             font-size: 28px;
             margin-bottom: 5px;
         }
         
         .form-header p {
-            color: rgba(255,255,255,0.9);
+            /* [CHANGE] Lighter text color */
+            color: var(--text-light);
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
             font-weight: 600;
             margin-bottom: 8px;
-            color: #333;
+            color: var(--text-dark);
         }
 
         .form-group label .required {
@@ -122,8 +110,9 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 16px;
-            background-color: rgba(255, 255, 255, 0.5);
-            color: #333;
+            /* [CHANGE] Solid background for inputs */
+            background-color: var(--background-light);
+            color: var(--text-dark);
             transition: border-color 0.3s, box-shadow 0.3s;
         }
 
@@ -131,7 +120,8 @@
         .form-group textarea:focus {
             outline: none;
             border-color: var(--fpt-orange);
-            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.3);
+            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.25);
+            background-color: #fff;
         }
         
         .form-group textarea {
@@ -159,21 +149,30 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            background-color: rgba(255,255,255,0.4);
+            /* [CHANGE] Lighter background for radio buttons */
+            background-color: #fff;
             font-weight: 500;
+            color: var(--text-light);
         }
         
         .radio-group input[type="radio"]:checked + label {
             background-color: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
-            box-shadow: 0 4px 10px rgba(74, 105, 189, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
         }
 
         .input-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: 1fr; /* Default to single column for mobile */
             gap: 20px;
+        }
+
+        /* [ADD] Grid for larger screens */
+        @media (min-width: 600px) {
+            .input-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         .submit-btn {
@@ -229,7 +228,7 @@
             display: none;
             margin-top: 15px;
             padding: 15px;
-            background-color: rgba(248, 249, 250, 0.8);
+            background-color: var(--background-light);
             border-radius: 8px;
             border: 1px solid var(--border-color);
             animation: fadeIn 0.5s;
@@ -268,6 +267,18 @@
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        /* [ADD] Media query for mobile responsiveness */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
+            .form-container {
+                padding: 20px;
+            }
+            .form-header h1 {
+                font-size: 24px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -372,7 +383,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
         // Cấu hình Firebase của bạn
         const firebaseConfig = {
@@ -407,28 +418,10 @@
             e.preventDefault();
             submitButton.classList.add('loading');
             
+            // [ĐÃ SỬA LỖI] Xóa bỏ các đoạn code dùng getDocs để kiểm tra email.
+            // Người dùng sẽ gửi thẳng đơn và BCN/Mentor sẽ là người kiểm tra khi duyệt.
+            
             const email = document.getElementById('email').value.trim();
-            
-            // Kiểm tra xem email đã tồn tại trong đơn đăng ký chưa
-            const appQuery = query(collection(db, "applications"), where("email", "==", email));
-            const appSnapshot = await getDocs(appQuery);
-
-            if (!appSnapshot.empty) {
-                alert("Email này đã được sử dụng để đăng ký. Vui lòng chờ duyệt hoặc sử dụng email khác.");
-                submitButton.classList.remove('loading');
-                return;
-            }
-            
-            // Kiểm tra xem email đã là thành viên chưa
-            const userQuery = query(collection(db, "users"), where("email", "==", email));
-            const userSnapshot = await getDocs(userQuery);
-
-            if (!userSnapshot.empty) {
-                alert("Email này đã là thành viên của CLB. Vui lòng đăng nhập.");
-                submitButton.classList.remove('loading');
-                return;
-            }
-
             const department = document.querySelector('input[name="department"]:checked').value;
 
             const formData = {
@@ -450,12 +443,14 @@
             };
 
             try {
+                // Chỉ thực hiện ghi dữ liệu, không đọc
                 await addDoc(collection(db, "applications"), formData);
                 document.getElementById('registrationForm').style.display = 'none';
                 document.getElementById('successMessage').style.display = 'block';
             } catch (error) {
                 console.error("Error adding document: ", error);
-                alert("Đã xảy ra lỗi. Vui lòng thử lại.");
+                // Hiển thị lại lỗi nếu có vấn đề với quy tắc GHI (thay vì lỗi ĐỌC như trước)
+                alert("Đã xảy ra lỗi khi gửi đơn. Vui lòng thử lại. Lỗi: " + error.message);
             } finally {
                  submitButton.classList.remove('loading');
             }
