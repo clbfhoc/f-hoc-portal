@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Mentor | F-Học Portal 3.0</title>
+    <title>Trang Ban Chủ Nhiệm | F-Học Portal 3.0</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://i.ibb.co/ycSx4Q3D/F-H-c-PORTAL-1.png">
     <!-- Tailwind CSS CDN -->
@@ -184,8 +184,8 @@
                     <h1 id="headerTitle" class="text-2xl font-bold text-slate-800">Tổng quan</h1>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span id="userName" class="font-semibold text-slate-700">Mentor</span>
-                    <img id="userAvatar" src="https://placehold.co/48x48/f0f3ff/4a69bd?text=M" alt="Avatar" class="w-12 h-12 rounded-md object-cover">
+                    <span id="userName" class="font-semibold text-slate-700">BCN</span>
+                    <img id="userAvatar" src="https://placehold.co/48x48/f0f3ff/4a69bd?text=B" alt="Avatar" class="w-12 h-12 rounded-md object-cover">
                 </div>
             </header>
 
@@ -389,13 +389,15 @@
                 const userDocRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(userDocRef);
                 
-                if (docSnap.exists() && docSnap.data().role === 'mentor') {
-                    currentUserRole = 'mentor';
+                // [FIXED] Changed role check from 'mentor' to 'bcn'
+                if (docSnap.exists() && docSnap.data().role === 'bcn') {
+                    currentUserRole = 'bcn';
                     initializePage(user);
                 } else {
                     alert("Bạn không có quyền truy cập trang này.");
                     const userRole = docSnap.exists() ? docSnap.data().role : 'unknown';
-                    if(userRole === 'bcn') window.location.href = './banchunhiem.html';
+                    // [FIXED] Corrected redirect logic for wrong roles
+                    if(userRole === 'mentor') window.location.href = './admin.html';
                     else if(userRole === 'member') window.location.href = './member.html';
                     else window.location.href = './index.html';
                 }
@@ -409,7 +411,7 @@
             document.getElementById('loader').style.display = 'none';
             document.getElementById('main-interface').classList.remove('hidden');
             
-            document.getElementById('userName').textContent = user.displayName || 'Mentor';
+            document.getElementById('userName').textContent = user.displayName || 'Ban Chủ Nhiệm';
             if(user.photoURL) document.getElementById('userAvatar').src = user.photoURL;
             
             listenForApplications();
@@ -656,7 +658,26 @@
                 const [userSnapshot, invSnapshot] = await Promise.all([getDocs(userQuery), getDocs(invQuery)]);
                 if (!userSnapshot.empty) return alert("Email này đã là thành viên!");
                 if (!invSnapshot.empty) return alert("Email này đã được mời!");
-                await setDoc(doc(db, "invitations", email), { displayName, role, email, createdAt: serverTimestamp() });
+                
+                // [FIXED] Add more fields to the invitation for data consistency
+                const invitationData = {
+                    displayName,
+                    role,
+                    email,
+                    createdAt: serverTimestamp(),
+                    department: "",
+                    departmentRole: role === 'member' ? "Thành viên" : "",
+                    class: "",
+                    studentId: "",
+                    phone: "",
+                    dorm: "",
+                    facebookUrl: "",
+                    homeroomTeacher: "",
+                    managingTeacher: "",
+                    notes: "Thành viên được mời thủ công."
+                };
+                await setDoc(doc(db, "invitations", email), invitationData);
+                
                 alert("Thêm lời mời thành công.");
                 closeModal('addMemberModal');
             } catch (error) { console.error(error); alert("Lỗi khi thêm lời mời."); }
