@@ -656,7 +656,26 @@
                 const [userSnapshot, invSnapshot] = await Promise.all([getDocs(userQuery), getDocs(invQuery)]);
                 if (!userSnapshot.empty) return alert("Email này đã là thành viên!");
                 if (!invSnapshot.empty) return alert("Email này đã được mời!");
-                await setDoc(doc(db, "invitations", email), { displayName, role, email, createdAt: serverTimestamp() });
+
+                // [FIXED] Add more fields to the invitation for data consistency
+                const invitationData = {
+                    displayName,
+                    role,
+                    email,
+                    createdAt: serverTimestamp(),
+                    department: "",
+                    departmentRole: role === 'member' ? "Thành viên" : "",
+                    class: "",
+                    studentId: "",
+                    phone: "",
+                    dorm: "",
+                    facebookUrl: "",
+                    homeroomTeacher: "",
+                    managingTeacher: "",
+                    notes: "Thành viên được mời thủ công."
+                };
+                await setDoc(doc(db, "invitations", email), invitationData);
+
                 alert("Thêm lời mời thành công.");
                 closeModal('addMemberModal');
             } catch (error) { console.error(error); alert("Lỗi khi thêm lời mời."); }
